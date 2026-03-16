@@ -1,0 +1,20 @@
+# Sistema de Gestión de Documentación (DMS)
+# Dependencias principales
+
+# Procesamiento de Markdown (opcional, para mejor renderizado)
+# markdown>=3.4.0
+
+# Exportación a PDF (opcional)
+# reportlab>=4.0.0
+# weasyprint>=60.0
+
+# Testing (opcional, para desarrollo)
+# pytest>=7.4.0
+# pytest-cov>=4.1.0
+
+# Formateo de código (opcional, para desarrollo)
+# black>=23.0.0
+# flake8>=6.0.0
+
+# Nota: El sistema funciona sin dependencias adicionales
+# Las librerías marcadas como opcionales mejoran funcionalidades específicas

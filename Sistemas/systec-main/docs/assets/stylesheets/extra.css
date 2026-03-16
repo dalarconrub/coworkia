@@ -1,0 +1,85 @@
+/* Logo más grande en la cabecera - centrado y prominente */
+.md-header__button.md-logo {
+    padding: 0.5rem 1.5rem !important;
+    margin: 0 !important;
+    position: absolute !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    z-index: 10 !important;
+    width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: default !important;
+    pointer-events: none !important;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+    height: 10rem !important;
+    width: auto !important;
+    max-width: none !important;
+    display: block !important;
+    margin: 0 !important;
+    object-fit: contain !important;
+    pointer-events: none !important;
+}
+
+/* Ocultar completamente el texto del título en la cabecera */
+.md-header__title,
+.md-header__title * {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+.md-header__topic,
+.md-header__topic * {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+}
+
+.md-header__inner {
+    justify-content: center !important;
+    position: relative !important;
+    padding: 0 !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* Asegurar que el logo tenga espacio suficiente */
+.md-header {
+    height: auto !important;
+    min-height: 11rem !important;
+    padding: 1rem 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: relative !important;
+}
+
+/* Ocultar cualquier texto que pueda aparecer */
+.md-header__ellipsis,
+.md-header__ellipsis * {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* Asegurar que el logo esté visible y centrado */
+.md-header__button:not(.md-logo) {
+    margin: 0 !important;
+}
+
+/* Forzar que no haya texto junto al logo */
+.md-header__title:after,
+.md-header__topic:after {
+    content: "" !important;
+    display: none !important;
+}

@@ -1,0 +1,26 @@
+{
+  "sistema": {
+    "nombre": "Sistema de Gestión de Documentación",
+    "version": "1.0.0",
+    "base_path": "documents"
+  },
+  "almacenamiento": {
+    "tipo": "filesystem",
+    "comprimir_versiones_antiguas": false,
+    "dias_retencion_versiones": 365
+  },
+  "busqueda": {
+    "indice_en_memoria": true,
+    "cache_resultados": true,
+    "tiempo_cache_segundos": 300
+  },
+  "exportacion": {
+    "formatos_soportados": ["html", "pdf", "txt"],
+    "directorio_exportacion": "exports"
+  },
+  "seguridad": {
+    "validar_entrada": true,
+    "sanitizar_nombres": true,
+    "max_tamano_archivo_mb": 10
+  }
+}

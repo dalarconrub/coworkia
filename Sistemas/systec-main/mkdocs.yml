@@ -1,0 +1,106 @@
+site_name: " "
+site_description: Meta-Acción-Resultado / Goal-Action-Outcome - Sistema de Productividad
+site_author: dalarconrub
+site_url: https://systec.netlify.app/
+repo_url: https://github.com/dalarconrub/systec
+repo_name: dalarconrub/systec
+
+# Directorio donde están los archivos markdown (por defecto es 'docs')
+docs_dir: docs
+
+# Directorio donde se genera el sitio (por defecto es 'site')
+site_dir: site
+
+use_directory_urls: true
+
+theme:
+  name: material
+  logo: assets/images/systec-logo.png
+  favicon: assets/images/systec-logo.png
+  custom_dir: docs/assets
+  extra_css:
+    - stylesheets/extra.css
+  extra_javascript:
+    - javascripts/logo.js
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.indexes
+    - search.suggest
+    - search.highlight
+    - content.code.annotate
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+
+nav:
+  - Inicio: index.md
+  - Documentación:
+    - Documentación: docs.md
+    - Filosofía del sistema: 00-filosofia-del-sistema.md
+    - Tablas canónicas: 01-tablas-canonicas.md
+    - Canvas árbol de decisión: 02-canvas-arbol-decision.md
+    - Casos de uso: 03-casos-de-uso.md
+    - Flujo de uso: 04-flujo-de-uso.md
+  - Modelo:
+    - Modelo: model/model.md
+    - Modelo conceptual: model/01-modelo-conceptual.md
+    - Árbol de decisión: model/02-arbol-decision.md
+    - Reglas de modelado: model/03-reglas-modelado.md
+    - Filtros Todoist: model/04-filtros-todoist.md
+    - Casos ejemplo: model/05-casos-ejemplo.md
+    - Uso diario: model/06-uso-diario.md
+    - Etiquetas de recurrencia: model/07-etiquetas-recurrencia.md
+    - Etiquetas operativas: model/08-etiquetas-operativas.md
+    - Canvas recurrencias: model/09-mar-canvas-recurrencias.md
+    - Precedencia etiquetas: model/10-precedencia-etiquetas.md
+    - Filtros temporales: model/11-filtros-temporales.md
+    - Filtros operativos: model/12-filtros-operativos.md
+    - Migración a Notion: model/13-migracion-notion.md
+    - Timeboxing bidimensional (MAR/GAO): model/14-timeboxing-bidimensional.md
+    - Identidad visual MAR: model/15-identidad-visual-mar.md
+    - Sistema total MAR: model/16-sistema-total-mar.md
+    - Dashboard MAR: model/17-dashboard-mar.md
+    - Plantillas MAR: model/18-plantillas-mar.md
+    - Exportables MAR: model/19-exportables-mar.md
+    - Clasificación de Metas: model/20-clasificacion-metas.md
+
+copyright: Copyright &copy; 2025 dalarconrub
