@@ -77,10 +77,14 @@ def fetch_project_tasks(project_id: str) -> list[dict]:
 
 def extract_url(content: str) -> str:
     m = re.search(r'\]\((https?://[^\)]+)\)', content)
-    if m:
-        return m.group(1)
-    m = re.search(r'https?://\S+', content)
-    return m.group(0) if m else ""
+    url = m.group(1) if m else ""
+    if not url:
+        m = re.search(r'https?://\S+', content)
+        url = m.group(0) if m else ""
+    # Notion rechaza URLs con espacios o caracteres de control
+    if url and any(c in url for c in (' ', '\n', '\t', '\r')):
+        url = url.split()[0]  # truncar en el primer espacio
+    return url
 
 
 def clean_title(content: str) -> str:
@@ -137,7 +141,9 @@ def main(parent_id: str, proyectos: list[str], dry_run: bool):
         print("Creando BACK-Todoist en Notion...")
         db = create_database(parent_id, "BACK-Todoist", SCHEMA)
         db_id = db["id"]
-        print(f"  ✓ {db_id}\n")
+        props_creadas = list(db.get("properties", {}).keys())
+        print(f"  ✓ {db_id}")
+        print(f"  Props en DB: {props_creadas}\n")
     else:
         db_id = "DRY-RUN"
         print("(Dry run — no se escribe en Notion)\n")
@@ -158,7 +164,14 @@ def main(parent_id: str, proyectos: list[str], dry_run: bool):
                     print(f"  {i}/{len(tareas)}...")
             except Exception as e:
                 total_err += 1
-                print(f"  ✗ {t.get('content','')[:40]}: {e}")
+                detail = ""
+                if hasattr(e, "response") and e.response is not None:
+                    try:
+                        body = e.response.json()
+                        detail = f" [{body.get('code','')}] {body.get('message','')[:150]}"
+                    except Exception:
+                        detail = f" {e.response.text[:150]}"
+                print(f"  ✗ {t.get('content','')[:40]}: {e}{detail}")
         print(f"  ✓ {len(tareas)} procesadas")
 
     print(f"\n{'─'*50}")

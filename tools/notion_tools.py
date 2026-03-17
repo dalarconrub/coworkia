@@ -12,7 +12,7 @@ load_dotenv()
 
 NOTION_TOKEN = os.getenv("NOTION_TOKEN")
 BASE_URL = "https://api.notion.com/v1"
-NOTION_VERSION = "2025-09-03"  # versión con soporte multi-source
+NOTION_VERSION = "2022-06-28"  # versión estable documentada
 
 
 def _headers() -> dict:
