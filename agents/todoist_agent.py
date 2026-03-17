@@ -8,6 +8,7 @@ respetando la clasificación temporal: Idea, Meta, Hábito, Tarea, Evento.
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.stdout.reconfigure(encoding="utf-8")
 
 from tools.todoist_tools import (
     get_tasks,

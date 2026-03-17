@@ -1,0 +1,90 @@
+# Notion PTN Agent — Guía de uso
+
+Agente para el sistema **PTN (Proyectos-Tareas-Notas)** en Notion.
+
+## Data Sources
+
+| Nombre | ID | Contenido |
+|--------|----|-----------|
+| PTN-Proyectos | `27c622cf-315b-8021-87bd-000b9fbe99d3` | Proyectos activos |
+| PTN-Tareas | `27c622cf-315b-80c8-9fdd-000bd097774d` | Tareas vinculadas a proyectos |
+| PTN-Notas | `27c622cf-315b-80cb-a8b3-000beaa40e29` | Notas de seguimiento |
+
+---
+
+## Comandos
+
+### Consultas
+
+```bash
+# Estado general del sistema PTN
+python agents/notion_agent.py estado
+
+# Todos los recursos Notion accesibles
+python agents/notion_agent.py recursos
+
+# Listar proyectos (todos o filtrados por estado)
+python agents/notion_agent.py proyectos
+python agents/notion_agent.py proyectos --estado "En progreso"
+python agents/notion_agent.py proyectos --estado "Sin empezar"
+
+# Listar tareas
+python agents/notion_agent.py tareas
+python agents/notion_agent.py tareas --estado "En progreso"
+python agents/notion_agent.py tareas --tipo "Investigación"
+
+# Listar notas
+python agents/notion_agent.py notas
+python agents/notion_agent.py notas --estado "Activo"
+
+# Inspeccionar schema de un data source
+python agents/notion_agent.py db 27c622cf-315b-8021-87bd-000b9fbe99d3
+```
+
+### Crear
+
+```bash
+# Nuevo proyecto
+python agents/notion_agent.py nuevo-proyecto "Estudio neuropsicológico 2026"
+python agents/notion_agent.py nuevo-proyecto "Paper revisión" \
+  --estado "En progreso" \
+  --prioridad "Alta" \
+  --inicio 2026-03-01 \
+  --limite 2026-06-30
+
+# Nueva tarea
+python agents/notion_agent.py nueva-tarea "Revisar bibliografía"
+python agents/notion_agent.py nueva-tarea "Análisis estadístico" \
+  --estado "Sin empezar" \
+  --tipo "Investigación" \
+  --prioridad "Alta" \
+  --plazo 2026-04-15 \
+  --proyecto <ID_del_proyecto>
+
+# Nueva nota
+python agents/notion_agent.py nueva-nota "Reunión con Enrique"
+python agents/notion_agent.py nueva-nota "Sesión de trabajo" \
+  --fecha 2026-03-16 \
+  --proyecto <ID_del_proyecto>
+```
+
+---
+
+## Propiedades por data source
+
+### PTN-Proyectos
+`Nombre del Proyecto` · `Estado` · `Prioridad` · `Progreso` · `Fecha de inicio` · `Fecha límite` · `Equipo` · `Descripción` · `Etiquetas` · `URL` · `PLAN` · `Responsable`
+
+### PTN-Tareas
+`Nombre de la tarea` · `Estado` · `Tipo de tarea` · `Prioridad` · `Nivel de esfuerzo` · `Plazo` · `Proyectos` · `Descripción` · `Etiquetas` · `Responsable` · `Última actualización`
+
+### PTN-Notas
+`Título` · `Estado` · `Estado de Progreso` · `Prioridad` · `Fecha` · `Fecha de Vencimiento` · `Proyecto` · `Próximos Pasos` · `Obstáculos` · `Tiempo Dedicado` · `Descripción` · `Etiquetas`
+
+---
+
+## API usada
+
+- **Notion API v2025-09-03** (multi-source databases)
+- Token en `.env` → `NOTION_TOKEN`
+- IDs en `.env` → `NOTION_DS_PROYECTOS`, `NOTION_DS_TAREAS`, `NOTION_DS_NOTAS`

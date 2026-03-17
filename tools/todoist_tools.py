@@ -11,7 +11,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TODOIST_API_KEY = os.getenv("TODOIST_API_KEY")
-BASE_URL = "https://api.todoist.com/rest/v2"
+BASE_URL = "https://api.todoist.com/api/v1"
+
+# Proyectos excluidos de todas las consultas (Z-*)
+PROYECTOS_EXCLUIDOS: set[str] = {
+    "6Mv5F76GQq3p699F",  # Z-INBOX
+    "6JM9X2GhWRgR9M7v",  # Z-TRASH
+    "6QR2xC8R9QjQgjqx",  # Z-INBOXS
+    "6H3rFRr2HMhXxhXC",  # Z-B01_TODOITS
+    "6MxJ3VRPhPP8FqW3",  # Z-LIB
+}
 
 
 def _headers() -> dict:
@@ -21,16 +30,27 @@ def _headers() -> dict:
 # ─── TAREAS ───────────────────────────────────────────────────────────────────
 
 def get_tasks(filter_str: str = None, project_id: str = None) -> list[dict]:
-    """Obtiene tareas. Puede usar filtros en sintaxis Todoist."""
-    params = {}
+    """Obtiene tareas con paginación completa. Puede usar filtros en sintaxis Todoist."""
+    params = {"limit": 200}
     if filter_str:
         params["filter"] = filter_str
     if project_id:
         params["project_id"] = project_id
 
-    resp = requests.get(f"{BASE_URL}/tasks", headers=_headers(), params=params)
-    resp.raise_for_status()
-    return resp.json()
+    tareas = []
+    while True:
+        resp = requests.get(f"{BASE_URL}/tasks", headers=_headers(), params=params)
+        resp.raise_for_status()
+        data = resp.json()
+        batch = data["results"] if isinstance(data, dict) and "results" in data else data
+        tareas.extend(batch)
+        cursor = data.get("next_cursor") if isinstance(data, dict) else None
+        if not cursor:
+            break
+        params["cursor"] = cursor
+
+    # Filtro por ID como salvaguarda por si algún proyecto Z- no tiene prefijo "Z-"
+    return [t for t in tareas if t.get("project_id") not in PROYECTOS_EXCLUIDOS]
 
 
 def create_task(
@@ -111,7 +131,10 @@ def get_projects() -> list[dict]:
     """Obtiene todos los proyectos."""
     resp = requests.get(f"{BASE_URL}/projects", headers=_headers())
     resp.raise_for_status()
-    return resp.json()
+    data = resp.json()
+    if isinstance(data, dict) and "results" in data:
+        return data["results"]
+    return data
 
 
 def get_project(project_id: str) -> dict:
@@ -132,11 +155,11 @@ MAR_FILTERS = {
 }
 
 HORIZON_FILTERS = {
-    "hoy":    "(!#Z-* & !search:*) & (overdue | due before: +1 day)",
-    "1dia":   "(!#Z-* & !search:*) & due after: yesterday & due before: +2day",
-    "1semana":"(!#Z-* & !search:*) & due after: today & due before: +7day",
-    "1mes":   "(!#Z-* & !search:*) & (due after: +7 days & due before: +30 days)",
-    "1año":   "(!#Z-* & !search:*) & (due after: +30 days & due before: +365 days)",
+    "hoy":    "overdue | due before: +1 day",
+    "1dia":   "due after: yesterday & due before: +2day",
+    "1semana":"due after: today & due before: +7day",
+    "1mes":   "due after: +7 days & due before: +30 days",
+    "1año":   "due after: +30 days & due before: +365 days",
 }
 
 

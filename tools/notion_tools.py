@@ -172,6 +172,35 @@ def query_data_source(data_source_id: str, filter_obj: dict = None, sorts: list 
     return resp.json().get("results", [])
 
 
+# ─── BASES DE DATOS ───────────────────────────────────────────────────────────
+
+def create_database(parent_page_id: str, title: str, properties: dict) -> dict:
+    """
+    Crea una base de datos en Notion como hija de una página.
+    properties: dict con el schema de la base, ej:
+        {"Nombre": {"title": {}}, "URL": {"url": {}}, ...}
+    """
+    data = {
+        "parent": {"type": "page_id", "page_id": parent_page_id},
+        "title": [{"type": "text", "text": {"content": title}}],
+        "properties": properties,
+    }
+    resp = requests.post(f"{BASE_URL}/databases", headers=_headers(), json=data)
+    resp.raise_for_status()
+    return resp.json()
+
+
+def add_page_to_database(database_id: str, properties: dict) -> dict:
+    """Añade una fila a una base de datos existente."""
+    data = {
+        "parent": {"database_id": database_id},
+        "properties": properties,
+    }
+    resp = requests.post(f"{BASE_URL}/pages", headers=_headers(), json=data)
+    resp.raise_for_status()
+    return resp.json()
+
+
 # ─── PÁGINAS ──────────────────────────────────────────────────────────────────
 
 def get_page(page_id: str) -> dict:
