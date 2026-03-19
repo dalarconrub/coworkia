@@ -2,7 +2,7 @@
 
 ## Qué es este proyecto
 
-Sistema multi-agente IA para gestión personal integrado con el sistema MAR+ABGD de David.
+Sistema multi-agente IA para gestión personal integrado con los sistemas MAR+ABGD+PTN+KIT+REP de David.
 
 Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa, se clasifica.
 
@@ -10,11 +10,16 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 
 ## Herramientas del usuario
 
-| Herramienta | Propósito | Sistema |
-|-------------|-----------|---------|
-| Todoist     | Tareas    | MAR (Meta-Acción-Resultado) |
-| Notion      | Proyectos | — |
-| Obsidian    | Documentos | ABGD (Alpha/Beta/Delta/Gamma) |
+| Herramienta | Propósito | Sistema | Agente |
+|-------------|-----------|---------|--------|
+| Todoist     | Tareas    | MAR (Meta-Acción-Resultado) | `todoist_agent.py` |
+| Notion      | Proyectos | PTN (Proyectos-Tareas-Notas) | `notion_agent.py` |
+| Notion      | Conocimiento | KIT (Knowledge-Information-Tools) | `kit_agent.py` |
+| Notion      | Repositorios | REP (Repositorios GitHub) | `github_agent.py` |
+| Notion      | Bibliografía | BIB (Bibliografía Paperpile) | `bib_agent.py` |
+| Obsidian    | Documentos | ABGD (Alpha/Beta/Delta/Gamma) | `obsidian_agent.py` |
+| GitHub      | Código    | Fuente de repos para REP | `github_agent.py` |
+| Paperpile   | Papers    | Fuente de papers para BIB | `bib_agent.py` |
 
 ---
 
@@ -69,26 +74,127 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 
 ---
 
+## Sistema REP — Catálogo de repositorios GitHub en Notion
+
+**Principio:** Cada repositorio se cataloga con su tipo, estado, proceso y cadena de versiones.
+
+### Propiedades de la BD `REP-Repositorios`
+
+| Propiedad | Tipo | Descripción |
+|-----------|------|-------------|
+| Nombre | title | Nombre del repo |
+| Estado | select | Activo / WIP / Archivado / Deprecado / Pausado |
+| Tipo | select | Proyecto / Librería / Fork / Ejercicio / Config / Template / Script |
+| Lenguajes | multi_select | Detectados por GitHub |
+| Etiquetas | multi_select | Topics de GitHub + manuales |
+| Versión de | select | Repo del que es versión mejorada |
+| Proceso | select | Flujo/grupo al que pertenece |
+| Visibilidad | select | Público / Privado |
+| Creado | date | Fecha de creación |
+| Última actividad | date | Último push |
+
+### Flujo de trabajo
+
+1. `python agents/github_agent.py importar` — trae repos nuevos de GitHub
+2. `python agents/github_agent.py sincronizar` — actualiza metadata
+3. `python agents/github_agent.py catalogar <repo> --tipo X --proceso Y` — clasifica
+4. `python apps/github_gui.py` — interfaz gráfica para explorar y catalogar
+
+---
+
+## Sistema BIB — Catálogo bibliográfico de Paperpile en Notion
+
+**Principio:** Cada paper se importa automáticamente desde Paperpile y se enriquece con estado de lectura, relevancia y notas.
+
+**Fuente de datos:** URL de Automatic BibTeX Export de Paperpile (sin API oficial).
+
+### Propiedades de la BD `BIB-Bibliografía`
+
+| Propiedad | Tipo | Descripción |
+|-----------|------|-------------|
+| Título | title | Título del paper |
+| Autores | rich_text | Lista de autores |
+| Año | number | Año de publicación |
+| Tipo | select | Artículo / Libro / Conferencia / Tesis / etc. |
+| Journal | rich_text | Revista o conferencia |
+| DOI | url | Enlace DOI |
+| Keywords | multi_select | Palabras clave del paper |
+| Carpeta | select | Carpeta de Paperpile |
+| Etiquetas | multi_select | Labels de Paperpile + manuales |
+| Estado | select | Por leer / En proceso / Leído / Revisado / Descartado |
+| Relevancia | select | Alta / Media / Baja |
+| Notas | rich_text | Notas manuales |
+
+### Flujo de trabajo
+
+1. `python agents/bib_agent.py importar` — trae papers nuevos de Paperpile
+2. `python agents/bib_agent.py sincronizar` — actualiza existentes + nuevos
+3. `python agents/bib_agent.py catalogar <citekey> --estado Leído --relevancia Alta`
+4. `python apps/bib_gui.py` — interfaz gráfica para explorar y catalogar
+
+---
+
 ## Estructura del proyecto
 
 ```
 coworkia/
 ├── .env                    ← API keys (NO al repo)
 ├── CLAUDE.md               ← este archivo
+├── requirements.txt        ← dependencias Python
 ├── Sistemas/               ← documentación de referencia de los sistemas
 ├── agents/
-│   ├── orchestrator.py     ← orquestador principal
 │   ├── todoist_agent.py    ← agente MAR/Todoist
-│   ├── notion_agent.py     ← agente Notion
+│   ├── notion_agent.py     ← agente PTN/Notion
+│   ├── kit_agent.py        ← agente KIT/Notion
+│   ├── github_agent.py     ← agente REP/GitHub→Notion
+│   ├── bib_agent.py        ← agente BIB/Paperpile→Notion
 │   └── obsidian_agent.py   ← agente ABGD/Obsidian
 ├── tools/
-│   ├── todoist_tools.py    ← wrappers API Todoist REST v2
-│   ├── notion_tools.py     ← wrappers API Notion
+│   ├── todoist_tools.py    ← wrappers API Todoist REST v1
+│   ├── notion_tools.py     ← wrappers API Notion v2022-06-28
+│   ├── github_tools.py     ← wrappers API GitHub REST v3
+│   ├── paperpile_tools.py  ← parser BibTeX de Paperpile
 │   └── obsidian_tools.py   ← lectura/escritura vault local
-└── context/
-    ├── mar_rules.py        ← lógica de clasificación MAR
-    └── abgd_map.py         ← mapa Área/Bloque/Contexto
+├── apps/
+│   ├── github_gui.py       ← GUI para el sistema REP
+│   ├── bib_gui.py          ← GUI para el sistema BIB
+│   ├── catalogar_repos.py  ← catalogación masiva de repos
+│   ├── dashboard.py        ← dashboard MAR/Todoist
+│   ├── export_zinbox.py    ← exportar Z-INBOX
+│   ├── backs_todoist.py    ← backup Todoist
+│   ├── backs_notion.py     ← backup Notion
+│   └── backs_obsidian.py   ← backup Obsidian
+└── docs/
+    ├── todoist-agent.md    ← guía agente MAR
+    ├── notion-ptn-agent.md ← guía agente PTN
+    ├── notion-kit-agent.md ← guía agente KIT
+    ├── github-rep-agent.md ← guía agente REP
+    ├── bib-agent.md        ← guía agente BIB
+    └── obsidian-agent.md   ← guía agente ABGD
 ```
+
+---
+
+## Variables de entorno (`.env`)
+
+| Variable | Servicio | Descripción |
+|----------|----------|-------------|
+| `TODOIST_API_KEY` | Todoist | Token API v1 |
+| `NOTION_TOKEN` | Notion | Token de integración |
+| `NOTION_DS_PROYECTOS` | Notion | Data source PTN-Proyectos |
+| `NOTION_DS_TAREAS` | Notion | Data source PTN-Tareas |
+| `NOTION_DS_NOTAS` | Notion | Data source PTN-Notas |
+| `NOTION_DS_KIT_KNOWLEDGE` | Notion | Data source KIT-Knowledge |
+| `NOTION_DS_KIT_INFORMATION` | Notion | Data source KIT-Information |
+| `NOTION_DS_KIT_TOOLS` | Notion | Data source KIT-Tools |
+| `GITHUB_TOKEN` | GitHub | Token clásico (scope `repo`) |
+| `NOTION_REPOS_PARENT_PAGE` | Notion | Página padre de REP-Repositorios |
+| `NOTION_DB_REPOS` | Notion | ID de la BD REP-Repositorios |
+| `PAPERPILE_BIBTEX_URL` | Paperpile | URL de Automatic BibTeX Export |
+| `NOTION_BIB_PARENT_PAGE` | Notion | Página padre de BIB-Bibliografía |
+| `NOTION_DB_BIB` | Notion | ID de la BD BIB-Bibliografía |
+| `OBSIDIAN_ABGD_ROOT` | Obsidian | Ruta raíz del vault ABGD |
+| `OBSIDIAN_ALPHA_PATH` | Obsidian | Ruta a la carpeta Alpha |
 
 ---
 
@@ -96,6 +202,7 @@ coworkia/
 
 - Python 3.10+
 - Variables de entorno via `python-dotenv`
-- Anthropic SDK para los agentes IA
-- API Todoist REST v2: `https://api.todoist.com/rest/v2/`
+- Anthropic SDK para los agentes IA (pendiente de integración)
+- APIs: Todoist REST v1, Notion v2022-06-28, GitHub REST v3, Paperpile (BibTeX export)
+- Cada agente tiene CLI con argparse y puede usarse de forma independiente
 - Sin frameworks innecesarios — código directo y legible
