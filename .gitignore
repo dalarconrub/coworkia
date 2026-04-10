@@ -17,6 +17,7 @@ build/
 # Logs
 *.log
 logs/
+artifacts/sprints/*.md
 
 # OS
 .DS_Store
