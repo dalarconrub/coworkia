@@ -6,9 +6,13 @@ Documentación: https://developers.notion.com/reference
 
 import os
 import requests
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except Exception:
+    load_dotenv = None
 
-load_dotenv()
+if load_dotenv is not None:
+    load_dotenv()
 
 NOTION_TOKEN = os.getenv("NOTION_TOKEN")
 BASE_URL = "https://api.notion.com/v1"

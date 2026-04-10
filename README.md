@@ -78,12 +78,14 @@ Diagnóstico rápido:
 
 ```bash
 python apps/config_doctor.py
+python apps/notion_doctor.py
 ```
 
 En Windows también puedes usar:
 
 ```bat
 apps\config_doctor.bat
+apps\notion_doctor.bat
 ```
 
 ## Uso Rápido
@@ -103,11 +105,18 @@ CLI:
 python agents/todoist_agent.py hoy
 python agents/todoist_agent.py estado
 python agents/todoist_agent.py listar meta
+python agents/todoist_agent.py proyectos
+python agents/todoist_agent.py buscar "tesis"
+python agents/todoist_agent.py ver <TASK_ID>
 python agents/todoist_agent.py idea "Idea sin fecha"
 python agents/todoist_agent.py meta "Entregar memoria" 2026-04-15
 python agents/todoist_agent.py habito "Leer 20 minutos" "every day"
 python agents/todoist_agent.py tarea "Preparar informe" 2026-04-20
 python agents/todoist_agent.py evento "Reunión" 2026-04-15T10:00:00
+python agents/todoist_agent.py completar <TASK_ID>
+python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>
+python agents/todoist_agent.py editar <TASK_ID> --due-date 2026-04-15
+python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T10:00:00
 ```
 
 ### PTN / Notion
@@ -212,6 +221,7 @@ python apps/backs_obsidian.py --parent <NOTION_PAGE_ID>
 python apps/export_zinbox.py --parent <NOTION_PAGE_ID>
 python apps/project_hub_gui.py
 python apps/config_doctor.py
+python apps/notion_doctor.py
 ```
 
 ## Arranque En Windows
@@ -220,6 +230,7 @@ Accesos principales:
 
 - `apps/setup_venv.bat`: crea `.venv` e instala dependencias.
 - `apps/config_doctor.bat`: comprueba `.env` y rutas locales.
+- `apps/notion_doctor.bat`: valida el acceso a Notion y lista recursos visibles para localizar IDs.
 - `apps/project_hub_gui.bat`: arranca el hub con el `venv`.
 - `INICIAR_COWORKIA.bat`: arranque desde la raíz del repo.
 
