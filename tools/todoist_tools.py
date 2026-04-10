@@ -32,14 +32,16 @@ def _headers() -> dict:
 def get_tasks(filter_str: str = None, project_id: str = None) -> list[dict]:
     """Obtiene tareas con paginación completa. Puede usar filtros en sintaxis Todoist."""
     params = {"limit": 200}
+    endpoint = f"{BASE_URL}/tasks"
     if filter_str:
-        params["filter"] = filter_str
-    if project_id:
+        endpoint = f"{BASE_URL}/tasks/filter"
+        params["query"] = filter_str
+    elif project_id:
         params["project_id"] = project_id
 
     tareas = []
     while True:
-        resp = requests.get(f"{BASE_URL}/tasks", headers=_headers(), params=params)
+        resp = requests.get(endpoint, headers=_headers(), params=params)
         resp.raise_for_status()
         data = resp.json()
         batch = data["results"] if isinstance(data, dict) and "results" in data else data
@@ -111,11 +113,39 @@ def update_task(task_id: str, **kwargs) -> dict:
     return resp.json()
 
 
+def get_task(task_id: str) -> dict:
+    """Obtiene una tarea activa por ID."""
+    resp = requests.get(f"{BASE_URL}/tasks/{task_id}", headers=_headers())
+    resp.raise_for_status()
+    return resp.json()
+
+
 def close_task(task_id: str) -> bool:
     """Marca una tarea como completada."""
     resp = requests.post(f"{BASE_URL}/tasks/{task_id}/close", headers=_headers())
     resp.raise_for_status()
     return resp.status_code == 204
+
+
+def move_task(
+    task_id: str,
+    project_id: str = None,
+    section_id: str = None,
+    parent_id: str = None,
+) -> dict:
+    """Mueve una tarea a otro proyecto, sección o tarea padre."""
+    targets = {
+        "project_id": project_id,
+        "section_id": section_id,
+        "parent_id": parent_id,
+    }
+    data = {key: value for key, value in targets.items() if value}
+    if len(data) != 1:
+        raise ValueError("Debe indicar exactamente uno de: project_id, section_id o parent_id")
+
+    resp = requests.post(f"{BASE_URL}/tasks/{task_id}/move", headers=_headers(), json=data)
+    resp.raise_for_status()
+    return resp.json()
 
 
 def delete_task(task_id: str) -> bool:
@@ -167,11 +197,14 @@ def get_tasks_by_mar_type(mar_type: str) -> list[dict]:
     """
     Obtiene tareas filtradas por tipo MAR.
     mar_type: 'idea' | 'meta' | 'habito' | 'tarea' | 'evento'
+
+    La clasificación MAR final se hace localmente porque Todoist no distingue
+    el modelo conceptual Meta/Tarea de forma nativa en todos los casos.
     """
-    filter_str = MAR_FILTERS.get(mar_type.lower())
-    if not filter_str:
+    mar_type = mar_type.lower()
+    if mar_type not in MAR_FILTERS:
         raise ValueError(f"Tipo MAR desconocido: {mar_type}. Use: {list(MAR_FILTERS.keys())}")
-    return get_tasks(filter_str=filter_str)
+    return [task for task in get_tasks() if classify_mar_type(task) == mar_type]
 
 
 def get_tasks_by_horizon(horizon: str) -> list[dict]:
@@ -193,22 +226,23 @@ def classify_mar_type(task: dict) -> str:
     basándose en sus propiedades.
     """
     due = task.get("due")
+    deadline = task.get("deadline")
 
-    if not due:
+    if not due and not deadline:
         return "idea"
 
-    is_recurring = due.get("is_recurring", False)
-    has_time = "T" in due.get("datetime", "") if due.get("datetime") else False
-    has_deadline = bool(due.get("date") or due.get("datetime"))
+    due_date = (due or {}).get("date", "") or ""
+    is_recurring = bool((due or {}).get("is_recurring", False))
+    has_time = "T" in due_date
+    has_deadline = bool(deadline and deadline.get("date"))
 
     if has_time:
         return "evento"
-    if is_recurring and not has_time:
+    if is_recurring and not has_deadline:
         return "habito"
-    if not is_recurring and not has_time and has_deadline:
-        # Meta: deadline pero sin hora, sin recurrencia
-        # Tarea: también, pero en la práctica la distinción es conceptual
-        # Meta = compromiso de un día específico
-        return "meta"  # o "tarea" según contexto
+    if has_deadline:
+        return "tarea"
+    if due and not has_time:
+        return "meta"
 
     return "idea"
