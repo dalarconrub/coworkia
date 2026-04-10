@@ -18,6 +18,7 @@ build/
 *.log
 logs/
 artifacts/sprints/*.md
+!artifacts/sprints/sprint-multiagent-1.md
 
 # OS
 .DS_Store
