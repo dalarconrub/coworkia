@@ -12,6 +12,10 @@ Jerarquía:
 
 - `B00-GTD`: ejecución (`MAR`)
 - `B0A-INX`: índices y catálogos (`KIT`, `REP`, `BIB`)
+- `B0A-INX` (contextos):
+  - `C0A1-KIT` → base `KIT`
+  - `C0A2-REP` → base `REP`
+  - `C0A3-BIB` → base `BIB`
 - `B0B-ABC`: taxonomía del sistema
 - `B0C-PLA`: planificación y dirección (`PTN`)
 

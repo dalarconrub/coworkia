@@ -37,7 +37,10 @@ Reglas de trabajo:
 
 Ubicación operativa recomendada en Notion:
 
-- `PTN`: sistema director en `A0-GTD / B0C-PLA`.
+- `PTN`: sistema director en `A0-GTD / B0C-PLA`, dividido en:
+  - `C0C7-PROYECTOS` → `PTN-Proyectos`
+  - `C0C8-TAREAS` → `PTN-Tareas`
+  - `C0C9-NOTAS` → `PTN-Notas`
 - `KIT`: catálogo maestro en `A0-GTD / B0A-INX`.
 - `REP`: catálogo maestro en `A0-GTD / B0A-INX`.
 - `BIB`: catálogo maestro en `A0-GTD / B0A-INX`.
@@ -50,6 +53,9 @@ La taxonomía `ABC` organiza Notion por `Área -> Bloque -> Contexto`. En el sis
 - `A0-GTD`: sistema operativo
   - `B00-GTD`: `MAR` y ejecución en Todoist
   - `B0A-INX`: índices y catálogos maestros (`KIT`, `REP`, `BIB`)
+    - `C0A1-KIT` → base `KIT`
+    - `C0A2-REP` → base `REP`
+    - `C0A3-BIB` → base `BIB`
   - `B0B-ABC`: taxonomía estructural
   - `B0C-PLA`: dirección y planificación (`PTN`)
 - `A1-INV`: investigación
@@ -329,6 +335,38 @@ El repositorio ya es útil como conjunto de CLIs y utilidades de integración, p
 - La separación conceptual entre `Meta` y `Tarea` en Todoist no está resuelta completamente a nivel de datos.
 - La dependencia de `.env` es alta: sin configuración válida, la mayoría de agentes no funcionarán.
 - La GUI `project_hub_gui.py` ahora distingue entre error real y configuración incompleta, pero no puede suplir credenciales o IDs ausentes.
+- Algunas páginas y bases heredadas de Notion no son accesibles por API aunque existan en la UI. En esos casos hay que crear o compartir las páginas con la integración para que los agentes puedan operar.
+
+## Acceso Notion (Problema y Solución)
+
+Problema detectado:
+
+- Hay páginas visibles en Notion que no responden a la API (`400` o `no accesible`).
+- Ocurre especialmente en bases heredadas (`ABC`, `AREA`, `BLOQUE`, `CONTEXTO`) o páginas no compartidas con la integración.
+
+Solución práctica para que los agentes funcionen:
+
+1. Asegurar que la integración está en el mismo workspace.
+2. Compartir con la integración las páginas raíz operativas (`A0-GTD` y subpáginas).
+3. Si una base heredada no es accesible, recrearla en un contenedor accesible y actualizar los IDs del `.env`.
+
+Mapeo operativo confirmado bajo `A0-GTD`:
+
+- `B0A-KIT` (página accesible) → índices y catálogos maestros:
+  - `C0A1-KIT` → base `KIT`
+  - `C0A2-REP` → base `REP`
+  - `C0A3-BIB` → base `BIB`
+- `B0B-ABC` (página accesible) → taxonomía `ABC`
+- `B0C-PLA` (página accesible) → `PTN`:
+  - `C0C7-PROYECTOS` → `PTN-Proyectos`
+  - `C0C8-TAREAS` → `PTN-Tareas`
+  - `C0C9-NOTAS` → `PTN-Notas`
+
+Los agentes deben asumir lo siguiente:
+
+- Si un ID en `.env` no responde, el agente debe recrear la base en el contenedor correcto y sobrescribir el ID.
+- `PTN` vive en `B0C-PLA`
+- `KIT/REP/BIB` viven en `B0A-KIT`
 
 ## Archivos Clave
 

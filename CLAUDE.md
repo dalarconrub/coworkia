@@ -55,17 +55,20 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 
 | Sistema | Ubicación canónica en Notion | Regla |
 |---------|-------------------------------|--------|
-| `PTN` | `A0-GTD / B0C-PLA` | Dirige el trabajo y distribuye contexto operativo |
-| `KIT` | `A0-GTD / B0A-INX` | Índice maestro de conocimiento |
-| `REP` | `A0-GTD / B0A-INX` | Catálogo técnico de repositorios |
-| `BIB` | `A0-GTD / B0A-INX` | Catálogo maestro de bibliografía |
+| `PTN` | `A0-GTD / B0C-PLA / C0C7-PROYECTOS, C0C8-TAREAS, C0C9-NOTAS` | Dirige el trabajo y distribuye contexto operativo |
+| `KIT` | `A0-GTD / B0A-KIT` | Índice maestro de conocimiento |
+| `REP` | `A0-GTD / B0A-KIT` | Catálogo técnico de repositorios |
+| `BIB` | `A0-GTD / B0A-KIT` | Catálogo maestro de bibliografía |
 | `BACK-*` | `A5-BACK` o `Z9_BACK` | Nunca mezclar con catálogos operativos |
 
 ### Mapa maestro `ABC`
 
 - `A0-GTD`
   - `B00-GTD`: `MAR`
-  - `B0A-INX`: `KIT`, `REP`, `BIB`
+  - `B0A-KIT`: `KIT`, `REP`, `BIB`
+    - `C0A1-KIT` → base `KIT`
+    - `C0A2-REP` → base `REP`
+    - `C0A3-BIB` → base `BIB`
   - `B0B-ABC`: taxonomía `Área / Bloque / Contexto`
   - `B0C-PLA`: `PTN`
 - `A1-INV`

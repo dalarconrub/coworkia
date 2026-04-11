@@ -17,11 +17,17 @@ Regla:
 
 ## Data Sources
 
-| Nombre | ID | Contenido |
-|--------|----|-----------|
-| PTN-Proyectos | `27c622cf-315b-8021-87bd-000b9fbe99d3` | Proyectos activos |
-| PTN-Tareas | `27c622cf-315b-80c8-9fdd-000bd097774d` | Tareas vinculadas a proyectos |
-| PTN-Notas | `27c622cf-315b-80cb-a8b3-000beaa40e29` | Notas de seguimiento |
+Ubicación canónica en Notion: `A0-GTD / B0C-PLA` y dividido en:
+
+- `C0C7-PROYECTOS` → `PTN-Proyectos`
+- `C0C8-TAREAS` → `PTN-Tareas`
+- `C0C9-NOTAS` → `PTN-Notas`
+
+IDs en `.env`:
+
+- `NOTION_DS_PROYECTOS`
+- `NOTION_DS_TAREAS`
+- `NOTION_DS_NOTAS`
 
 ---
 
@@ -51,7 +57,7 @@ python agents/notion_agent.py notas
 python agents/notion_agent.py notas --estado "Activo"
 
 # Inspeccionar schema de un data source
-python agents/notion_agent.py db 27c622cf-315b-8021-87bd-000b9fbe99d3
+python agents/notion_agent.py db <NOTION_DS_PROYECTOS>
 ```
 
 ### Crear
