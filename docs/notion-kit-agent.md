@@ -14,6 +14,19 @@ Agente para el sistema **KIT (Knowledge-Information-Tools)** en Notion.
 
 ## Comandos
 
+### Setup
+
+```bash
+python agents/kit_agent.py crear-bases --parent <NOTION_PAGE_ID>
+```
+
+Crea las tres bases maestras de `KIT` bajo una página de Notion, recomendablemente `A4-ARX`.
+El comando devuelve los IDs para guardarlos en:
+
+- `NOTION_DS_KIT_KNOWLEDGE`
+- `NOTION_DS_KIT_INFORMATION`
+- `NOTION_DS_KIT_TOOLS`
+
 ### Consultas
 
 ```bash
@@ -81,3 +94,4 @@ Todas las fuentes comparten el mismo schema base:
 - **Notion API v2025-09-03**
 - Token en `.env` → `NOTION_TOKEN`
 - IDs en `.env` → `NOTION_DS_KIT_KNOWLEDGE`, `NOTION_DS_KIT_INFORMATION`, `NOTION_DS_KIT_TOOLS`
+- El agente acepta tanto `data_sources` como `databases` simples para permitir reconstrucción gradual del sistema

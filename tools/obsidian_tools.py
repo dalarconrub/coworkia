@@ -5,7 +5,7 @@ Jerarquía real del vault:
   Área (A) → Bloque (B) → Contexto (C) → Proyecto (P) → Tarea (T) → Nota (N)
 
 Nomenclatura:
-  - Áreas:    A0-GTD, A1-INV, A2-UNI, A3-VIT, A4-REF
+  - Áreas:    A0-GTD, A1-INV, A2-UNI, A3-VIT, A4-ARX
   - Bloques:  B0A-INX, B11-CVT, B12-LAB...
   - Contextos: C0C9-Notas, C111-REP, C125-DAT...
   - Proyectos: P125.01-NOMBRE, P126.01-NOMBRE...
@@ -39,7 +39,7 @@ MAPA_AREAS = {
     "A1-INV": "Investigación",
     "A2-UNI": "Universidad",
     "A3-VIT": "Vital",
-    "A4-REF": "Referencia",
+    "A4-ARX": "Archivo",
 }
 
 

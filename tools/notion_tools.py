@@ -31,10 +31,8 @@ def _headers() -> dict:
 
 def search_all(query: str = "") -> list[dict]:
     """Busca todos los objetos accesibles (páginas, databases, data_sources)."""
-    data = {"query": query, "page_size": 100}
-    resp = requests.post(f"{BASE_URL}/search", headers=_headers(), json=data)
-    resp.raise_for_status()
-    return resp.json().get("results", [])
+    data = {"query": query}
+    return _post_paginated(f"{BASE_URL}/search", data)
 
 
 def get_databases() -> list[dict]:
@@ -146,20 +144,13 @@ def query_database(database_id: str, filter_obj: dict = None, sorts: list = None
         data["filter"] = filter_obj
     if sorts:
         data["sorts"] = sorts
-
-    resp = requests.post(
-        f"{BASE_URL}/databases/{database_id}/query",
-        headers=_headers(),
-        json=data
-    )
-    resp.raise_for_status()
-    return resp.json().get("results", [])
+    return _post_paginated(f"{BASE_URL}/databases/{database_id}/query", data)
 
 
 def query_data_source(data_source_id: str, filter_obj: dict = None, sorts: list = None) -> list[dict]:
     """
     Consulta un data source específico (API 2025-09-03).
-    Usar este en lugar de query_database para multi-source databases.
+    Si el ID no corresponde a un data source accesible, prueba como database legacy.
     """
     data = {}
     if filter_obj:
@@ -167,13 +158,22 @@ def query_data_source(data_source_id: str, filter_obj: dict = None, sorts: list 
     if sorts:
         data["sorts"] = sorts
 
-    resp = requests.post(
+    last_error = None
+    for url in (
         f"{BASE_URL}/data_sources/{data_source_id}/query",
-        headers=_headers(),
-        json=data
-    )
-    resp.raise_for_status()
-    return resp.json().get("results", [])
+        f"{BASE_URL}/databases/{data_source_id}/query",
+    ):
+        try:
+            return _post_paginated(url, data)
+        except requests.HTTPError as exc:
+            last_error = exc
+            status = exc.response.status_code if exc.response is not None else None
+            if status not in (400, 404):
+                raise
+
+    if last_error:
+        raise last_error
+    return []
 
 
 # ─── BASES DE DATOS ───────────────────────────────────────────────────────────
@@ -222,23 +222,39 @@ def create_page(parent_id: str, title: str, properties: dict = None,
     - is_database=True: parent es un database_id (base simple)
     - ambos False: parent es una página
     """
-    if is_data_source:
-        parent = {"data_source_id": parent_id}
-    elif is_database:
-        parent = {"database_id": parent_id}
-    else:
-        parent = {"page_id": parent_id}
-
     props = properties or {}
-    # Buscar la propiedad título (puede llamarse de cualquier forma)
-    if "Name" not in props and "Nombre" not in props:
+    # Buscar si ya existe alguna propiedad de tipo title.
+    has_title_prop = any(
+        isinstance(prop, dict) and "title" in prop
+        for prop in props.values()
+    )
+    if not has_title_prop:
         props["Name"] = {"title": [{"text": {"content": title}}]}
 
-    data = {"parent": parent, "properties": props}
+    parents = []
+    if is_data_source:
+        parents = [{"data_source_id": parent_id}, {"database_id": parent_id}]
+    elif is_database:
+        parents = [{"database_id": parent_id}]
+    else:
+        parents = [{"page_id": parent_id}]
 
-    resp = requests.post(f"{BASE_URL}/pages", headers=_headers(), json=data)
-    resp.raise_for_status()
-    return resp.json()
+    last_error = None
+    for parent in parents:
+        data = {"parent": parent, "properties": props}
+        try:
+            resp = requests.post(f"{BASE_URL}/pages", headers=_headers(), json=data)
+            resp.raise_for_status()
+            return resp.json()
+        except requests.HTTPError as exc:
+            last_error = exc
+            status = exc.response.status_code if exc.response is not None else None
+            if status not in (400, 404):
+                raise
+
+    if last_error:
+        raise last_error
+    raise RuntimeError("No se pudo crear la página en Notion.")
 
 
 def update_page_properties(page_id: str, properties: dict) -> dict:
@@ -313,6 +329,34 @@ def _extract_title(obj: dict) -> str:
                 return texto
 
     return "(sin título)"
+
+
+def _post_paginated(url: str, data: dict | None = None) -> list[dict]:
+    """Recorre endpoints paginados de Notion hasta agotar resultados."""
+    payload = dict(data or {})
+    payload.setdefault("page_size", 100)
+
+    results = []
+    next_cursor = None
+
+    while True:
+        body = dict(payload)
+        if next_cursor:
+            body["start_cursor"] = next_cursor
+
+        resp = requests.post(url, headers=_headers(), json=body)
+        resp.raise_for_status()
+        page = resp.json()
+
+        results.extend(page.get("results", []))
+        if not page.get("has_more"):
+            break
+
+        next_cursor = page.get("next_cursor")
+        if not next_cursor:
+            break
+
+    return results
 
 
 def extract_property_value(prop: dict) -> str:

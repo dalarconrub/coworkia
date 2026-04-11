@@ -23,6 +23,46 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 
 ---
 
+## Convención canónica del sistema
+
+**Regla base:** Coworkia no reparte apps por capricho. Cada una cumple una función cognitiva y operativa distinta.
+
+| Sistema | Rol funcional | Función cognitiva |
+|---------|----------------|-------------------|
+| Todoist | `Task Management System` | Sistema atencional |
+| Notion | `Project Management System` | Memoria de trabajo |
+| Obsidian | `Document Management System` | Memoria a largo plazo |
+
+### Reglas operativas
+
+- `Todoist` ejecuta.
+- `Notion` dirige.
+- `Obsidian` almacena.
+- `MAR` vive de forma canónica en Todoist y gobierna la capa temporal: foco, fecha, recurrencia, deadline y evento.
+- `PTN`, `KIT`, `REP` y `BIB` viven de forma canónica en Notion y gobiernan la capa táctica: proyectos, contexto, relaciones, conocimiento y catálogos.
+- `Obsidian` conserva documentos desarrollados, archivo estable, elaboración larga y memoria documental.
+- `ABGD` no debe entenderse como propiedad exclusiva de Obsidian, sino como taxonomía estructural compartida entre Notion y Obsidian.
+- `A5-BACK` y `Z9_BACK` se reservan para respaldo, importaciones y exportaciones, no para gestión operativa.
+
+### Estado real actual
+
+- `MAR` está operativo en Todoist.
+- Notion ya actúa como núcleo de `REP`, `BIB` y `KIT`, y debe asumir también el gobierno de `PTN`.
+- Obsidian queda como capa documental y de archivo, no como sistema único de acceso diario.
+- `ABGD` sigue estructurando el sistema, pero como modelo transversal.
+
+### Ubicación operativa en Notion
+
+| Sistema | Ubicación canónica en Notion | Regla |
+|---------|-------------------------------|--------|
+| `PTN` | `A0-GTD` y áreas derivadas por proyecto | Dirige el trabajo y distribuye contexto operativo |
+| `KIT` | `A4-ARX` | Conocimiento consolidado y herramientas |
+| `REP` | `A4-ARX` | Catálogo técnico de repositorios |
+| `BIB` | `A4-ARX` por defecto | Catálogo maestro con vistas enlazadas en otras áreas cuando convenga |
+| `BACK-*` | `A5-BACK` o `Z9_BACK` | Nunca mezclar con catálogos operativos |
+
+---
+
 ## Sistema MAR — Clasificación de tareas en Todoist
 
 **Principio:** Las acciones se clasifican por cómo existen en el tiempo, no por lo que son.
@@ -70,7 +110,7 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 | A1-INV  | Investigación | Investigación académica |
 | A2-UNI  | Universidad | Docencia y contenido universitario |
 | A3-VIT  | Vital | Información personal |
-| A4-ARC  | Archivo | Conocimiento consolidado |
+| A4-ARX  | Archivo | Conocimiento consolidado |
 
 ---
 
@@ -184,9 +224,11 @@ coworkia/
 | `NOTION_DS_PROYECTOS` | Notion | Data source PTN-Proyectos |
 | `NOTION_DS_TAREAS` | Notion | Data source PTN-Tareas |
 | `NOTION_DS_NOTAS` | Notion | Data source PTN-Notas |
+| `NOTION_PTN_PARENT_PAGE` | Notion | Página padre para reconstruir las bases PTN |
 | `NOTION_DS_KIT_KNOWLEDGE` | Notion | Data source KIT-Knowledge |
 | `NOTION_DS_KIT_INFORMATION` | Notion | Data source KIT-Information |
 | `NOTION_DS_KIT_TOOLS` | Notion | Data source KIT-Tools |
+| `NOTION_KIT_PARENT_PAGE` | Notion | Página padre para reconstruir las bases KIT |
 | `GITHUB_TOKEN` | GitHub | Token clásico (scope `repo`) |
 | `NOTION_REPOS_PARENT_PAGE` | Notion | Página padre de REP-Repositorios |
 | `NOTION_DB_REPOS` | Notion | ID de la BD REP-Repositorios |

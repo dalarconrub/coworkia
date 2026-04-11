@@ -2,6 +2,19 @@
 
 Agente para el sistema **PTN (Proyectos-Tareas-Notas)** en Notion.
 
+## Jerarquía
+
+```text
+Proyecto -> Tarea -> Nota
+```
+
+Regla:
+
+- un proyecto tiene tareas
+- una tarea pertenece a un proyecto
+- una nota siempre pertenece a una tarea
+- una nota sin tarea no forma parte del modelo PTN
+
 ## Data Sources
 
 | Nombre | ID | Contenido |
@@ -44,6 +57,8 @@ python agents/notion_agent.py db 27c622cf-315b-8021-87bd-000b9fbe99d3
 ### Crear
 
 ```bash
+python agents/notion_agent.py crear-bases --parent <NOTION_PAGE_ID>
+
 # Nuevo proyecto
 python agents/notion_agent.py nuevo-proyecto "Estudio neuropsicológico 2026"
 python agents/notion_agent.py nuevo-proyecto "Paper revisión" \
@@ -62,8 +77,9 @@ python agents/notion_agent.py nueva-tarea "Análisis estadístico" \
   --proyecto <ID_del_proyecto>
 
 # Nueva nota
-python agents/notion_agent.py nueva-nota "Reunión con Enrique"
+python agents/notion_agent.py nueva-nota "Reunión con Enrique" --tarea <ID_o_referencia_tarea>
 python agents/notion_agent.py nueva-nota "Sesión de trabajo" \
+  --tarea <ID_o_referencia_tarea> \
   --fecha 2026-03-16 \
   --proyecto <ID_del_proyecto>
 ```
@@ -79,7 +95,7 @@ python agents/notion_agent.py nueva-nota "Sesión de trabajo" \
 `Nombre de la tarea` · `Estado` · `Tipo de tarea` · `Prioridad` · `Nivel de esfuerzo` · `Plazo` · `Proyectos` · `Descripción` · `Etiquetas` · `Responsable` · `Última actualización`
 
 ### PTN-Notas
-`Título` · `Estado` · `Estado de Progreso` · `Prioridad` · `Fecha` · `Fecha de Vencimiento` · `Proyecto` · `Próximos Pasos` · `Obstáculos` · `Tiempo Dedicado` · `Descripción` · `Etiquetas`
+`Título` · `Estado` · `Estado de Progreso` · `Prioridad` · `Fecha` · `Fecha de Vencimiento` · `Tarea` · `Proyecto` · `Próximos Pasos` · `Obstáculos` · `Tiempo Dedicado` · `Descripción` · `Etiquetas`
 
 ---
 
@@ -88,3 +104,4 @@ python agents/notion_agent.py nueva-nota "Sesión de trabajo" \
 - **Notion API v2025-09-03** (multi-source databases)
 - Token en `.env` → `NOTION_TOKEN`
 - IDs en `.env` → `NOTION_DS_PROYECTOS`, `NOTION_DS_TAREAS`, `NOTION_DS_NOTAS`
+- Página padre opcional en `.env` → `NOTION_PTN_PARENT_PAGE`

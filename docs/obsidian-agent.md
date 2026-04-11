@@ -20,7 +20,7 @@ Agente para el vault **ABGD** en Obsidian.
 | A1-INV | Investigación |
 | A2-UNI | Universidad |
 | A3-VIT | Vital |
-| A4-REF | Referencia |
+| A4-ARX | Archivo |
 
 ### Nomenclatura de archivos
 
@@ -112,7 +112,7 @@ python agents/obsidian_agent.py nueva-nota A1-INV B12-LAB C126-DIR "Análisis da
 │   ├── B37-ORG/  (C371-ADM, C372-PER, C373-SOC)
 │   ├── B38-TEC/  (C384-INF, C385-STA, C386-IAA)
 │   └── B39-DES/  (C397-FIS, C398-MEN, C399-MUS)
-└── A4-REF/
+└── A4-ARX/
     ├── B4X-LIB/
     ├── B4Y-MED/
     └── B4Z-APP/

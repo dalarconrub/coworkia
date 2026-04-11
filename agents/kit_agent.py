@@ -26,6 +26,7 @@ from tools.notion_tools import (
     query_data_source,
     get_database_info,
     create_page,
+    create_database,
     extract_property_value,
 )
 
@@ -39,6 +40,86 @@ TITLE_PROP = {
     DS_INFORMATION: "Referencia",
     DS_TOOLS:       "Aplicaciones",
 }
+
+KIT_PARENT_PAGE = os.getenv("NOTION_KIT_PARENT_PAGE", os.getenv("NOTION_REPOS_PARENT_PAGE", ""))
+
+SHARED_SELECT_TIPO = {
+    "select": {
+        "options": [
+            {"name": "Concepto", "color": "blue"},
+            {"name": "Síntesis", "color": "green"},
+            {"name": "Metodología", "color": "yellow"},
+            {"name": "Paper", "color": "purple"},
+            {"name": "Artículo", "color": "orange"},
+            {"name": "Fuente", "color": "gray"},
+            {"name": "App", "color": "pink"},
+            {"name": "Servicio", "color": "red"},
+            {"name": "IA", "color": "brown"},
+        ]
+    }
+}
+
+SHARED_SELECT_ESTADO = {
+    "select": {
+        "options": [
+            {"name": "Activo", "color": "green"},
+            {"name": "En revisión", "color": "yellow"},
+            {"name": "Archivado", "color": "gray"},
+            {"name": "Descartado", "color": "red"},
+        ]
+    }
+}
+
+
+def _schema_knowledge() -> dict:
+    return {
+        "Fuente": {"title": {}},
+        "Tipo": SHARED_SELECT_TIPO,
+        "Estado": SHARED_SELECT_ESTADO,
+        "Resumen": {"rich_text": {}},
+        "Etiquetas": {"multi_select": {"options": []}},
+        "Fuente / Autor": {"rich_text": {}},
+        "Enlace": {"url": {}},
+        "Nivel de confianza": {"select": {"options": []}},
+        "Fecha de publicación": {"date": {}},
+        "Extractos": {"rich_text": {}},
+        "Usada en": {"rich_text": {}},
+        "Archivos": {"files": {}},
+    }
+
+
+def _schema_information() -> dict:
+    return {
+        "Referencia": {"title": {}},
+        "Tipo": SHARED_SELECT_TIPO,
+        "Estado": SHARED_SELECT_ESTADO,
+        "Resumen": {"rich_text": {}},
+        "Etiquetas": {"multi_select": {"options": []}},
+        "Fuente / Autor": {"rich_text": {}},
+        "Enlace": {"url": {}},
+        "Nivel de confianza": {"select": {"options": []}},
+        "Fecha de publicación": {"date": {}},
+        "Extractos": {"rich_text": {}},
+        "Usada en": {"rich_text": {}},
+        "Archivos": {"files": {}},
+    }
+
+
+def _schema_tools() -> dict:
+    return {
+        "Aplicaciones": {"title": {}},
+        "Tipo": SHARED_SELECT_TIPO,
+        "Estado": SHARED_SELECT_ESTADO,
+        "Resumen": {"rich_text": {}},
+        "Etiquetas": {"multi_select": {"options": []}},
+        "Fuente / Autor": {"rich_text": {}},
+        "Enlace": {"url": {}},
+        "Nivel de confianza": {"select": {"options": []}},
+        "Fecha de publicación": {"date": {}},
+        "Extractos": {"rich_text": {}},
+        "Usada en": {"rich_text": {}},
+        "Archivos": {"files": {}},
+    }
 
 
 # ─── UTILIDADES ───────────────────────────────────────────────────────────────
@@ -153,7 +234,7 @@ def _nueva_entrada(ds_id: str, titulo: str, tipo: str = None, estado: str = None
     if tipo:
         props["Tipo"] = {"select": {"name": tipo}}
     if estado:
-        props["Estado"] = {"status": {"name": estado}}
+        props["Estado"] = {"select": {"name": estado}}
     if resumen:
         props["Resumen"] = {"rich_text": [{"text": {"content": resumen}}]}
     if etiquetas:
@@ -166,6 +247,23 @@ def _nueva_entrada(ds_id: str, titulo: str, tipo: str = None, estado: str = None
         props["Proyectos"] = {"relation": [{"id": proyecto_id}]}
 
     return create_page(parent_id=ds_id, title=titulo, properties=props, is_data_source=True)
+
+
+def crear_bases(parent_page_id: str = None) -> dict:
+    """Crea las tres bases maestras del sistema KIT en Notion."""
+    parent = parent_page_id or KIT_PARENT_PAGE
+    if not parent:
+        raise ValueError(
+            "Falta NOTION_KIT_PARENT_PAGE o un --parent explícito. "
+            "Usa la página de A4-ARX como contenedor."
+        )
+
+    created = {
+        "NOTION_DS_KIT_KNOWLEDGE": create_database(parent, "KIT-Knowledge", _schema_knowledge())["id"],
+        "NOTION_DS_KIT_INFORMATION": create_database(parent, "KIT-Information", _schema_information())["id"],
+        "NOTION_DS_KIT_TOOLS": create_database(parent, "KIT-Tools", _schema_tools())["id"],
+    }
+    return created
 
 
 def nueva_knowledge(titulo: str, **kwargs) -> dict:
@@ -216,6 +314,8 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="comando")
 
     subparsers.add_parser("estado", help="Resumen del KIT")
+    p_setup = subparsers.add_parser("crear-bases", help="Crear las bases maestras del KIT")
+    p_setup.add_argument("--parent", default=None, help="ID de la página padre en Notion")
 
     p_k = subparsers.add_parser("knowledge",   help="Listar conocimiento")
     p_i = subparsers.add_parser("information", help="Listar información externa")
@@ -241,6 +341,11 @@ if __name__ == "__main__":
 
     if args.comando == "estado":
         print(estado_kit())
+    elif args.comando == "crear-bases":
+        created = crear_bases(args.parent)
+        print("=== KIT CREADO ===")
+        for key, value in created.items():
+            print(f"{key}={value}")
     elif args.comando == "knowledge":
         print(listar_knowledge(tipo=args.tipo, etiqueta=args.etiqueta))
     elif args.comando == "information":

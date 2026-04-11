@@ -38,7 +38,7 @@ AREAS = {
     "A1": "A1-INV",
     "A2": "A2-UNI",
     "A3": "A3-VIT",
-    "A4": "A4-ARC",
+    "A4": "A4-ARX",
 }
 
 SCHEMA = {

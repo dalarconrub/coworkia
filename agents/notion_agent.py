@@ -22,6 +22,7 @@ from tools.notion_tools import (
     get_pages,
     query_data_source,
     get_database_info,
+    create_database,
     create_page,
     update_page_properties,
     extract_property_value,
@@ -31,6 +32,81 @@ from tools.notion_tools import (
 DS_PROYECTOS = os.getenv("NOTION_DS_PROYECTOS", "27c622cf-315b-8021-87bd-000b9fbe99d3")
 DS_TAREAS    = os.getenv("NOTION_DS_TAREAS",    "27c622cf-315b-80c8-9fdd-000bd097774d")
 DS_NOTAS     = os.getenv("NOTION_DS_NOTAS",     "27c622cf-315b-80cb-a8b3-000beaa40e29")
+PTN_PARENT_PAGE = os.getenv("NOTION_PTN_PARENT_PAGE", "116622cf-315b-8045-a581-f632b7c93f50")
+
+ESTADOS_PTN = {
+    "select": {
+        "options": [
+            {"name": "Sin empezar", "color": "gray"},
+            {"name": "En progreso", "color": "yellow"},
+            {"name": "En espera", "color": "orange"},
+            {"name": "Completado", "color": "green"},
+            {"name": "Archivado", "color": "blue"},
+        ]
+    }
+}
+
+PRIORIDADES_PTN = {
+    "select": {
+        "options": [
+            {"name": "Alta", "color": "red"},
+            {"name": "Media", "color": "yellow"},
+            {"name": "Baja", "color": "gray"},
+        ]
+    }
+}
+
+
+def _schema_proyectos() -> dict:
+    return {
+        "Nombre del Proyecto": {"title": {}},
+        "Estado": ESTADOS_PTN,
+        "Prioridad": PRIORIDADES_PTN,
+        "Progreso": {"number": {"format": "percent"}},
+        "Fecha de inicio": {"date": {}},
+        "Fecha límite": {"date": {}},
+        "Equipo": {"multi_select": {"options": []}},
+        "Área": {"select": {"options": []}},
+        "Etiquetas": {"multi_select": {"options": []}},
+        "URL": {"url": {}},
+        "PLAN": {"rich_text": {}},
+        "Descripción": {"rich_text": {}},
+        "Responsable": {"rich_text": {}},
+    }
+
+
+def _schema_tareas() -> dict:
+    return {
+        "Nombre de la tarea": {"title": {}},
+        "Estado": ESTADOS_PTN,
+        "Tipo de tarea": {"select": {"options": []}},
+        "Prioridad": PRIORIDADES_PTN,
+        "Nivel de esfuerzo": {"select": {"options": []}},
+        "Plazo": {"date": {}},
+        "Proyecto": {"rich_text": {}},
+        "Descripción": {"rich_text": {}},
+        "Etiquetas": {"multi_select": {"options": []}},
+        "Responsable": {"rich_text": {}},
+        "Última actualización": {"date": {}},
+    }
+
+
+def _schema_notas() -> dict:
+    return {
+        "Título": {"title": {}},
+        "Estado": ESTADOS_PTN,
+        "Estado de Progreso": {"select": {"options": []}},
+        "Prioridad": PRIORIDADES_PTN,
+        "Fecha": {"date": {}},
+        "Fecha de Vencimiento": {"date": {}},
+        "Tarea": {"rich_text": {}},
+        "Proyecto": {"rich_text": {}},
+        "Próximos Pasos": {"rich_text": {}},
+        "Obstáculos": {"rich_text": {}},
+        "Tiempo Dedicado": {"number": {"format": "number"}},
+        "Descripción": {"rich_text": {}},
+        "Etiquetas": {"multi_select": {"options": []}},
+    }
 
 
 # ─── UTILIDAD INTERNA ─────────────────────────────────────────────────────────
@@ -52,6 +128,23 @@ def _prop(r: dict, nombre: str) -> str:
     return ""
 
 
+def crear_bases(parent_page_id: str = None) -> dict:
+    """Crea las tres bases maestras del sistema PTN en Notion."""
+    parent = parent_page_id or PTN_PARENT_PAGE
+    if not parent:
+        raise ValueError(
+            "Falta NOTION_PTN_PARENT_PAGE o un --parent explícito. "
+            "Usa la página A0-GTD como contenedor."
+        )
+
+    created = {
+        "NOTION_DS_PROYECTOS": create_database(parent, "PTN-Proyectos", _schema_proyectos())["id"],
+        "NOTION_DS_TAREAS": create_database(parent, "PTN-Tareas", _schema_tareas())["id"],
+        "NOTION_DS_NOTAS": create_database(parent, "PTN-Notas", _schema_notas())["id"],
+    }
+    return created
+
+
 # ─── PROYECTOS ────────────────────────────────────────────────────────────────
 
 def listar_proyectos(estado: str = None) -> str:
@@ -63,7 +156,7 @@ def listar_proyectos(estado: str = None) -> str:
     if estado:
         filter_obj = {
             "property": "Estado",
-            "status": {"equals": estado}
+            "select": {"equals": estado}
         }
 
     registros = query_data_source(DS_PROYECTOS, filter_obj=filter_obj)
@@ -106,7 +199,7 @@ def crear_proyecto(nombre: str, estado: str = "Sin empezar", prioridad: str = No
     """
     props = {
         "Nombre del Proyecto": {"title": [{"text": {"content": nombre}}]},
-        "Estado": {"status": {"name": estado}},
+        "Estado": {"select": {"name": estado}},
     }
     if prioridad:
         props["Prioridad"] = {"select": {"name": prioridad}}
@@ -137,7 +230,7 @@ def listar_tareas(estado: str = None, tipo: str = None) -> str:
     """
     filters = []
     if estado:
-        filters.append({"property": "Estado", "status": {"equals": estado}})
+        filters.append({"property": "Estado", "select": {"equals": estado}})
     if tipo:
         filters.append({"property": "Tipo de tarea", "select": {"equals": tipo}})
 
@@ -185,7 +278,7 @@ def crear_tarea(nombre: str, estado: str = "Sin empezar", tipo: str = None,
     """
     props = {
         "Nombre de la tarea": {"title": [{"text": {"content": nombre}}]},
-        "Estado": {"status": {"name": estado}},
+        "Estado": {"select": {"name": estado}},
     }
     if tipo:
         props["Tipo de tarea"] = {"select": {"name": tipo}}
@@ -196,7 +289,7 @@ def crear_tarea(nombre: str, estado: str = "Sin empezar", tipo: str = None,
     if descripcion:
         props["Descripción"] = {"rich_text": [{"text": {"content": descripcion}}]}
     if proyecto_id:
-        props["Proyectos"] = {"relation": [{"id": proyecto_id}]}
+        props["Proyecto"] = {"rich_text": [{"text": {"content": proyecto_id}}]}
 
     return create_page(
         parent_id=DS_TAREAS,
@@ -212,7 +305,7 @@ def listar_notas(estado: str = None) -> str:
     """Lista notas de PTN-Notas."""
     filter_obj = None
     if estado:
-        filter_obj = {"property": "Estado", "status": {"equals": estado}}
+        filter_obj = {"property": "Estado", "select": {"equals": estado}}
 
     registros = query_data_source(DS_NOTAS, filter_obj=filter_obj)
 
@@ -225,11 +318,13 @@ def listar_notas(estado: str = None) -> str:
         titulo  = _titulo_registro(r)
         est     = _prop(r, "Estado")
         fecha   = _prop(r, "Fecha")
+        tarea   = _prop(r, "Tarea")
         proyecto = _prop(r, "Proyecto")
 
         linea = f"  • {titulo}"
         detalles = []
         if est:      detalles.append(est)
+        if tarea:    detalles.append(f"T:{tarea}")
         if proyecto: detalles.append(f"[{proyecto}]")
         if fecha:    detalles.append(fecha)
         if detalles:
@@ -240,18 +335,20 @@ def listar_notas(estado: str = None) -> str:
     return "\n".join(lineas)
 
 
-def crear_nota(titulo: str, fecha: str = None, estado: str = None,
+def crear_nota(titulo: str, tarea: str, fecha: str = None, estado: str = None,
                proyecto_id: str = None, descripcion: str = None,
                proximos_pasos: str = None) -> dict:
     """
     Crea una nota en PTN-Notas.
     fecha: formato YYYY-MM-DD
+    tarea: referencia obligatoria a la tarea que justifica la nota
     """
     props = {
         "Título": {"title": [{"text": {"content": titulo}}]},
+        "Tarea": {"rich_text": [{"text": {"content": tarea}}]},
     }
     if estado:
-        props["Estado"] = {"status": {"name": estado}}
+        props["Estado"] = {"select": {"name": estado}}
     if fecha:
         props["Fecha"] = {"date": {"start": fecha}}
     if descripcion:
@@ -259,7 +356,7 @@ def crear_nota(titulo: str, fecha: str = None, estado: str = None,
     if proximos_pasos:
         props["Próximos Pasos"] = {"rich_text": [{"text": {"content": proximos_pasos}}]}
     if proyecto_id:
-        props["Proyecto"] = {"relation": [{"id": proyecto_id}]}
+        props["Proyecto"] = {"rich_text": [{"text": {"content": proyecto_id}}]}
 
     return create_page(
         parent_id=DS_NOTAS,
@@ -329,6 +426,8 @@ if __name__ == "__main__":
 
     subparsers.add_parser("recursos",  help="Listar recursos accesibles")
     subparsers.add_parser("estado",    help="Resumen del sistema PTN")
+    p_setup = subparsers.add_parser("crear-bases", help="Crear las bases maestras de PTN")
+    p_setup.add_argument("--parent", default=None, help="ID de la página padre en Notion")
 
     p_db = subparsers.add_parser("db", help="Inspeccionar base de datos o data source")
     p_db.add_argument("database_id")
@@ -360,6 +459,7 @@ if __name__ == "__main__":
 
     p_nn = subparsers.add_parser("nueva-nota", help="Crear nota")
     p_nn.add_argument("titulo")
+    p_nn.add_argument("--tarea", required=True, help="ID o referencia textual de la tarea")
     p_nn.add_argument("--fecha",    default=None, help="YYYY-MM-DD")
     p_nn.add_argument("--proyecto", default=None, help="ID del proyecto")
 
@@ -369,6 +469,11 @@ if __name__ == "__main__":
         print(listar_recursos())
     elif args.comando == "estado":
         print(estado_ptn())
+    elif args.comando == "crear-bases":
+        created = crear_bases(args.parent)
+        print("=== PTN CREADO ===")
+        for key, value in created.items():
+            print(f"{key}={value}")
     elif args.comando == "db":
         info = get_database_info(args.database_id)
         print(f"=== {info['title']} ===")
@@ -396,7 +501,7 @@ if __name__ == "__main__":
                         proyecto_id=args.proyecto)
         print(f"Tarea creada: {t['id']}")
     elif args.comando == "nueva-nota":
-        n = crear_nota(args.titulo, fecha=args.fecha, proyecto_id=args.proyecto)
+        n = crear_nota(args.titulo, tarea=args.tarea, fecha=args.fecha, proyecto_id=args.proyecto)
         print(f"Nota creada: {n['id']}")
     else:
         parser.print_help()

@@ -13,6 +13,36 @@ La idea central del proyecto es simple: no improvisar, sino clasificar. El repos
 - `BIB`: importa y cataloga bibliografía de Paperpile en Notion.
 - `ABGD`: navega y escribe notas en un vault local de Obsidian.
 
+## Convención Canónica
+
+Coworkia separa tres funciones distintas:
+
+- `Todoist` ejecuta.
+- `Notion` dirige.
+- `Obsidian` almacena.
+
+Eso implica esta jerarquía:
+
+- `Todoist` es el `Task Management System` y funciona como sistema atencional.
+- `Notion` es el `Project Management System` y funciona como memoria de trabajo.
+- `Obsidian` es el `Document Management System` y funciona como memoria a largo plazo.
+
+Reglas de trabajo:
+
+- Si algo requiere foco, fecha, recurrencia, plazo o evento, manda `Todoist`.
+- Si algo requiere captura, contexto, relación entre objetos, seguimiento de proyecto o catálogo, manda `Notion`.
+- Si algo requiere conservación documental, escritura larga o archivo estable, manda `Obsidian`.
+- Las exportaciones de Todoist a Notion no sustituyen a `MAR`.
+- `ABGD` debe entenderse como taxonomía estructural compartida, no como sinónimo de “todo vive en Obsidian”.
+
+Ubicación operativa recomendada en Notion:
+
+- `PTN`: bases de proyecto bajo `A0-GTD` y áreas derivadas según el dominio del proyecto.
+- `KIT`: catálogo maestro en `A4-ARX`.
+- `REP`: catálogo maestro en `A4-ARX`.
+- `BIB`: catálogo maestro en `A4-ARX`, con vistas enlazadas en `A1-INV` o `A2-UNI` cuando haga falta.
+- `BACK-*`: siempre en `A5-BACK` o `Z9_BACK`.
+
 ## Estructura
 
 ```text
@@ -48,10 +78,12 @@ NOTION_TOKEN=
 NOTION_DS_PROYECTOS=
 NOTION_DS_TAREAS=
 NOTION_DS_NOTAS=
+NOTION_PTN_PARENT_PAGE=
 
 NOTION_DS_KIT_KNOWLEDGE=
 NOTION_DS_KIT_INFORMATION=
 NOTION_DS_KIT_TOOLS=
+NOTION_KIT_PARENT_PAGE=
 
 GITHUB_TOKEN=
 NOTION_REPOS_PARENT_PAGE=
@@ -69,6 +101,7 @@ Notas:
 
 - `NOTION_TOKEN` debe tener acceso a las páginas o bases compartidas con la integración.
 - `PTN` y `KIT` ya traen `data source IDs` por defecto en el código, pero siguen necesitando `NOTION_TOKEN`.
+- `KIT` puede trabajar con `data_sources` o con `databases` simples si se reconstruye con `crear-bases`.
 - `REP` y `BIB` además necesitan `NOTION_DB_REPOS` y `NOTION_DB_BIB`.
 - `GITHUB_TOKEN` necesita alcance suficiente para leer repos privados si se van a importar.
 - `PAPERPILE_BIBTEX_URL` usa el export automático BibTeX de Paperpile.
@@ -127,19 +160,21 @@ python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026
 ```bash
 python agents/notion_agent.py recursos
 python agents/notion_agent.py estado
+python agents/notion_agent.py crear-bases --parent <NOTION_PAGE_ID>
 python agents/notion_agent.py proyectos
 python agents/notion_agent.py proyectos --estado "En progreso"
 python agents/notion_agent.py tareas --estado "Sin empezar"
 python agents/notion_agent.py notas
 python agents/notion_agent.py nuevo-proyecto "Proyecto X" --prioridad Alta --inicio 2026-04-10
 python agents/notion_agent.py nueva-tarea "Hacer X" --proyecto <ID_PROYECTO>
-python agents/notion_agent.py nueva-nota "Seguimiento" --fecha 2026-04-10 --proyecto <ID_PROYECTO>
+python agents/notion_agent.py nueva-nota "Seguimiento" --tarea <ID_TAREA> --fecha 2026-04-10 --proyecto <ID_PROYECTO>
 ```
 
 ### KIT / Notion
 
 ```bash
 python agents/kit_agent.py estado
+python agents/kit_agent.py crear-bases --parent <NOTION_PAGE_ID>
 python agents/kit_agent.py knowledge
 python agents/kit_agent.py information
 python agents/kit_agent.py tools
