@@ -13,14 +13,16 @@ load_dotenv()
 TODOIST_API_KEY = os.getenv("TODOIST_API_KEY")
 BASE_URL = "https://api.todoist.com/api/v1"
 
-# Proyectos excluidos de todas las consultas (Z-*)
-PROYECTOS_EXCLUIDOS: set[str] = {
-    "6Mv5F76GQq3p699F",  # Z-INBOX
-    "6JM9X2GhWRgR9M7v",  # Z-TRASH
-    "6QR2xC8R9QjQgjqx",  # Z-INBOXS
-    "6H3rFRr2HMhXxhXC",  # Z-B01_TODOITS
-    "6MxJ3VRPhPP8FqW3",  # Z-LIB
+Z_PROJECTS: dict[str, str] = {
+    "6Mv5F76GQq3p699F": "Z-INBOX",
+    "6JM9X2GhWRgR9M7v": "Z-TRASH",
+    "6QR2xC8R9QjQgjqx": "Z-INBOXS",
+    "6H3rFRr2HMhXxhXC": "Z-B01_TODOITS",
+    "6MxJ3VRPhPP8FqW3": "Z-LIB",
 }
+
+# Proyectos excluidos de todas las consultas operativas por defecto.
+PROYECTOS_EXCLUIDOS: set[str] = set(Z_PROJECTS.keys())
 
 
 def _headers() -> dict:
@@ -29,7 +31,7 @@ def _headers() -> dict:
 
 # ─── TAREAS ───────────────────────────────────────────────────────────────────
 
-def get_tasks(filter_str: str = None, project_id: str = None) -> list[dict]:
+def get_tasks(filter_str: str = None, project_id: str = None, include_excluded: bool = False) -> list[dict]:
     """Obtiene tareas con paginación completa. Puede usar filtros en sintaxis Todoist."""
     params = {"limit": 200}
     endpoint = f"{BASE_URL}/tasks"
@@ -51,8 +53,19 @@ def get_tasks(filter_str: str = None, project_id: str = None) -> list[dict]:
             break
         params["cursor"] = cursor
 
+    if include_excluded:
+        return tareas
+
     # Filtro por ID como salvaguarda por si algún proyecto Z- no tiene prefijo "Z-"
     return [t for t in tareas if t.get("project_id") not in PROYECTOS_EXCLUIDOS]
+
+
+def get_z_tasks(project_id: str = None) -> list[dict]:
+    """Obtiene tareas de los proyectos Z-* excluidos del flujo operativo normal."""
+    if project_id:
+        return [t for t in get_tasks(project_id=project_id, include_excluded=True) if t.get("project_id") == project_id]
+
+    return [t for t in get_tasks(include_excluded=True) if t.get("project_id") in PROYECTOS_EXCLUIDOS]
 
 
 def create_task(

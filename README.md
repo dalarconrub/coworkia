@@ -106,9 +106,11 @@ python agents/todoist_agent.py hoy
 python agents/todoist_agent.py estado
 python agents/todoist_agent.py listar meta
 python agents/todoist_agent.py proyectos
+python agents/todoist_agent.py zinbox --limit 20
 python agents/todoist_agent.py buscar "tesis"
 python agents/todoist_agent.py ver <TASK_ID>
 python agents/todoist_agent.py idea "Idea sin fecha"
+python agents/todoist_agent.py capturar "Nueva entrada"
 python agents/todoist_agent.py meta "Entregar memoria" 2026-04-15
 python agents/todoist_agent.py habito "Leer 20 minutos" "every day"
 python agents/todoist_agent.py tarea "Preparar informe" 2026-04-20
@@ -117,6 +119,7 @@ python agents/todoist_agent.py completar <TASK_ID>
 python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>
 python agents/todoist_agent.py editar <TASK_ID> --due-date 2026-04-15
 python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T10:00:00
+python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
 ```
 
 ### PTN / Notion

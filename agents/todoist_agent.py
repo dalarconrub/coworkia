@@ -13,6 +13,7 @@ sys.stdout.reconfigure(encoding="utf-8")
 
 from tools.todoist_tools import (
     MAR_FILTERS,
+    Z_PROJECTS,
     classify_mar_type,
     close_task,
     create_task,
@@ -22,6 +23,7 @@ from tools.todoist_tools import (
     get_tasks,
     get_tasks_by_horizon,
     get_tasks_by_mar_type,
+    get_z_tasks,
     move_task,
     update_task,
 )
@@ -50,8 +52,10 @@ def _due_display(task: dict) -> str:
 def _task_line(task: dict) -> str:
     tipo = classify_mar_type(task)
     extra = _due_display(task)
+    proyecto = Z_PROJECTS.get(task.get("project_id", ""), "")
+    proyecto_txt = f" | {proyecto}" if proyecto else ""
     suffix = f" | {extra}" if extra else ""
-    return f"{ICONOS[tipo]} {task['id']} | {task['content']}{suffix}"
+    return f"{ICONOS[tipo]} {task['id']} | {task['content']}{proyecto_txt}{suffix}"
 
 
 def _build_update_payload(args) -> dict:
@@ -208,6 +212,25 @@ def listar_proyectos() -> str:
     return "\n".join(lineas)
 
 
+def listar_zinbox(project_id: str | None = None, limit: int = 30) -> str:
+    """Lista tareas capturadas en proyectos Z-* para triage."""
+    if project_id and project_id not in Z_PROJECTS:
+        raise ValueError(f"Proyecto Z desconocido: {project_id}")
+
+    tareas = get_z_tasks(project_id=project_id)
+    if not tareas:
+        return "No hay tareas en Z-INBOX."
+
+    tareas = sorted(tareas, key=lambda task: task.get("added_at", ""), reverse=True)
+    titulo = Z_PROJECTS.get(project_id, "Z-*") if project_id else "Z-*"
+    lineas = [f"=== {titulo} ({len(tareas)}) ==="]
+    for task in tareas[:limit]:
+        lineas.append(f"• {_task_line(task)}")
+    if len(tareas) > limit:
+        lineas.append(f"... y {len(tareas) - limit} mas")
+    return "\n".join(lineas)
+
+
 def estado_sistema() -> str:
     """Muestra el estado completo del sistema MAR por tipos."""
     lineas = ["=== ESTADO SISTEMA MAR ===\n"]
@@ -265,6 +288,14 @@ def nuevo_evento(content: str, datetime_iso: str, description: str = None, proje
     )
 
 
+def capturar_inbox(content: str, description: str = None, project_id: str = "6Mv5F76GQq3p699F") -> str:
+    """Captura una entrada nueva directamente en Z-INBOX."""
+    if project_id not in Z_PROJECTS:
+        raise ValueError("La captura solo admite proyectos Z-*")
+    task = create_task(content=content, description=description, project_id=project_id)
+    return f"Capturada en {Z_PROJECTS[project_id]}: {task['id']} | {task['content']}"
+
+
 def completar_tarea(task_id: str) -> str:
     close_task(task_id)
     return f"Tarea completada: {task_id}"
@@ -295,6 +326,16 @@ def reclasificar_tarea(task_id: str, tipo: str, valor: str | None = None) -> str
     return f"Reclasificada como {tipo}: {_task_line(task)}"
 
 
+def procesar_inbox(task_id: str, tipo: str, project_id: str, valor: str | None = None) -> str:
+    """Mueve una tarea de Z-* al proyecto definitivo y la reclasifica en un solo paso."""
+    move_task(task_id, project_id=project_id)
+    payload = _reclassify_payload(tipo, valor)
+    task = update_task(task_id, **payload)
+    proyecto = next((p for p in get_projects() if p.get("id") == project_id), None)
+    nombre = proyecto.get("name") if proyecto else project_id
+    return f"Procesada: {_task_line(task)} -> {nombre}"
+
+
 if __name__ == "__main__":
     import argparse
 
@@ -304,6 +345,10 @@ if __name__ == "__main__":
     subparsers.add_parser("hoy", help="Resumen de hoy")
     subparsers.add_parser("estado", help="Estado del sistema MAR")
     subparsers.add_parser("proyectos", help="Listar proyectos activos")
+
+    p_zinbox = subparsers.add_parser("zinbox", help="Listar tareas en proyectos Z-* para triage")
+    p_zinbox.add_argument("--project-id")
+    p_zinbox.add_argument("--limit", type=int, default=30)
 
     p_listar = subparsers.add_parser("listar", help="Listar por tipo MAR")
     p_listar.add_argument("tipo", choices=list(MAR_FILTERS.keys()))
@@ -317,6 +362,11 @@ if __name__ == "__main__":
 
     p_idea = subparsers.add_parser("idea", help="Crear idea")
     p_idea.add_argument("content")
+
+    p_capturar = subparsers.add_parser("capturar", help="Capturar entrada en Z-INBOX")
+    p_capturar.add_argument("content")
+    p_capturar.add_argument("--description")
+    p_capturar.add_argument("--project-id", default="6Mv5F76GQq3p699F")
 
     p_meta = subparsers.add_parser("meta", help="Crear meta")
     p_meta.add_argument("content")
@@ -365,6 +415,12 @@ if __name__ == "__main__":
         help="Fecha, fecha-hora o recurrencia segun el tipo destino",
     )
 
+    p_procesar = subparsers.add_parser("procesar", help="Mover una tarea de Z-* y clasificarla en MAR")
+    p_procesar.add_argument("task_id")
+    p_procesar.add_argument("tipo", choices=list(MAR_FILTERS.keys()))
+    p_procesar.add_argument("project_id")
+    p_procesar.add_argument("--valor")
+
     args = parser.parse_args()
 
     if args.comando == "hoy":
@@ -373,6 +429,8 @@ if __name__ == "__main__":
         print(estado_sistema())
     elif args.comando == "proyectos":
         print(listar_proyectos())
+    elif args.comando == "zinbox":
+        print(listar_zinbox(project_id=args.project_id, limit=args.limit))
     elif args.comando == "listar":
         print(listar_por_tipo(args.tipo))
     elif args.comando == "buscar":
@@ -382,6 +440,8 @@ if __name__ == "__main__":
     elif args.comando == "idea":
         task = nueva_idea(args.content)
         print(f"Idea creada: {task['id']} | {task['content']}")
+    elif args.comando == "capturar":
+        print(capturar_inbox(args.content, description=args.description, project_id=args.project_id))
     elif args.comando == "meta":
         task = nueva_meta(args.content, args.fecha)
         print(f"Meta creada: {task['id']} | {task['content']} -> {args.fecha}")
@@ -404,5 +464,7 @@ if __name__ == "__main__":
         print(editar_tarea(args.task_id, _build_update_payload(args)))
     elif args.comando == "reclasificar":
         print(reclasificar_tarea(args.task_id, args.tipo, args.valor))
+    elif args.comando == "procesar":
+        print(procesar_inbox(args.task_id, args.tipo, args.project_id, args.valor))
     else:
         parser.print_help()
