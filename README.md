@@ -37,11 +37,38 @@ Reglas de trabajo:
 
 Ubicación operativa recomendada en Notion:
 
-- `PTN`: bases de proyecto bajo `A0-GTD` y áreas derivadas según el dominio del proyecto.
-- `KIT`: catálogo maestro en `A4-ARX`.
-- `REP`: catálogo maestro en `A4-ARX`.
-- `BIB`: catálogo maestro en `A4-ARX`, con vistas enlazadas en `A1-INV` o `A2-UNI` cuando haga falta.
+- `PTN`: sistema director en `A0-GTD / B0C-PLA`.
+- `KIT`: catálogo maestro en `A0-GTD / B0A-INX`.
+- `REP`: catálogo maestro en `A0-GTD / B0A-INX`.
+- `BIB`: catálogo maestro en `A0-GTD / B0A-INX`.
 - `BACK-*`: siempre en `A5-BACK` o `Z9_BACK`.
+
+## Mapa Maestro
+
+La taxonomía `ABC` organiza Notion por `Área -> Bloque -> Contexto`. En el sistema actual queda así:
+
+- `A0-GTD`: sistema operativo
+  - `B00-GTD`: `MAR` y ejecución en Todoist
+  - `B0A-INX`: índices y catálogos maestros (`KIT`, `REP`, `BIB`)
+  - `B0B-ABC`: taxonomía estructural
+  - `B0C-PLA`: dirección y planificación (`PTN`)
+- `A1-INV`: investigación
+  - `B11-CVT`: `C111-VIT`, `C112-CON`, `C113-EVA`
+  - `B12-LAB`: `C124-PRY`, `C125-DAT`, `C126-DIR`
+  - `B13-PUB`: `C137-ART`, `C138-CON`, `C139-MAN`
+- `A2-UNI`: universidad
+  - `B24-DOC`: `C241-GRA`, `C242-MAS`, `C243-POS`
+  - `B25-FOR`: `C254-PDI`, `C255-EST`, `C256-CUR`
+  - `B26-GES`: `C267-UPO`, `C268-MIN`, `C269-EVA`
+- `A3-VIT`: vida personal
+  - `B37-ORG`: `C371-ADM`, `C372-PER`, `C373-SOC`
+  - `B38-TEC`: `C384-INF`, `C386-STA`, `C387-IAA`
+  - `B39-DES`: `C397-FIS`, `C398-MEN`, `C399-MUS`
+- `A4-ARX`: archivo y recursos documentales
+  - `B40-REF`: `C400-REF`
+  - `B4X-LIB`: `C4x0-LIB`, `C4x1-FIC`, `C4x2-SCI`, `C4x3-ENS`
+  - `B4Y-MED`: `C4y0-MED`, `C4y4-VID`, `C4y5-AUD`, `C4y6-MP3`
+  - `B4Z-APP`: `C4z0-APP`, `C4z7-MOC`, `C4z8-WEB`, `C4z9-SOF`
 
 ## Estructura
 
@@ -80,9 +107,7 @@ NOTION_DS_TAREAS=
 NOTION_DS_NOTAS=
 NOTION_PTN_PARENT_PAGE=
 
-NOTION_DS_KIT_KNOWLEDGE=
-NOTION_DS_KIT_INFORMATION=
-NOTION_DS_KIT_TOOLS=
+NOTION_DB_KIT=
 NOTION_KIT_PARENT_PAGE=
 
 GITHUB_TOKEN=
@@ -100,8 +125,8 @@ OBSIDIAN_ALPHA_PATH=
 Notas:
 
 - `NOTION_TOKEN` debe tener acceso a las páginas o bases compartidas con la integración.
-- `PTN` y `KIT` ya traen `data source IDs` por defecto en el código, pero siguen necesitando `NOTION_TOKEN`.
-- `KIT` puede trabajar con `data_sources` o con `databases` simples si se reconstruye con `crear-bases`.
+- `PTN` sigue necesitando `NOTION_TOKEN` y fuentes accesibles.
+- `KIT` usa una sola base maestra `KIT` y un campo `Tipo` para separar `Knowledge`, `Information` y `Tool`.
 - `REP` y `BIB` además necesitan `NOTION_DB_REPOS` y `NOTION_DB_BIB`.
 - `GITHUB_TOKEN` necesita alcance suficiente para leer repos privados si se van a importar.
 - `PAPERPILE_BIBTEX_URL` usa el export automático BibTeX de Paperpile.
@@ -174,14 +199,14 @@ python agents/notion_agent.py nueva-nota "Seguimiento" --tarea <ID_TAREA> --fech
 
 ```bash
 python agents/kit_agent.py estado
-python agents/kit_agent.py crear-bases --parent <NOTION_PAGE_ID>
+python agents/kit_agent.py crear-db --parent <NOTION_PAGE_ID>
 python agents/kit_agent.py knowledge
 python agents/kit_agent.py information
 python agents/kit_agent.py tools
 python agents/kit_agent.py buscar "machine learning"
-python agents/kit_agent.py nueva-knowledge "Concepto X" --tipo Síntesis
-python agents/kit_agent.py nueva-information "Paper Y" --enlace https://example.com
-python agents/kit_agent.py nueva-tool "Herramienta Z" --tipo App
+python agents/kit_agent.py nueva-knowledge "Concepto X" --subtipo Sintesis
+python agents/kit_agent.py nueva-information "Paper Y" --subtipo Paper --enlace https://example.com
+python agents/kit_agent.py nueva-tool "Herramienta Z" --subtipo App
 ```
 
 ### REP / GitHub -> Notion

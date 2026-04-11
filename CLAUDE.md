@@ -55,11 +55,36 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 
 | Sistema | Ubicación canónica en Notion | Regla |
 |---------|-------------------------------|--------|
-| `PTN` | `A0-GTD` y áreas derivadas por proyecto | Dirige el trabajo y distribuye contexto operativo |
-| `KIT` | `A4-ARX` | Conocimiento consolidado y herramientas |
-| `REP` | `A4-ARX` | Catálogo técnico de repositorios |
-| `BIB` | `A4-ARX` por defecto | Catálogo maestro con vistas enlazadas en otras áreas cuando convenga |
+| `PTN` | `A0-GTD / B0C-PLA` | Dirige el trabajo y distribuye contexto operativo |
+| `KIT` | `A0-GTD / B0A-INX` | Índice maestro de conocimiento |
+| `REP` | `A0-GTD / B0A-INX` | Catálogo técnico de repositorios |
+| `BIB` | `A0-GTD / B0A-INX` | Catálogo maestro de bibliografía |
 | `BACK-*` | `A5-BACK` o `Z9_BACK` | Nunca mezclar con catálogos operativos |
+
+### Mapa maestro `ABC`
+
+- `A0-GTD`
+  - `B00-GTD`: `MAR`
+  - `B0A-INX`: `KIT`, `REP`, `BIB`
+  - `B0B-ABC`: taxonomía `Área / Bloque / Contexto`
+  - `B0C-PLA`: `PTN`
+- `A1-INV`
+  - `B11-CVT`: `C111-VIT`, `C112-CON`, `C113-EVA`
+  - `B12-LAB`: `C124-PRY`, `C125-DAT`, `C126-DIR`
+  - `B13-PUB`: `C137-ART`, `C138-CON`, `C139-MAN`
+- `A2-UNI`
+  - `B24-DOC`: `C241-GRA`, `C242-MAS`, `C243-POS`
+  - `B25-FOR`: `C254-PDI`, `C255-EST`, `C256-CUR`
+  - `B26-GES`: `C267-UPO`, `C268-MIN`, `C269-EVA`
+- `A3-VIT`
+  - `B37-ORG`: `C371-ADM`, `C372-PER`, `C373-SOC`
+  - `B38-TEC`: `C384-INF`, `C386-STA`, `C387-IAA`
+  - `B39-DES`: `C397-FIS`, `C398-MEN`, `C399-MUS`
+- `A4-ARX`
+  - `B40-REF`: `C400-REF`
+  - `B4X-LIB`: `C4x0-LIB`, `C4x1-FIC`, `C4x2-SCI`, `C4x3-ENS`
+  - `B4Y-MED`: `C4y0-MED`, `C4y4-VID`, `C4y5-AUD`, `C4y6-MP3`
+  - `B4Z-APP`: `C4z0-APP`, `C4z7-MOC`, `C4z8-WEB`, `C4z9-SOF`
 
 ---
 
@@ -225,10 +250,8 @@ coworkia/
 | `NOTION_DS_TAREAS` | Notion | Data source PTN-Tareas |
 | `NOTION_DS_NOTAS` | Notion | Data source PTN-Notas |
 | `NOTION_PTN_PARENT_PAGE` | Notion | Página padre para reconstruir las bases PTN |
-| `NOTION_DS_KIT_KNOWLEDGE` | Notion | Data source KIT-Knowledge |
-| `NOTION_DS_KIT_INFORMATION` | Notion | Data source KIT-Information |
-| `NOTION_DS_KIT_TOOLS` | Notion | Data source KIT-Tools |
-| `NOTION_KIT_PARENT_PAGE` | Notion | Página padre para reconstruir las bases KIT |
+| `NOTION_DB_KIT` | Notion | ID de la base maestra KIT |
+| `NOTION_KIT_PARENT_PAGE` | Notion | Página padre para crear la base KIT |
 | `GITHUB_TOKEN` | GitHub | Token clásico (scope `repo`) |
 | `NOTION_REPOS_PARENT_PAGE` | Notion | Página padre de REP-Repositorios |
 | `NOTION_DB_REPOS` | Notion | ID de la BD REP-Repositorios |

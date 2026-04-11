@@ -1,141 +1,91 @@
 """
 Agente KIT para Notion.
 
-Gestiona las tres fuentes de conocimiento del sistema KIT:
-  - KIT-Knowledge:    Conocimiento interno (ideas, conceptos, síntesis propias)
-  - KIT-Information:  Información externa (artículos, papers, fuentes)
-  - KIT-Tools:        Herramientas (apps, software, servicios)
-
-Schema compartido:
-  Título/Referencia/Fuente, Tipo, Estado, Resumen, Etiquetas,
-  Fuente/Autor, Enlace, Nivel de confianza, Fecha de publicación,
-  Extractos, Proyectos (rel), Tareas (rel), Notas (rel),
-  Referencias relacionadas (rel), Usada en, Archivos
+Modelo canónico:
+  - una sola base maestra `KIT`
+  - un campo `Tipo` separa Knowledge / Information / Tool
+  - las vistas se construyen en Notion, no con tres bases distintas
 """
 
 import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-import sys
 sys.stdout.reconfigure(encoding="utf-8")
 from dotenv import load_dotenv
 load_dotenv()
 
 from tools.notion_tools import (
     query_data_source,
-    get_database_info,
     create_page,
     create_database,
     extract_property_value,
 )
 
-DS_KNOWLEDGE   = os.getenv("NOTION_DS_KIT_KNOWLEDGE",   "2ad622cf-315b-80a2-a13e-000b063d2ca2")
-DS_INFORMATION = os.getenv("NOTION_DS_KIT_INFORMATION", "2ab622cf-315b-8011-b53d-000b43838fb3")
-DS_TOOLS       = os.getenv("NOTION_DS_KIT_TOOLS",       "2ad622cf-315b-8029-bc67-000baecc1150")
-
-# Mapeo fuente → nombre de la propiedad título (cada fuente usa uno distinto)
-TITLE_PROP = {
-    DS_KNOWLEDGE:   "Fuente",
-    DS_INFORMATION: "Referencia",
-    DS_TOOLS:       "Aplicaciones",
-}
-
+DB_KIT = os.getenv("NOTION_DB_KIT", "")
 KIT_PARENT_PAGE = os.getenv("NOTION_KIT_PARENT_PAGE", os.getenv("NOTION_REPOS_PARENT_PAGE", ""))
 
-SHARED_SELECT_TIPO = {
-    "select": {
-        "options": [
-            {"name": "Concepto", "color": "blue"},
-            {"name": "Síntesis", "color": "green"},
-            {"name": "Metodología", "color": "yellow"},
-            {"name": "Paper", "color": "purple"},
-            {"name": "Artículo", "color": "orange"},
-            {"name": "Fuente", "color": "gray"},
-            {"name": "App", "color": "pink"},
-            {"name": "Servicio", "color": "red"},
-            {"name": "IA", "color": "brown"},
-        ]
-    }
+TIPOS_KIT = {
+    "Knowledge": "Knowledge",
+    "Information": "Information",
+    "Tool": "Tool",
 }
 
-SHARED_SELECT_ESTADO = {
-    "select": {
-        "options": [
-            {"name": "Activo", "color": "green"},
-            {"name": "En revisión", "color": "yellow"},
-            {"name": "Archivado", "color": "gray"},
-            {"name": "Descartado", "color": "red"},
-        ]
-    }
-}
+SUBTIPOS_KIT = [
+    "Concepto",
+    "Sintesis",
+    "Metodologia",
+    "Paper",
+    "Articulo",
+    "Fuente",
+    "App",
+    "Servicio",
+    "IA",
+]
+
+ESTADOS_KIT = ["Activo", "En revision", "Archivado", "Descartado"]
 
 
-def _schema_knowledge() -> dict:
+def _schema_kit() -> dict:
     return {
-        "Fuente": {"title": {}},
-        "Tipo": SHARED_SELECT_TIPO,
-        "Estado": SHARED_SELECT_ESTADO,
+        "Titulo": {"title": {}},
+        "Tipo": {
+            "select": {
+                "options": [
+                    {"name": "Knowledge", "color": "blue"},
+                    {"name": "Information", "color": "yellow"},
+                    {"name": "Tool", "color": "green"},
+                ]
+            }
+        },
+        "Subtipo": {"select": {"options": [{"name": s} for s in SUBTIPOS_KIT]}},
+        "Estado": {"select": {"options": [{"name": s} for s in ESTADOS_KIT]}},
         "Resumen": {"rich_text": {}},
         "Etiquetas": {"multi_select": {"options": []}},
         "Fuente / Autor": {"rich_text": {}},
         "Enlace": {"url": {}},
         "Nivel de confianza": {"select": {"options": []}},
-        "Fecha de publicación": {"date": {}},
+        "Fecha de publicacion": {"date": {}},
         "Extractos": {"rich_text": {}},
+        "Area": {"select": {"options": []}},
         "Usada en": {"rich_text": {}},
         "Archivos": {"files": {}},
     }
 
 
-def _schema_information() -> dict:
-    return {
-        "Referencia": {"title": {}},
-        "Tipo": SHARED_SELECT_TIPO,
-        "Estado": SHARED_SELECT_ESTADO,
-        "Resumen": {"rich_text": {}},
-        "Etiquetas": {"multi_select": {"options": []}},
-        "Fuente / Autor": {"rich_text": {}},
-        "Enlace": {"url": {}},
-        "Nivel de confianza": {"select": {"options": []}},
-        "Fecha de publicación": {"date": {}},
-        "Extractos": {"rich_text": {}},
-        "Usada en": {"rich_text": {}},
-        "Archivos": {"files": {}},
-    }
-
-
-def _schema_tools() -> dict:
-    return {
-        "Aplicaciones": {"title": {}},
-        "Tipo": SHARED_SELECT_TIPO,
-        "Estado": SHARED_SELECT_ESTADO,
-        "Resumen": {"rich_text": {}},
-        "Etiquetas": {"multi_select": {"options": []}},
-        "Fuente / Autor": {"rich_text": {}},
-        "Enlace": {"url": {}},
-        "Nivel de confianza": {"select": {"options": []}},
-        "Fecha de publicación": {"date": {}},
-        "Extractos": {"rich_text": {}},
-        "Usada en": {"rich_text": {}},
-        "Archivos": {"files": {}},
-    }
-
-
-# ─── UTILIDADES ───────────────────────────────────────────────────────────────
-
-def _titulo(r: dict, ds_id: str) -> str:
-    """Extrae el título según el data source."""
-    props = r.get("properties", {})
-    # Buscar por nombre conocido
-    nombre_prop = TITLE_PROP.get(ds_id, "")
-    if nombre_prop and nombre_prop in props:
-        return extract_property_value(props[nombre_prop])
-    # Fallback: primera propiedad de tipo title
-    for prop in props.values():
-        if isinstance(prop, dict) and prop.get("type") == "title":
-            return extract_property_value(prop)
-    return "(sin título)"
+def crear_base(parent_page_id: str = None) -> dict:
+    """Crea la base maestra KIT en Notion."""
+    parent = parent_page_id or KIT_PARENT_PAGE
+    if not parent:
+        raise ValueError(
+            "Falta NOTION_KIT_PARENT_PAGE o un --parent explicito. "
+            "Usa la pagina A4-ARX como contenedor."
+        )
+    result = create_database(parent, "KIT", _schema_kit())
+    db_id = result["id"]
+    print(f"Base de datos creada: {db_id}")
+    print(f"Anade a tu .env:\n  NOTION_DB_KIT={db_id}")
+    return result
 
 
 def _prop(r: dict, nombre: str) -> str:
@@ -143,96 +93,113 @@ def _prop(r: dict, nombre: str) -> str:
     return extract_property_value(props[nombre]) if nombre in props else ""
 
 
-def _fmt_registro(r: dict, ds_id: str) -> str:
-    titulo   = _titulo(r, ds_id)
-    tipo     = _prop(r, "Tipo")
-    estado   = _prop(r, "Estado")
-    etiquetas = _prop(r, "Etiquetas")
-    confianza = _prop(r, "Nivel de confianza")
-
-    linea = f"  • {titulo}"
-    detalles = []
-    if tipo:      detalles.append(tipo)
-    if estado:    detalles.append(estado)
-    if etiquetas: detalles.append(f"[{etiquetas}]")
-    if confianza: detalles.append(f"★{confianza}")
-    if detalles:
-        linea += f"  ({', '.join(detalles)})"
-    linea += f"\n    ID: {r['id']}"
-    return linea
+def _titulo(r: dict) -> str:
+    return _prop(r, "Titulo") or "(sin titulo)"
 
 
-# ─── CONSULTAS ────────────────────────────────────────────────────────────────
+def _build_filter(tipo: str = None, subtipo: str = None, etiqueta: str = None) -> dict | None:
+    filters = []
+    if tipo:
+        filters.append({"property": "Tipo", "select": {"equals": tipo}})
+    if subtipo:
+        filters.append({"property": "Subtipo", "select": {"equals": subtipo}})
+    if etiqueta:
+        filters.append({"property": "Etiquetas", "multi_select": {"contains": etiqueta}})
+    if len(filters) == 1:
+        return filters[0]
+    if len(filters) > 1:
+        return {"and": filters}
+    return None
 
-def listar_knowledge(tipo: str = None, etiqueta: str = None) -> str:
-    """Lista entradas de KIT-Knowledge (conocimiento interno)."""
-    filter_obj = _build_filter(tipo, etiqueta)
-    registros = query_data_source(DS_KNOWLEDGE, filter_obj=filter_obj)
-    return _format_lista("KIT-KNOWLEDGE", registros, DS_KNOWLEDGE)
+
+def _query_kit(filter_obj: dict = None) -> list[dict]:
+    if not DB_KIT:
+        raise ValueError("Falta NOTION_DB_KIT en .env.")
+    return query_data_source(DB_KIT, filter_obj=filter_obj)
 
 
-def listar_information(tipo: str = None, etiqueta: str = None) -> str:
-    """Lista entradas de KIT-Information (información externa)."""
-    filter_obj = _build_filter(tipo, etiqueta)
-    registros = query_data_source(DS_INFORMATION, filter_obj=filter_obj)
-    return _format_lista("KIT-INFORMATION", registros, DS_INFORMATION)
+def _format_lista(nombre: str, registros: list[dict]) -> str:
+    if not registros:
+        return f"No hay entradas en {nombre}."
+    lineas = [f"=== {nombre} ({len(registros)}) ===\n"]
+    for r in registros:
+        titulo = _titulo(r)
+        tipo = _prop(r, "Tipo")
+        subtipo = _prop(r, "Subtipo")
+        estado = _prop(r, "Estado")
+        etiquetas = _prop(r, "Etiquetas")
+        detalles = [d for d in [tipo, subtipo, estado] if d]
+        if etiquetas:
+            detalles.append(f"[{etiquetas}]")
+        linea = f"  • {titulo}"
+        if detalles:
+            linea += f"  ({', '.join(detalles)})"
+        linea += f"\n    ID: {r['id']}"
+        lineas.append(linea)
+    return "\n".join(lineas)
 
 
-def listar_tools(tipo: str = None, etiqueta: str = None) -> str:
-    """Lista entradas de KIT-Tools (herramientas)."""
-    filter_obj = _build_filter(tipo, etiqueta)
-    registros = query_data_source(DS_TOOLS, filter_obj=filter_obj)
-    return _format_lista("KIT-TOOLS", registros, DS_TOOLS)
+def listar_knowledge(subtipo: str = None, etiqueta: str = None) -> str:
+    registros = _query_kit(_build_filter(tipo=TIPOS_KIT["Knowledge"], subtipo=subtipo, etiqueta=etiqueta))
+    return _format_lista("KIT-KNOWLEDGE", registros)
+
+
+def listar_information(subtipo: str = None, etiqueta: str = None) -> str:
+    registros = _query_kit(_build_filter(tipo=TIPOS_KIT["Information"], subtipo=subtipo, etiqueta=etiqueta))
+    return _format_lista("KIT-INFORMATION", registros)
+
+
+def listar_tools(subtipo: str = None, etiqueta: str = None) -> str:
+    registros = _query_kit(_build_filter(tipo=TIPOS_KIT["Tool"], subtipo=subtipo, etiqueta=etiqueta))
+    return _format_lista("KIT-TOOLS", registros)
 
 
 def buscar_kit(texto: str) -> str:
-    """Busca en los tres data sources del KIT por título/resumen."""
+    registros = _query_kit()
     resultados = []
-    for ds_id, nombre in [(DS_KNOWLEDGE, "Knowledge"), (DS_INFORMATION, "Information"), (DS_TOOLS, "Tools")]:
-        registros = query_data_source(ds_id)
-        for r in registros:
-            titulo  = _titulo(r, ds_id)
-            resumen = _prop(r, "Resumen")
-            if texto.lower() in titulo.lower() or texto.lower() in resumen.lower():
-                resultados.append((nombre, r, ds_id))
-
-    if not resultados:
-        return f"Sin resultados para '{texto}' en el KIT."
-
-    lineas = [f"=== BÚSQUEDA KIT: '{texto}' ({len(resultados)} resultados) ===\n"]
-    for fuente, r, ds_id in resultados:
-        lineas.append(f"  [{fuente}] {_fmt_registro(r, ds_id)}")
-    return "\n".join(lineas)
+    for r in registros:
+        titulo = _titulo(r)
+        resumen = _prop(r, "Resumen")
+        if texto.lower() in titulo.lower() or texto.lower() in resumen.lower():
+            resultados.append(r)
+    return _format_lista(f"BUSQUEDA KIT: '{texto}'", resultados) if resultados else f"Sin resultados para '{texto}' en KIT."
 
 
 def estado_kit() -> str:
-    """Resumen rápido del sistema KIT."""
-    k = query_data_source(DS_KNOWLEDGE)
-    i = query_data_source(DS_INFORMATION)
-    t = query_data_source(DS_TOOLS)
-    lineas = [
+    registros = _query_kit()
+    conteos = {"Knowledge": 0, "Information": 0, "Tool": 0}
+    for r in registros:
+        tipo = _prop(r, "Tipo")
+        if tipo in conteos:
+            conteos[tipo] += 1
+    return "\n".join([
         "=== ESTADO KIT ===\n",
-        f"  🧠 Knowledge   : {len(k)} entradas",
-        f"  📰 Information : {len(i)} entradas",
-        f"  🔧 Tools       : {len(t)} entradas",
-        f"\n  TOTAL: {len(k)+len(i)+len(t)} entradas",
-    ]
-    return "\n".join(lineas)
+        f"  Knowledge   : {conteos['Knowledge']} entradas",
+        f"  Information : {conteos['Information']} entradas",
+        f"  Tools       : {conteos['Tool']} entradas",
+        f"\n  TOTAL: {len(registros)} entradas",
+    ])
 
 
-# ─── CREACIÓN ─────────────────────────────────────────────────────────────────
+def _nueva_entrada(
+    titulo: str,
+    tipo: str,
+    subtipo: str = None,
+    estado: str = None,
+    resumen: str = None,
+    etiquetas: list[str] = None,
+    enlace: str = None,
+    autor: str = None,
+) -> dict:
+    if not DB_KIT:
+        raise ValueError("Falta NOTION_DB_KIT en .env.")
 
-def _nueva_entrada(ds_id: str, titulo: str, tipo: str = None, estado: str = None,
-                   resumen: str = None, etiquetas: list[str] = None,
-                   enlace: str = None, autor: str = None,
-                   proyecto_id: str = None) -> dict:
-    """Crea una entrada en cualquier data source del KIT."""
-    title_prop = TITLE_PROP.get(ds_id, "Referencia")
     props = {
-        title_prop: {"title": [{"text": {"content": titulo}}]},
+        "Titulo": {"title": [{"text": {"content": titulo}}]},
+        "Tipo": {"select": {"name": tipo}},
     }
-    if tipo:
-        props["Tipo"] = {"select": {"name": tipo}}
+    if subtipo:
+        props["Subtipo"] = {"select": {"name": subtipo}}
     if estado:
         props["Estado"] = {"select": {"name": estado}}
     if resumen:
@@ -243,69 +210,21 @@ def _nueva_entrada(ds_id: str, titulo: str, tipo: str = None, estado: str = None
         props["Enlace"] = {"url": enlace}
     if autor:
         props["Fuente / Autor"] = {"rich_text": [{"text": {"content": autor}}]}
-    if proyecto_id:
-        props["Proyectos"] = {"relation": [{"id": proyecto_id}]}
 
-    return create_page(parent_id=ds_id, title=titulo, properties=props, is_data_source=True)
-
-
-def crear_bases(parent_page_id: str = None) -> dict:
-    """Crea las tres bases maestras del sistema KIT en Notion."""
-    parent = parent_page_id or KIT_PARENT_PAGE
-    if not parent:
-        raise ValueError(
-            "Falta NOTION_KIT_PARENT_PAGE o un --parent explícito. "
-            "Usa la página de A4-ARX como contenedor."
-        )
-
-    created = {
-        "NOTION_DS_KIT_KNOWLEDGE": create_database(parent, "KIT-Knowledge", _schema_knowledge())["id"],
-        "NOTION_DS_KIT_INFORMATION": create_database(parent, "KIT-Information", _schema_information())["id"],
-        "NOTION_DS_KIT_TOOLS": create_database(parent, "KIT-Tools", _schema_tools())["id"],
-    }
-    return created
+    return create_page(parent_id=DB_KIT, title=titulo, properties=props, is_data_source=True)
 
 
 def nueva_knowledge(titulo: str, **kwargs) -> dict:
-    """Crea una entrada en KIT-Knowledge."""
-    return _nueva_entrada(DS_KNOWLEDGE, titulo, **kwargs)
+    return _nueva_entrada(titulo, TIPOS_KIT["Knowledge"], **kwargs)
 
 
 def nueva_information(titulo: str, **kwargs) -> dict:
-    """Crea una entrada en KIT-Information."""
-    return _nueva_entrada(DS_INFORMATION, titulo, **kwargs)
+    return _nueva_entrada(titulo, TIPOS_KIT["Information"], **kwargs)
 
 
 def nueva_tool(titulo: str, **kwargs) -> dict:
-    """Crea una entrada en KIT-Tools."""
-    return _nueva_entrada(DS_TOOLS, titulo, **kwargs)
+    return _nueva_entrada(titulo, TIPOS_KIT["Tool"], **kwargs)
 
-
-# ─── HELPERS ──────────────────────────────────────────────────────────────────
-
-def _build_filter(tipo: str, etiqueta: str) -> dict | None:
-    filters = []
-    if tipo:
-        filters.append({"property": "Tipo", "select": {"equals": tipo}})
-    if etiqueta:
-        filters.append({"property": "Etiquetas", "multi_select": {"contains": etiqueta}})
-    if len(filters) == 1:
-        return filters[0]
-    if len(filters) > 1:
-        return {"and": filters}
-    return None
-
-
-def _format_lista(nombre: str, registros: list, ds_id: str) -> str:
-    if not registros:
-        return f"No hay entradas en {nombre}."
-    lineas = [f"=== {nombre} ({len(registros)}) ===\n"]
-    for r in registros:
-        lineas.append(_fmt_registro(r, ds_id))
-    return "\n".join(lineas)
-
-
-# ─── CLI ──────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     import argparse
@@ -314,60 +233,75 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="comando")
 
     subparsers.add_parser("estado", help="Resumen del KIT")
-    p_setup = subparsers.add_parser("crear-bases", help="Crear las bases maestras del KIT")
-    p_setup.add_argument("--parent", default=None, help="ID de la página padre en Notion")
+    p_setup = subparsers.add_parser("crear-db", help="Crear la base maestra KIT")
+    p_setup.add_argument("--parent", default=None, help="ID de la pagina padre en Notion")
 
-    p_k = subparsers.add_parser("knowledge",   help="Listar conocimiento")
-    p_i = subparsers.add_parser("information", help="Listar información externa")
-    p_t = subparsers.add_parser("tools",       help="Listar herramientas")
+    p_k = subparsers.add_parser("knowledge", help="Listar conocimiento")
+    p_i = subparsers.add_parser("information", help="Listar informacion externa")
+    p_t = subparsers.add_parser("tools", help="Listar herramientas")
     for p in [p_k, p_i, p_t]:
-        p.add_argument("--tipo",     default=None)
+        p.add_argument("--subtipo", default=None)
         p.add_argument("--etiqueta", default=None)
 
-    p_b = subparsers.add_parser("buscar", help="Buscar en todo el KIT")
+    p_b = subparsers.add_parser("buscar", help="Buscar en todo KIT")
     p_b.add_argument("texto")
 
-    for cmd, fn_name in [("nueva-knowledge", "knowledge"), ("nueva-information", "information"), ("nueva-tool", "tool")]:
-        p = subparsers.add_parser(cmd, help=f"Crear entrada en KIT-{fn_name.capitalize()}")
+    for cmd in ["nueva-knowledge", "nueva-information", "nueva-tool"]:
+        p = subparsers.add_parser(cmd, help=f"Crear entrada en {cmd}")
         p.add_argument("titulo")
-        p.add_argument("--tipo",     default=None)
-        p.add_argument("--estado",   default=None)
-        p.add_argument("--resumen",  default=None)
-        p.add_argument("--enlace",   default=None)
-        p.add_argument("--autor",    default=None)
+        p.add_argument("--subtipo", default=None)
+        p.add_argument("--estado", default=None)
+        p.add_argument("--resumen", default=None)
+        p.add_argument("--enlace", default=None)
+        p.add_argument("--autor", default=None)
         p.add_argument("--etiquetas", nargs="*", default=None)
 
     args = parser.parse_args()
 
     if args.comando == "estado":
         print(estado_kit())
-    elif args.comando == "crear-bases":
-        created = crear_bases(args.parent)
-        print("=== KIT CREADO ===")
-        for key, value in created.items():
-            print(f"{key}={value}")
+    elif args.comando == "crear-db":
+        crear_base(args.parent)
     elif args.comando == "knowledge":
-        print(listar_knowledge(tipo=args.tipo, etiqueta=args.etiqueta))
+        print(listar_knowledge(subtipo=args.subtipo, etiqueta=args.etiqueta))
     elif args.comando == "information":
-        print(listar_information(tipo=args.tipo, etiqueta=args.etiqueta))
+        print(listar_information(subtipo=args.subtipo, etiqueta=args.etiqueta))
     elif args.comando == "tools":
-        print(listar_tools(tipo=args.tipo, etiqueta=args.etiqueta))
+        print(listar_tools(subtipo=args.subtipo, etiqueta=args.etiqueta))
     elif args.comando == "buscar":
         print(buscar_kit(args.texto))
     elif args.comando == "nueva-knowledge":
-        r = nueva_knowledge(args.titulo, tipo=args.tipo, estado=args.estado,
-                            resumen=args.resumen, enlace=args.enlace,
-                            autor=args.autor, etiquetas=args.etiquetas)
-        print(f"Creado en Knowledge: {r['id']}")
+        r = nueva_knowledge(
+            args.titulo,
+            subtipo=args.subtipo,
+            estado=args.estado,
+            resumen=args.resumen,
+            enlace=args.enlace,
+            autor=args.autor,
+            etiquetas=args.etiquetas,
+        )
+        print(f"Creado en KIT: {r['id']}")
     elif args.comando == "nueva-information":
-        r = nueva_information(args.titulo, tipo=args.tipo, estado=args.estado,
-                              resumen=args.resumen, enlace=args.enlace,
-                              autor=args.autor, etiquetas=args.etiquetas)
-        print(f"Creado en Information: {r['id']}")
+        r = nueva_information(
+            args.titulo,
+            subtipo=args.subtipo,
+            estado=args.estado,
+            resumen=args.resumen,
+            enlace=args.enlace,
+            autor=args.autor,
+            etiquetas=args.etiquetas,
+        )
+        print(f"Creado en KIT: {r['id']}")
     elif args.comando == "nueva-tool":
-        r = nueva_tool(args.titulo, tipo=args.tipo, estado=args.estado,
-                       resumen=args.resumen, enlace=args.enlace,
-                       autor=args.autor, etiquetas=args.etiquetas)
-        print(f"Creado en Tools: {r['id']}")
+        r = nueva_tool(
+            args.titulo,
+            subtipo=args.subtipo,
+            estado=args.estado,
+            resumen=args.resumen,
+            enlace=args.enlace,
+            autor=args.autor,
+            etiquetas=args.etiquetas,
+        )
+        print(f"Creado en KIT: {r['id']}")
     else:
         parser.print_help()
