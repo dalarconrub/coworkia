@@ -105,3 +105,15 @@ Jerarquía:
 
 - Export CSV legado en [Sistemas/ABC](/abs/path/not-applicable)
 - Regla de reconstrucción: si hay redefiniciones, la última fila del CSV es la válida
+
+## Relaciones y rollups ABC
+
+En las bases `ABC`:
+
+- `ABC-Bloques`:
+  - `Area Rel` → relación con `ABC-Areas`
+  - `Area (nombre)` → rollup del nombre del área
+- `ABC-Contextos`:
+  - `Bloque Rel` → relación con `ABC-Bloques`
+  - `Bloque (nombre)` → rollup del nombre del bloque
+  - `Area (via Bloque)` → rollup del área derivada
