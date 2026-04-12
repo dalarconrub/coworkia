@@ -41,9 +41,9 @@ Ubicación operativa recomendada en Notion:
   - `C0C7-PROYECTOS` → `PTN-Proyectos`
   - `C0C8-TAREAS` → `PTN-Tareas`
   - `C0C9-NOTAS` → `PTN-Notas`
-- `KIT`: catálogo maestro en `A0-GTD / B0A-INX`.
-- `REP`: catálogo maestro en `A0-GTD / B0A-INX`.
-- `BIB`: catálogo maestro en `A0-GTD / B0A-INX`.
+- `KIT`: catálogo maestro en `A4-ARX / B40-REF / C400-REF`.
+- `REP`: catálogo técnico en `A4-ARX / B4Z-APP`.
+- `BIB`: catálogo bibliográfico en `A4-ARX / B4X-LIB`.
 - `BACK-*`: siempre en `A5-BACK` o `Z9_BACK`.
 
 ## Mapa Maestro
@@ -366,6 +366,12 @@ Mapeo operativo confirmado bajo `A0-GTD`:
   - `C0C7-PROYECTOS` → `PTN-Proyectos`
   - `C0C8-TAREAS` → `PTN-Tareas`
   - `C0C9-NOTAS` → `PTN-Notas`
+
+Mapeo operativo en `A4-ARX`:
+
+- `C400-REF` → `KIT`
+- `B4Z-APP` → `REP`
+- `B4X-LIB` → `BIB`
 
 Los agentes deben asumir lo siguiente:
 

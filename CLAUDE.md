@@ -56,9 +56,9 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 | Sistema | Ubicación canónica en Notion | Regla |
 |---------|-------------------------------|--------|
 | `PTN` | `A0-GTD / B0C-PLA / C0C7-PROYECTOS, C0C8-TAREAS, C0C9-NOTAS` | Dirige el trabajo y distribuye contexto operativo |
-| `KIT` | `A0-GTD / B0A-INX` (pendiente de reubicación) | Índice maestro de conocimiento |
-| `REP` | `A0-GTD / B0A-INX` (pendiente de reubicación) | Catálogo técnico de repositorios |
-| `BIB` | `A0-GTD / B0A-INX` (pendiente de reubicación) | Catálogo maestro de bibliografía |
+| `KIT` | `A4-ARX / B40-REF / C400-REF` | Índice maestro de conocimiento |
+| `REP` | `A4-ARX / B4Z-APP` | Catálogo técnico de repositorios |
+| `BIB` | `A4-ARX / B4X-LIB` | Catálogo maestro de bibliografía |
 | `BACK-*` | `A5-BACK` o `Z9_BACK` | Nunca mezclar con catálogos operativos |
 
 ### Mapa maestro `ABC`

@@ -89,11 +89,13 @@ Jerarquía:
 
 - `B40-REF`
   - `C400-REF`
+    - `KIT` (catálogo maestro)
 - `B4X-LIB`
   - `C4x0-LIB`
   - `C4x1-FIC`
   - `C4x2-SCI`
   - `C4x3-ENS`
+  - `BIB` (catálogo bibliográfico)
 - `B4Y-MED`
   - `C4y0-MED`
   - `C4y4-VID`
@@ -104,6 +106,7 @@ Jerarquía:
   - `C4z7-MOC`
   - `C4z8-WEB`
   - `C4z9-SOF`
+  - `REP` (catálogo de repositorios)
 
 ## Fuente
 
