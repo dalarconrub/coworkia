@@ -126,6 +126,20 @@ Dentro de los bloques `A0` (B00/B0A/B0B/B0C) se crean secciones C:
 Los proyectos `Z-*` son buffers de entrada y limpieza.
 Por defecto se ignoran en análisis operativos (salvo que se pida explícitamente).
 
+### Sync a Notion (B0A-INX)
+
+Rápido (no marca completadas):
+
+```bash
+python tools/sync_todoist_to_notion.py --limit 200 --skip-completed
+```
+
+Completo (actualiza y marca completadas):
+
+```bash
+python tools/sync_todoist_to_notion.py
+```
+
 ---
 
 ## API usada
