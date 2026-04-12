@@ -191,6 +191,11 @@ python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T
 python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
 ```
 
+Estructura alineada con Notion:
+
+- Todoist mantiene proyectos `A*` y `B*` solo para agrupación liviana.
+- La clasificación fina (Área/Bloque/Contexto) se hace en Notion.
+
 ### PTN / Notion
 
 ```bash
