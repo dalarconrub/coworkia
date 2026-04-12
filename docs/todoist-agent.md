@@ -88,6 +88,37 @@ Coworkia aplica la clasificacion MAR localmente a partir de los datos de Todoist
 
 ---
 
+## Estructura alineada con Notion
+
+Todoist mantiene una estructura mínima para **alinear nombres** con la taxonomía ABC,
+pero la clasificación fina se hace en Notion.
+
+Reglas:
+
+- **Todoist ejecuta** (MAR y tiempo).
+- **Notion clasifica** (Área/Bloque/Contexto).
+
+### Proyectos A/B en Todoist
+
+Usa los proyectos `A*` y `B*` solo como contenedores livianos para agrupar ejecución
+por grandes áreas. No dupliques taxonomía fina allí.
+
+Proyectos activos esperados:
+
+- Áreas: `A0-GTD`, `A1-INV`, `A2-UNI`, `A3-VIT`, `A4-ARX`
+- Bloques: `B00-GTD`, `B0A-INX`, `B0B-ABC`, `B0C-PLA`,
+  `B10-INV`, `B11-CVT`, `B12-LAB`, `B13-PUB`,
+  `B20-UNI`, `B24-DOC`, `B25-FOR`, `B26-GES`,
+  `B30-VIT`, `B37-ORG`, `B38-TEC`, `B39-DES`,
+  `B40-REF`, `B4X-LIB`, `B4Y-MED`, `B4Z-APP`
+
+### Zonas Z-*
+
+Los proyectos `Z-*` son buffers de entrada y limpieza.
+Por defecto se ignoran en análisis operativos (salvo que se pida explícitamente).
+
+---
+
 ## API usada
 
 - **Todoist API v1** - `https://api.todoist.com/api/v1/`
