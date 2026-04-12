@@ -14,18 +14,22 @@ Jerarquía:
   - `C000-GTD`
 - `B0A-INX`: índices y catálogos (`KIT`, `REP`, `BIB`)
 - `B0A-INX` (contextos):
-  - `C0A1-KIT` → base `KIT`
-  - `C0A2-REP` → base `REP`
-  - `C0A3-BIB` → base `BIB`
+  - `C0A1-TODOIST` → base `TODOIST-TAREAS` (relación PTN + ABC)
+  - `C0A2-NOTION-LOG` → base `NOTION-LOG` (histórico PTN + ABC)
+  - `C0A3-OBSIDIAN-LOG` → base `OBSIDIAN-LOG` (histórico Obsidian + PTN + ABC)
+  - Relaciones cruzadas:
+    - `TODOIST-TAREAS` → `NOTION-LOG`
+    - `NOTION-LOG` → `OBSIDIAN-LOG`
+    - `OBSIDIAN-LOG` → `NOTION-LOG` (retorno)
 - `B0B-ABC`: taxonomía del sistema
 - `B0B-ABC` (contextos):
   - `C0B4-AREA` → base `ABC-Areas`
   - `C0B5-BLOQUE` → base `ABC-Bloques`
   - `C0B6-CONTEXTO` → base `ABC-Contextos`
 - `B0C-PLA`: planificación y dirección (`PTN`)
-  - `C0a1-INX`
-  - `C0b2-ABC`
-  - `C0c3-PLA`
+  - `C0C7-PROYECTOS`
+  - `C0C8-TAREAS`
+  - `C0C9-NOTAS`
 
 ## A1-INV
 

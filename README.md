@@ -52,10 +52,11 @@ La taxonomía `ABC` organiza Notion por `Área -> Bloque -> Contexto`. En el sis
 
 - `A0-GTD`: sistema operativo
   - `B00-GTD`: `MAR` y ejecución en Todoist
-  - `B0A-INX`: índices y catálogos maestros (`KIT`, `REP`, `BIB`)
-    - `C0A1-KIT` → base `KIT`
-    - `C0A2-REP` → base `REP`
-    - `C0A3-BIB` → base `BIB`
+- `B0A-INX`: integración y trazabilidad entre sistemas
+  - `C0A1-TODOIST` → `TODOIST-TAREAS` (relación PTN + ABC)
+  - `C0A2-NOTION-LOG` → `NOTION-LOG` (histórico PTN + ABC)
+  - `C0A3-OBSIDIAN-LOG` → `OBSIDIAN-LOG` (histórico Obsidian + PTN + ABC)
+  - Relaciones cruzadas: `TODOIST-TAREAS` → `NOTION-LOG` → `OBSIDIAN-LOG` (+ retorno a `NOTION-LOG`)
   - `B0B-ABC`: taxonomía estructural
   - `B0C-PLA`: dirección y planificación (`PTN`)
 - `A1-INV`: investigación
@@ -123,6 +124,10 @@ NOTION_DB_REPOS=
 PAPERPILE_BIBTEX_URL=
 NOTION_BIB_PARENT_PAGE=
 NOTION_DB_BIB=
+
+TODOIST_DB_TAREAS=
+NOTION_DB_LOG=
+OBSIDIAN_DB_LOG=
 
 OBSIDIAN_ABGD_ROOT=
 OBSIDIAN_ALPHA_PATH=
@@ -352,10 +357,10 @@ Solución práctica para que los agentes funcionen:
 
 Mapeo operativo confirmado bajo `A0-GTD`:
 
-- `B0A-KIT` (página accesible) → índices y catálogos maestros:
-  - `C0A1-KIT` → base `KIT`
-  - `C0A2-REP` → base `REP`
-  - `C0A3-BIB` → base `BIB`
+- `B0A-INX` (página accesible) → integración y trazabilidad:
+  - `C0A1-TODOIST` → `TODOIST-TAREAS`
+  - `C0A2-NOTION-LOG` → `NOTION-LOG`
+  - `C0A3-OBSIDIAN-LOG` → `OBSIDIAN-LOG`
 - `B0B-ABC` (página accesible) → taxonomía `ABC`
 - `B0C-PLA` (página accesible) → `PTN`:
   - `C0C7-PROYECTOS` → `PTN-Proyectos`
