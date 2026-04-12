@@ -56,19 +56,19 @@ Los agentes deben conocer y respetar la filosofía del sistema: no se improvisa,
 | Sistema | Ubicación canónica en Notion | Regla |
 |---------|-------------------------------|--------|
 | `PTN` | `A0-GTD / B0C-PLA / C0C7-PROYECTOS, C0C8-TAREAS, C0C9-NOTAS` | Dirige el trabajo y distribuye contexto operativo |
-| `KIT` | `A0-GTD / B0A-KIT` | Índice maestro de conocimiento |
-| `REP` | `A0-GTD / B0A-KIT` | Catálogo técnico de repositorios |
-| `BIB` | `A0-GTD / B0A-KIT` | Catálogo maestro de bibliografía |
+| `KIT` | `A0-GTD / B0A-INX` (pendiente de reubicación) | Índice maestro de conocimiento |
+| `REP` | `A0-GTD / B0A-INX` (pendiente de reubicación) | Catálogo técnico de repositorios |
+| `BIB` | `A0-GTD / B0A-INX` (pendiente de reubicación) | Catálogo maestro de bibliografía |
 | `BACK-*` | `A5-BACK` o `Z9_BACK` | Nunca mezclar con catálogos operativos |
 
 ### Mapa maestro `ABC`
 
 - `A0-GTD`
   - `B00-GTD`: `MAR`
-  - `B0A-KIT`: `KIT`, `REP`, `BIB`
-    - `C0A1-KIT` → base `KIT`
-    - `C0A2-REP` → base `REP`
-    - `C0A3-BIB` → base `BIB`
+  - `B0A-INX`: integración y trazabilidad
+    - `C0A1-TODOIST` → `TODOIST-TAREAS`
+    - `C0A2-NOTION` → `NOTION`
+    - `C0A3-OBSIDIAN` → `OBSIDIAN`
   - `B0B-ABC`: taxonomía `Área / Bloque / Contexto`
   - `B0C-PLA`: `PTN`
 - `A1-INV`
@@ -261,6 +261,9 @@ coworkia/
 | `PAPERPILE_BIBTEX_URL` | Paperpile | URL de Automatic BibTeX Export |
 | `NOTION_BIB_PARENT_PAGE` | Notion | Página padre de BIB-Bibliografía |
 | `NOTION_DB_BIB` | Notion | ID de la BD BIB-Bibliografía |
+| `TODOIST_DB_TAREAS` | Notion | BD `TODOIST-TAREAS` (C0A1-TODOIST) |
+| `NOTION_DB` | Notion | BD `NOTION` (C0A2-NOTION) |
+| `OBSIDIAN_DB` | Notion | BD `OBSIDIAN` (C0A3-OBSIDIAN) |
 | `OBSIDIAN_ABGD_ROOT` | Obsidian | Ruta raíz del vault ABGD |
 | `OBSIDIAN_ALPHA_PATH` | Obsidian | Ruta a la carpeta Alpha |
 

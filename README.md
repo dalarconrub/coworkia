@@ -54,9 +54,9 @@ La taxonomía `ABC` organiza Notion por `Área -> Bloque -> Contexto`. En el sis
   - `B00-GTD`: `MAR` y ejecución en Todoist
 - `B0A-INX`: integración y trazabilidad entre sistemas
   - `C0A1-TODOIST` → `TODOIST-TAREAS` (relación PTN + ABC)
-  - `C0A2-NOTION-LOG` → `NOTION-LOG` (histórico PTN + ABC)
-  - `C0A3-OBSIDIAN-LOG` → `OBSIDIAN-LOG` (histórico Obsidian + PTN + ABC)
-  - Relaciones cruzadas: `TODOIST-TAREAS` → `NOTION-LOG` → `OBSIDIAN-LOG` (+ retorno a `NOTION-LOG`)
+  - `C0A2-NOTION` → `NOTION` (histórico PTN + ABC)
+  - `C0A3-OBSIDIAN` → `OBSIDIAN` (histórico Obsidian + PTN + ABC)
+  - Relaciones cruzadas: `TODOIST-TAREAS` → `NOTION` → `OBSIDIAN` (+ retorno a `NOTION`)
   - `B0B-ABC`: taxonomía estructural
   - `B0C-PLA`: dirección y planificación (`PTN`)
 - `A1-INV`: investigación
@@ -126,8 +126,8 @@ NOTION_BIB_PARENT_PAGE=
 NOTION_DB_BIB=
 
 TODOIST_DB_TAREAS=
-NOTION_DB_LOG=
-OBSIDIAN_DB_LOG=
+NOTION_DB=
+OBSIDIAN_DB=
 
 OBSIDIAN_ABGD_ROOT=
 OBSIDIAN_ALPHA_PATH=
@@ -359,8 +359,8 @@ Mapeo operativo confirmado bajo `A0-GTD`:
 
 - `B0A-INX` (página accesible) → integración y trazabilidad:
   - `C0A1-TODOIST` → `TODOIST-TAREAS`
-  - `C0A2-NOTION-LOG` → `NOTION-LOG`
-  - `C0A3-OBSIDIAN-LOG` → `OBSIDIAN-LOG`
+  - `C0A2-NOTION` → `NOTION`
+  - `C0A3-OBSIDIAN` → `OBSIDIAN`
 - `B0B-ABC` (página accesible) → taxonomía `ABC`
 - `B0C-PLA` (página accesible) → `PTN`:
   - `C0C7-PROYECTOS` → `PTN-Proyectos`

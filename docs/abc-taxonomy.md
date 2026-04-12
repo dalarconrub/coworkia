@@ -15,8 +15,8 @@ Jerarquía:
 - `B0A-INX`: índices y catálogos (`KIT`, `REP`, `BIB`)
 - `B0A-INX` (contextos):
   - `C0A1-TODOIST` → base `TODOIST-TAREAS` (relación PTN + ABC)
-  - `C0A2-NOTION-LOG` → base `NOTION-LOG` (histórico PTN + ABC)
-  - `C0A3-OBSIDIAN-LOG` → base `OBSIDIAN-LOG` (histórico Obsidian + PTN + ABC)
+  - `C0A2-NOTION` → base `NOTION` (histórico PTN + ABC)
+  - `C0A3-OBSIDIAN` → base `OBSIDIAN` (histórico Obsidian + PTN + ABC)
   - Relaciones cruzadas:
     - `TODOIST-TAREAS` → `NOTION-LOG`
     - `NOTION-LOG` → `OBSIDIAN-LOG`
