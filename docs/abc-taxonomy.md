@@ -12,15 +12,15 @@ Jerarquía:
 
 - `B00-GTD`: ejecución (`MAR`)
   - `C000-GTD`
-- `B0A-INX`: índices y catálogos (`KIT`, `REP`, `BIB`)
+- `B0A-INX`: integración y trazabilidad entre sistemas
 - `B0A-INX` (contextos):
   - `C0A1-TODOIST` → base `TODOIST-TAREAS` (relación PTN + ABC)
   - `C0A2-NOTION` → base `NOTION` (histórico PTN + ABC)
   - `C0A3-OBSIDIAN` → base `OBSIDIAN` (histórico Obsidian + PTN + ABC)
   - Relaciones cruzadas:
-    - `TODOIST-TAREAS` → `NOTION-LOG`
-    - `NOTION-LOG` → `OBSIDIAN-LOG`
-    - `OBSIDIAN-LOG` → `NOTION-LOG` (retorno)
+    - `TODOIST-TAREAS` → `NOTION`
+    - `NOTION` → `OBSIDIAN`
+    - `OBSIDIAN` → `NOTION` (retorno)
 - `B0B-ABC`: taxonomía del sistema
 - `B0B-ABC` (contextos):
   - `C0B4-AREA` → base `ABC-Areas`
