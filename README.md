@@ -313,6 +313,10 @@ python apps/notion_doctor.py
 python tools/sync_todoist_to_notion.py
 python tools/log_ptn_changes.py
 python tools/log_obsidian_changes.py
+python tools/create_inx_links_db.py
+python tools/sync_inx_links.py --source todoist --limit 200
+python tools/sync_inx_links.py --source notion --limit 200
+python tools/sync_inx_links.py --source obsidian --limit 200
 ```
 
 ## Arranque En Windows

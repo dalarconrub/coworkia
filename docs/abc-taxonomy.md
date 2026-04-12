@@ -25,6 +25,7 @@ Jerarquía:
     - `TODOIST-TAREAS`: alta/movimiento de tareas Todoist + relación PTN/ABC
     - `NOTION`: cambios en PTN (proyectos/tareas/notas) con fecha y relación
     - `OBSIDIAN`: cambios en notas Obsidian con fecha y relación PTN/ABC
+    - `INX-ENLACES`: base puente canónica (IDs + relaciones cruzadas)
 - `B0B-ABC`: taxonomía del sistema
 - `B0B-ABC` (contextos):
   - `C0B4-AREA` → base `ABC-Areas`
