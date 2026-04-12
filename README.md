@@ -307,6 +307,14 @@ python apps/config_doctor.py
 python apps/notion_doctor.py
 ```
 
+## B0A-INX (llenado manual)
+
+```bash
+python tools/sync_todoist_to_notion.py
+python tools/log_ptn_changes.py
+python tools/log_obsidian_changes.py
+```
+
 ## Arranque En Windows
 
 Accesos principales:
