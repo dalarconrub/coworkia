@@ -57,6 +57,10 @@ La taxonomía `ABC` organiza Notion por `Área -> Bloque -> Contexto`. En el sis
   - `C0A2-NOTION` → `NOTION` (histórico PTN + ABC)
   - `C0A3-OBSIDIAN` → `OBSIDIAN` (histórico Obsidian + PTN + ABC)
   - Relaciones cruzadas: `TODOIST-TAREAS` → `NOTION` → `OBSIDIAN` (+ retorno a `NOTION`)
+  - Criterio de llenado:
+    - `TODOIST-TAREAS`: alta/movimiento de tareas Todoist + relación PTN/ABC
+    - `NOTION`: cambios en PTN (proyectos/tareas/notas)
+    - `OBSIDIAN`: cambios en notas Obsidian
   - `B0B-ABC`: taxonomía estructural
   - `B0C-PLA`: dirección y planificación (`PTN`)
 - `A1-INV`: investigación

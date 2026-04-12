@@ -21,6 +21,10 @@ Jerarquía:
     - `TODOIST-TAREAS` → `NOTION`
     - `NOTION` → `OBSIDIAN`
     - `OBSIDIAN` → `NOTION` (retorno)
+  - Criterio de llenado:
+    - `TODOIST-TAREAS`: alta/movimiento de tareas Todoist + relación PTN/ABC
+    - `NOTION`: cambios en PTN (proyectos/tareas/notas) con fecha y relación
+    - `OBSIDIAN`: cambios en notas Obsidian con fecha y relación PTN/ABC
 - `B0B-ABC`: taxonomía del sistema
 - `B0B-ABC` (contextos):
   - `C0B4-AREA` → base `ABC-Areas`
