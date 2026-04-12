@@ -319,6 +319,14 @@ python tools/sync_inx_links.py --source notion --limit 200
 python tools/sync_inx_links.py --source obsidian --limit 200
 ```
 
+Estado actual de INX (resumen):
+
+- `INX-ENLACES` total: 458
+- Con relaciones PTN:
+  - Proyectos: 6
+  - Tareas: 1
+  - Notas: 1
+
 ## Arranque En Windows
 
 Accesos principales:
