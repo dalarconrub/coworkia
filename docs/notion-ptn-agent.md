@@ -15,6 +15,34 @@ Regla:
 - una nota siempre pertenece a una tarea
 - una nota sin tarea no forma parte del modelo PTN
 
+## Vistas operativas recomendadas (manual en Notion)
+
+Notion no permite crear vistas por API. Estas vistas se configuran manualmente en la UI:
+
+### En cada página de **Proyecto**
+
+Insertar una **Linked Database** de `PTN-Tareas` y filtrar:
+
+- Filtro: `Proyecto` contiene el ID o referencia del proyecto actual
+- Nombre sugerido de vista: `Tareas del proyecto`
+
+### En cada página de **Tarea**
+
+Insertar una **Linked Database** de `PTN-Notas` y filtrar:
+
+- Filtro: `Tarea` contiene el ID o referencia de la tarea actual
+- Nombre sugerido de vista: `Notas de la tarea`
+
+### En cada página de **Nota**
+
+Insertar **Linked Databases** de:
+
+- `KIT`
+- `REP`
+- `BIB`
+
+Aplicar filtros según los medios necesarios para la nota.
+
 ## Data Sources
 
 Ubicación canónica en Notion: `A0-GTD / B0C-PLA` y dividido en:
