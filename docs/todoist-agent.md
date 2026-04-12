@@ -112,6 +112,15 @@ Proyectos activos esperados:
   `B30-VIT`, `B37-ORG`, `B38-TEC`, `B39-DES`,
   `B40-REF`, `B4X-LIB`, `B4Y-MED`, `B4Z-APP`
 
+### Secciones C en A0
+
+Dentro de los bloques `A0` (B00/B0A/B0B/B0C) se crean secciones C:
+
+- `B00-GTD`: `C000-GTD`
+- `B0A-INX`: `C0A1-TODOIST`, `C0A2-NOTION`, `C0A3-OBSIDIAN`
+- `B0B-ABC`: `C0B4-AREA`, `C0B5-BLOQUE`, `C0B6-CONTEXTO`
+- `B0C-PLA`: `C0C7-PROYECTOS`, `C0C8-TAREAS`, `C0C9-NOTAS`
+
 ### Zonas Z-*
 
 Los proyectos `Z-*` son buffers de entrada y limpieza.
