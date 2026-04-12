@@ -52,6 +52,11 @@ def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | N
             "Fuente": {"select": {"name": "Todoist"}},
             "Todoist ID": {"rich_text": [{"text": {"content": tid}}]},
         }
+        # Relaciones PTN si existen en TODOIST-TAREAS
+        for rel, name in [("PTN Proyecto", "PTN Proyecto"), ("PTN Tarea", "PTN Tarea"), ("PTN Nota", "PTN Nota")]:
+            rel_val = props.get(rel, {}).get("relation", [])
+            if rel_val:
+                data[name] = {"relation": rel_val}
         for rel, name in [("Area", "Area"), ("Bloque", "Bloque"), ("Contexto", "Contexto")]:
             rel_val = props.get(rel, {}).get("relation", [])
             if rel_val:
