@@ -65,6 +65,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Sync Todoist -> Notion")
     parser.add_argument("--limit", type=int, default=None, help="Limitar número de tareas procesadas")
     parser.add_argument("--skip-completed", action="store_true", help="No marcar completadas")
+    parser.add_argument("--offset", type=int, default=0, help="Desplazamiento en la lista de tareas")
+    parser.add_argument("--save-active", action="store_true", help="Guardar IDs activos en artifacts")
+    parser.add_argument("--finalize-completed", action="store_true", help="Marcar completadas usando artifacts")
+    parser.add_argument("--finalize-limit", type=int, default=None, help="Limitar completadas por ejecución")
     args = parser.parse_args()
 
     db_id = os.getenv("TODOIST_DB_TAREAS")
@@ -77,6 +81,8 @@ def main() -> int:
     projects = _todoist_project_map()
     sections = _todoist_section_map()
     tasks = get_tasks(include_excluded=False)
+    if args.offset:
+        tasks = tasks[args.offset:]
     if args.limit:
         tasks = tasks[:args.limit]
     existing = _existing_map(db_id)
@@ -119,11 +125,33 @@ def main() -> int:
             create_page(parent_id=db_id, title=nombre, properties=props, is_data_source=True)
         synced += 1
 
-    # Marcar completadas las tareas que ya no están activas (solo en sync completo)
-    if existing and not args.limit and not args.skip_completed:
+    # Guardar activos para batch
+    if args.save_active:
+        os.makedirs("artifacts", exist_ok=True)
+        path = os.path.join("artifacts", "todoist_active_ids.txt")
+        mode = "a" if args.offset else "w"
+        with open(path, mode, encoding="utf-8") as fh:
+            for tid in sorted(active_ids):
+                fh.write(f"{tid}\n")
+
+    # Marcar completadas usando artifacts (batch finalize)
+    if args.finalize_completed and existing:
+        path = os.path.join("artifacts", "todoist_active_ids.txt")
+        if os.path.exists(path):
+            with open(path, "r", encoding="utf-8") as fh:
+                active_from_file = {line.strip() for line in fh if line.strip()}
+        else:
+            active_from_file = active_ids
+        processed = 0
         for tid, page_id in existing.items():
-            if tid not in active_ids:
+            if tid not in active_from_file:
                 update_page_properties(page_id, {"Estado": {"select": {"name": "Completada"}}})
+                processed += 1
+                if args.finalize_limit and processed >= args.finalize_limit:
+                    break
+        # limpiar archivo tras finalizar
+        if os.path.exists(path) and not args.finalize_limit:
+            os.remove(path)
 
     print(f"Tareas sincronizadas: {synced}")
     return 0

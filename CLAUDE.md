@@ -277,3 +277,8 @@ coworkia/
 - APIs: Todoist REST v1, Notion v2022-06-28, GitHub REST v3, Paperpile (BibTeX export)
 - Cada agente tiene CLI con argparse y puede usarse de forma independiente
 - Sin frameworks innecesarios — código directo y legible
+
+
+<!-- Protocolo multiagente: ver .claude/multiagent.md -->
+<!-- al final del CLAUDE.md existente -->
+@import .claude/multiagent.md

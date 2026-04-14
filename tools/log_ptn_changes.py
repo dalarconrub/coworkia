@@ -59,7 +59,7 @@ def _log_changes(ds_id: str, log_db: str, tipo: str, state: dict) -> int:
         title = title or "(sin titulo)"
 
         log_props = {
-            "Evento": {"title": [{"text": {"content": f\"{tipo}: {title}\"}}]},
+            "Evento": {"title": [{"text": {"content": f"{tipo}: {title}"}}]},
             "Fecha": {"date": {"start": edited.date().isoformat()}},
             "Tipo": {"select": {"name": tipo}},
             "Fuente ID": {"rich_text": [{"text": {"content": r['id']}}]},
