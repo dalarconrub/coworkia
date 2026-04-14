@@ -29,6 +29,7 @@ O desde `apps/` con:
 - comprueba que `.env` exista y tenga las credenciales necesarias
 - ejecuta `apps\config_doctor.bat` para ver exactamente que variable o ruta falta
 - ejecuta `apps\notion_doctor.bat` si el problema es Notion y necesitas localizar IDs o permisos
+  - Si tarda demasiado, usa modo rápido: `set NOTION_DOCTOR_FAST=1` antes de ejecutar
 
 ## Accesos principales
 

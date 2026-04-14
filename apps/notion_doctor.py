@@ -11,7 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.notion_tools import get_data_sources, get_databases, get_pages
+from tools.notion_tools import get_data_sources, get_databases, get_pages, _headers
+import requests
 
 
 ENV_PATH = ROOT / ".env"
@@ -113,9 +114,39 @@ def main() -> int:
         return 1
 
     try:
-        data_sources = get_data_sources()
-        databases = get_databases()
-        pages = get_pages()
+        fast = os.getenv("NOTION_DOCTOR_FAST", "1") == "1"
+        if fast:
+            # Búsqueda rápida: una sola página del endpoint /search
+            resp = requests.post(
+                "https://api.notion.com/v1/search",
+                headers=_headers(),
+                json={"page_size": 50},
+            )
+            resp.raise_for_status()
+            results = resp.json().get("results", [])
+            data_sources = []
+            databases = []
+            pages = []
+            for r in results:
+                obj = r.get("object")
+                if obj in ("database", "data_source"):
+                    databases.append({
+                        "id": r["id"],
+                        "title": r.get("title", [{}])[0].get("plain_text", "(sin titulo)") if r.get("title") else "(sin titulo)",
+                        "object": obj,
+                    })
+                    if obj == "data_source":
+                        data_sources.append(databases[-1])
+                elif obj == "page":
+                    pages.append({
+                        "id": r["id"],
+                        "title": r.get("properties", {}).get("title", {}).get("title", [{}])[0].get("plain_text", "(sin titulo)"),
+                        "object": "page",
+                    })
+        else:
+            data_sources = get_data_sources()
+            databases = get_databases()
+            pages = get_pages()
     except Exception as exc:
         print(f"Error al consultar Notion: {exc}")
         print("Revisa que el token sea valido y que la integracion tenga acceso compartido.")
