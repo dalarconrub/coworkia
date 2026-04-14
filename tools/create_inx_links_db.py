@@ -25,8 +25,18 @@ def _schema() -> dict:
     return {
         "Elemento": {"title": {}},
         "Clave": {"rich_text": {}},
-        "Fuente": {"select": {"options": []}},
-        "Estado": {"select": {"options": []}},
+        "Fuente": {"select": {"options": [
+            {"name": "Todoist", "color": "red"},
+            {"name": "Notion", "color": "blue"},
+            {"name": "Obsidian", "color": "green"},
+            {"name": "Manual", "color": "gray"},
+        ]}},
+        "Estado": {"select": {"options": [
+            {"name": "Activo", "color": "yellow"},
+            {"name": "Verificado", "color": "green"},
+            {"name": "Roto", "color": "red"},
+            {"name": "Archivado", "color": "gray"},
+        ]}},
         "Todoist ID": {"rich_text": {}},
         "PTN Proyecto": {"relation": {"database_id": PTN_PROY, "type": "single_property", "single_property": {}}},
         "PTN Tarea": {"relation": {"database_id": PTN_TAR, "type": "single_property", "single_property": {}}},

@@ -241,21 +241,23 @@ def classify_mar_type(task: dict) -> str:
     due = task.get("due")
     deadline = task.get("deadline")
 
-    if not due and not deadline:
-        return "idea"
-
     due_date = (due or {}).get("date", "") or ""
     is_recurring = bool((due or {}).get("is_recurring", False))
     has_time = "T" in due_date
     has_deadline = bool(deadline and deadline.get("date"))
 
+    # Reglas MAR (David):
+    # - Evento: cualquier cosa con hora (due con hora), da igual el resto
+    # - Hábito: cualquier cosa recurrente, da igual el resto
+    # - Meta: sin hora, no recurrente, con deadline (da igual si hay due o no)
+    # - Tarea: sin hora, no recurrente, sin deadline, con due (fecha)
+    # - Idea: sin due, sin deadline, sin hora (implícito)
     if has_time:
         return "evento"
-    if is_recurring and not has_deadline:
+    if is_recurring:
         return "habito"
     if has_deadline:
-        return "tarea"
-    if due and not has_time:
         return "meta"
-
+    if due and not has_time:
+        return "tarea"
     return "idea"

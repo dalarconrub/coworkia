@@ -319,6 +319,21 @@ python tools/sync_inx_links.py --source notion --limit 200
 python tools/sync_inx_links.py --source obsidian --limit 200
 ```
 
+Atajos en Windows (`.bat`):
+
+```bat
+apps\sync_todoist_to_notion.bat 200
+apps\ensure_todoist_tasks_schema.bat
+apps\mar_doctor.bat
+apps\mar_check.bat 200 --no-pause
+```
+
+Cadena INX completa (Todoist/PTN/Obsidian → INX-ENLACES):
+
+```bash
+python agents/orchestrator_agent.py inx-sync --limit 200
+```
+
 Estado actual de INX (resumen):
 
 - `INX-ENLACES` total: 458

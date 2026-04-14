@@ -38,3 +38,10 @@ O desde `apps/` con:
 - Diagnostico de Notion: [notion_doctor.bat](/c:/Users/David/Desktop/MSI-20260321/03-GAMA/coworkia/apps/notion_doctor.bat)
 - Iniciar desde raiz: [INICIAR_COWORKIA.bat](/c:/Users/David/Desktop/MSI-20260321/03-GAMA/coworkia/INICIAR_COWORKIA.bat)
 - Iniciar desde apps: [project_hub_gui.bat](/c:/Users/David/Desktop/MSI-20260321/03-GAMA/coworkia/apps/project_hub_gui.bat)
+
+## Comandos útiles (B0A-INX / MAR)
+
+- Sync Todoist → Notion: `apps\sync_todoist_to_notion.bat 200`
+- Asegurar columnas TODOIST-TAREAS (una vez): `apps\ensure_todoist_tasks_schema.bat`
+- Doctor MAR (checks opcionales): `apps\mar_doctor.bat`
+- Check completo (sync + doctor): `apps\mar_check.bat 200 --no-pause`

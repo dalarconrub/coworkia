@@ -107,6 +107,12 @@ def get_database_info(database_id: str, object_type: str = "database") -> dict:
     if not db:
         return {"id": database_id, "title": "(no accesible)", "properties": [], "data_sources": []}
 
+    property_types: dict[str, str] = {}
+    raw_props = db.get("properties", {}) if isinstance(db.get("properties", {}), dict) else {}
+    for name, meta in raw_props.items():
+        if isinstance(meta, dict) and isinstance(meta.get("type"), str):
+            property_types[name] = meta["type"]
+
     # Extraer data sources si existen (multi-source)
     data_sources = []
     for ds in db.get("data_sources", []):
@@ -120,6 +126,7 @@ def get_database_info(database_id: str, object_type: str = "database") -> dict:
         "id": db["id"],
         "title": _extract_title(db),
         "properties": list(db.get("properties", {}).keys()),
+        "property_types": property_types,
         "data_sources": data_sources,
         "raw": db,
     }
@@ -193,6 +200,30 @@ def create_database(parent_page_id: str, title: str, properties: dict) -> dict:
     resp.raise_for_status()
     return resp.json()
 
+
+def update_database_properties(database_id: str, properties: dict) -> dict:
+    """
+    Añade/actualiza propiedades del schema de una base de datos o data source.
+    Intenta primero como data_source y luego como database legacy.
+    """
+    last_error = None
+    for url in (
+        f"{BASE_URL}/data_sources/{database_id}",
+        f"{BASE_URL}/databases/{database_id}",
+    ):
+        try:
+            resp = requests.patch(url, headers=_headers(), json={"properties": properties})
+            resp.raise_for_status()
+            return resp.json()
+        except requests.HTTPError as exc:
+            last_error = exc
+            status = exc.response.status_code if exc.response is not None else None
+            if status not in (400, 404):
+                raise
+
+    if last_error:
+        raise last_error
+    raise RuntimeError("No se pudo actualizar el schema de la base/data_source.")
 
 def add_page_to_database(database_id: str, properties: dict) -> dict:
     """Añade una fila a una base de datos existente."""

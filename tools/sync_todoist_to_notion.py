@@ -58,6 +58,40 @@ def _todoist_section_map() -> dict[str, str]:
 def _has_prop(schema: dict, name: str) -> bool:
     return name in schema
 
+def _first_existing_prop(schema_set: set[str], names: list[str]) -> str | None:
+    for n in names:
+        if n in schema_set:
+            return n
+    return None
+
+def _prop_type(prop_types: dict[str, str], name: str) -> str:
+    return prop_types.get(name, "")
+
+def _set_rich_text(props: dict, key: str, value: str) -> None:
+    if value is None:
+        return
+    value = str(value).strip()
+    if not value:
+        return
+    props[key] = {"rich_text": [{"text": {"content": value[:2000]}}]}
+
+def _set_number(props: dict, key: str, value) -> None:
+    if value is None:
+        return
+    try:
+        n = float(value)
+    except Exception:
+        return
+    props[key] = {"number": n}
+
+def _set_checkbox(props: dict, key: str, value: bool) -> None:
+    props[key] = {"checkbox": bool(value)}
+
+def _set_date(props: dict, key: str, value: str) -> None:
+    if not value:
+        return
+    props[key] = {"date": {"start": value}}
+
 
 def main() -> int:
     import argparse
@@ -76,8 +110,10 @@ def main() -> int:
         print("Falta TODOIST_DB_TAREAS en .env")
         return 2
 
-    schema = get_database_info(db_id, object_type="data_source").get("properties", [])
+    db_info = get_database_info(db_id, object_type="data_source")
+    schema = db_info.get("properties", [])
     schema_set = set(schema or [])
+    prop_types = db_info.get("property_types", {}) or {}
     projects = _todoist_project_map()
     sections = _todoist_section_map()
     tasks = get_tasks(include_excluded=False)
@@ -93,6 +129,21 @@ def main() -> int:
         todoist_id = str(task.get("id"))
         active_ids.add(todoist_id)
         nombre = task.get("content", "").strip() or "(sin titulo)"
+        desc = (task.get("description", "") or "").strip()
+        project_id = str(task.get("project_id") or "").strip()
+        section_id = str(task.get("section_id") or "").strip()
+        parent_id = str(task.get("parent_id") or "").strip()
+        creator_id = str(task.get("creator_id") or "").strip()
+        created_at = str(task.get("created_at") or "").strip()
+        comment_count = task.get("comment_count", None)
+        order = task.get("order", None)
+        due = task.get("due") or {}
+        deadline = task.get("deadline") or {}
+        due_date = (due.get("date") or "").strip()
+        due_timezone = (due.get("timezone") or "").strip()
+        due_string = (due.get("string") or "").strip()
+        is_recurring = bool(due.get("is_recurring", False))
+        deadline_date = (deadline.get("date") or "").strip()
         estado = "Activa"
         tipo = classify_mar_type(task)
         prioridad = str(task.get("priority", 1))
@@ -117,6 +168,79 @@ def main() -> int:
             props["URL"] = {"url": task["url"]}
         if section_name and _has_prop(schema_set, "Seccion Todoist"):
             props["Seccion Todoist"] = {"rich_text": [{"text": {"content": section_name}}]}
+        if desc:
+            desc_prop = _first_existing_prop(schema_set, ["Descripcion", "Descripción", "Description"])
+            if desc_prop:
+                props[desc_prop] = {"rich_text": [{"text": {"content": desc[:2000]}}]}
+
+        # Mapeos adicionales (solo si existen propiedades en Notion)
+        # IDs de estructura
+        for candidates, val in [
+            (["Todoist Project ID", "Todoist Proyecto ID", "Proyecto Todoist ID"], project_id),
+            (["Todoist Section ID", "Todoist Seccion ID", "Seccion Todoist ID"], section_id),
+            (["Todoist Parent ID", "Parent ID", "Todoist Padre ID"], parent_id),
+            (["Todoist Creator ID", "Creator ID", "Todoist Creador ID"], creator_id),
+        ]:
+            key = _first_existing_prop(schema_set, candidates)
+            if key and val:
+                ptype = _prop_type(prop_types, key)
+                if ptype == "number":
+                    _set_number(props, key, val)
+                else:
+                    _set_rich_text(props, key, val)
+
+        # Timestamps
+        created_key = _first_existing_prop(schema_set, ["Creada", "Created at", "Todoist Created at", "Creada en"])
+        if created_key and created_at:
+            # Notion date acepta ISO8601; si la propiedad no es date, guardamos texto.
+            if _prop_type(prop_types, created_key) == "date":
+                _set_date(props, created_key, created_at)
+            else:
+                _set_rich_text(props, created_key, created_at)
+
+        # Due / Deadline separados si existen
+        due_key = _first_existing_prop(schema_set, ["Due", "Fecha due", "Fecha (due)", "Fecha Todoist", "Due date"])
+        if due_key and due_date:
+            if _prop_type(prop_types, due_key) == "date":
+                _set_date(props, due_key, due_date)
+            else:
+                _set_rich_text(props, due_key, due_date)
+
+        deadline_key = _first_existing_prop(schema_set, ["Deadline", "Vencimiento", "Fecha límite", "Fecha limite", "Deadline date"])
+        if deadline_key and deadline_date:
+            if _prop_type(prop_types, deadline_key) == "date":
+                _set_date(props, deadline_key, deadline_date)
+            else:
+                _set_rich_text(props, deadline_key, deadline_date)
+
+        # Campos de due extra
+        tz_key = _first_existing_prop(schema_set, ["Timezone", "Zona horaria", "Todoist Timezone"])
+        if tz_key and due_timezone:
+            _set_rich_text(props, tz_key, due_timezone)
+        due_string_key = _first_existing_prop(schema_set, ["Due string", "Texto due", "Todoist Due string"])
+        if due_string_key and due_string:
+            _set_rich_text(props, due_string_key, due_string)
+        recurring_key = _first_existing_prop(schema_set, ["Recurrencia", "Recurring", "Es recurrente", "Todoist Recurring"])
+        if recurring_key:
+            if _prop_type(prop_types, recurring_key) == "checkbox":
+                _set_checkbox(props, recurring_key, is_recurring)
+            else:
+                _set_rich_text(props, recurring_key, "Sí" if is_recurring else "No")
+
+        # Conteos/orden (si existen)
+        cc_key = _first_existing_prop(schema_set, ["Comentarios", "Comment count", "Todoist Comment count"])
+        if cc_key and comment_count is not None:
+            if _prop_type(prop_types, cc_key) == "number":
+                _set_number(props, cc_key, comment_count)
+            else:
+                _set_rich_text(props, cc_key, str(comment_count))
+
+        order_key = _first_existing_prop(schema_set, ["Orden", "Order", "Todoist Order"])
+        if order_key and order is not None:
+            if _prop_type(prop_types, order_key) == "number":
+                _set_number(props, order_key, order)
+            else:
+                _set_rich_text(props, order_key, str(order))
 
         page_id = existing.get(todoist_id)
         if page_id:

@@ -50,6 +50,7 @@ def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | N
         title = extract_property_value(props.get("Tarea", {})) or f"Todoist {tid}"
         data = {
             "Fuente": {"select": {"name": "Todoist"}},
+            "Estado": {"select": {"name": "Activo"}},
             "Todoist ID": {"rich_text": [{"text": {"content": tid}}]},
         }
         # Relaciones PTN si existen en TODOIST-TAREAS
@@ -79,6 +80,7 @@ def _sync_ptn_log(db_links: str, db_notion: str, existing: dict, limit: int | No
         title = extract_property_value(props.get("Evento", {})) or source_id
         data = {
             "Fuente": {"select": {"name": "Notion"}},
+            "Estado": {"select": {"name": "Activo"}},
         }
         for rel, name in [("PTN Proyecto", "PTN Proyecto"), ("PTN Tarea", "PTN Tarea"), ("PTN Nota", "PTN Nota")]:
             rel_val = props.get(rel, {}).get("relation", [])
@@ -106,6 +108,7 @@ def _sync_obsidian(db_links: str, db_obsidian: str, existing: dict, limit: int |
         title = extract_property_value(props.get("Evento", {})) or path
         data = {
             "Fuente": {"select": {"name": "Obsidian"}},
+            "Estado": {"select": {"name": "Activo"}},
             "Obsidian Ruta": {"rich_text": [{"text": {"content": path}}]},
         }
         for rel, name in [("Area", "Area"), ("Bloque", "Bloque"), ("Contexto", "Contexto")]:

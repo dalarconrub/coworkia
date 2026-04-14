@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import subprocess
 import sys
 from datetime import date
 
@@ -20,6 +21,14 @@ sys.stdout.reconfigure(encoding="utf-8")
 from multiagents.artifacts import render_sprint_markdown, write_sprint_artifact
 from multiagents.planner import plan_sprint
 from multiagents.registry import ALL_AGENTS, SCRUM_ROLES
+
+
+def _run_step(script_rel_path: str, args: list[str] | None = None) -> int:
+    root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    script = os.path.join(root, script_rel_path)
+    cmd = [sys.executable, script] + (args or [])
+    proc = subprocess.run(cmd, cwd=root)
+    return int(proc.returncode or 0)
 
 
 def listar_agentes() -> str:
@@ -57,6 +66,35 @@ def generar_sprint(objetivo: str, nombre: str, inicio: str | None, dias: int, gu
     return render_sprint_markdown(plan)
 
 
+def inx_sync(limit: int | None) -> int:
+    """
+    Cadena mínima para mantener B0A-INX coherente:
+      1) Todoist -> NOTION TODOIST-TAREAS
+      2) PTN -> log NOTION (B0A-INX)
+      3) Obsidian -> log OBSIDIAN (B0A-INX)
+      4) Upsert a INX-ENLACES
+    """
+    steps: list[tuple[str, list[str]]] = []
+
+    todoist_args: list[str] = []
+    if limit is not None:
+        todoist_args += ["--limit", str(limit)]
+    steps.append(("tools/sync_todoist_to_notion.py", todoist_args))
+    steps.append(("tools/log_ptn_changes.py", []))
+    steps.append(("tools/log_obsidian_changes.py", []))
+
+    inx_args: list[str] = ["--source", "all"]
+    if limit is not None:
+        inx_args += ["--limit", str(limit)]
+    steps.append(("tools/sync_inx_links.py", inx_args))
+
+    for script, args in steps:
+        code = _run_step(script, args)
+        if code != 0:
+            return code
+    return 0
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Orquestador Scrum multiagente para Coworkia")
     subparsers = parser.add_subparsers(dest="comando")
@@ -71,6 +109,9 @@ if __name__ == "__main__":
     p_sprint.add_argument("--dias", type=int, default=14, help="Duración del sprint")
     p_sprint.add_argument("--guardar", action="store_true", help="Guardar artefacto markdown en artifacts/sprints")
 
+    p_inx = subparsers.add_parser("inx-sync", help="Ejecutar cadena de sincronización INX (Todoist/PTN/Obsidian -> INX-ENLACES)")
+    p_inx.add_argument("--limit", type=int, default=None, help="Limitar elementos procesados (solo para fuentes enumerables)")
+
     args = parser.parse_args()
 
     if args.comando == "agentes":
@@ -79,6 +120,8 @@ if __name__ == "__main__":
         print(listar_roles())
     elif args.comando == "plan-sprint":
         print(generar_sprint(args.objetivo, args.nombre, args.inicio, args.dias, args.guardar))
+    elif args.comando == "inx-sync":
+        raise SystemExit(inx_sync(args.limit))
     else:
         parser.print_help()
 
