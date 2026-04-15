@@ -32,7 +32,19 @@ Surge una idea/acción en cualquier contexto (móvil/PC) y se captura en Todoist
 3. (Opcional) Añadir labels que indiquen contexto.
 4. Sincronizar a Notion para trazabilidad y reporting.
 
-## Checklist ejecutable (v1)
+## Reglas MAR canónicas (Coworkia)
+
+El clasificador en código (`tools/todoist_tools.py`, `classify_mar_type`) y el espejo en Notion siguen este orden de prioridad:
+
+| Tipo | Regla |
+| --- | --- |
+| **Evento** | Cualquier cosa con **hora** en `Due` (da igual lo demás). |
+| **Hábito** | Cualquier cosa **recurrente** (da igual lo demás, salvo que si hay hora primero cuenta como Evento). |
+| **Meta** | Sin hora, no recurrente, **con `Deadline`**. `Due` (fecha) opcional. |
+| **Tarea** | Sin hora, no recurrente, **sin `Deadline`**, **con `Due`** solo como fecha (día). |
+| **Idea** | Sin `Due` y sin `Deadline`. |
+
+## Checklist ejecutable (v2)
 
 ### Checklist — Paso 0 (una vez): asegurar schema en Notion
 
@@ -50,12 +62,12 @@ apps\ensure_todoist_tasks_schema.bat
 
 ### Checklist — Clasificación MAR (en Todoist)
 
-- [ ] Decidir tipo MAR y reflejarlo con los campos nativos de Todoist:
-  - [ ] **Idea**: sin fecha y sin deadline.
-  - [ ] **Meta**: fecha (día) sin hora.
-  - [ ] **Tarea**: deadline (si aplica) sin hora fija.
-  - [ ] **Evento**: hora fija (due con hora).
-  - [ ] **Hábito**: recurrencia.
+- [ ] Ajustar campos nativos según la tabla de reglas (arriba). Referencia rápida:
+  - [ ] **Idea**: sin `Due` y sin `Deadline`.
+  - [ ] **Tarea**: `Due` (solo día, sin hora), sin `Deadline`, no recurrente.
+  - [ ] **Meta**: `Deadline` presente; sin hora en `Due`; no recurrente (`Due` opcional).
+  - [ ] **Evento**: `Due` con hora.
+  - [ ] **Hábito**: recurrente.
 - [ ] Ajustar prioridad si importa (si no, dejar por defecto).
 - [ ] (Opcional) Añadir labels de contexto (mínimo, sin sobre-etiquetar).
 
@@ -84,6 +96,8 @@ apps\sync_todoist_to_notion.bat 200 --no-pause
 ```bat
 apps\mar_check.bat 200 --no-pause
 ```
+
+- [ ] (Opcional) Doctor MAR regla a regla: `apps\mar_doctor.bat --check-duplicates`, `--check-evento-hora`, `--check-meta-deadline`, `--check-tarea-fecha`, etc. Ver `apps\mar_doctor.py --help`.
 
 - [ ] Verificar que la tarea aparece/actualiza en `TODOIST-TAREAS` (Notion):
   - [ ] `Todoist ID` relleno
@@ -120,15 +134,22 @@ apps\mar_check.bat 200 --no-pause
 - **Notion**: `TODOIST-TAREAS` (propiedades `Todoist ID`, `Estado`, `Tipo MAR`, `Fecha`, `Due`, `Deadline`, `Recurrencia`, `Descripcion`, `URL`, `Labels`)
 - **Métrica**: una captura debería tardar < 30s; el sync debería tardar < 2–3 min para 200 tareas.
 
-## Gaps (lo que falta hoy)
+## Gaps (pendientes opcionales)
 
-- No hay “reglas” automáticas para derivar `Tipo MAR` de forma perfecta (p.ej. distinguir Meta vs Tarea con precisión).
-- Falta un check de calidad: tareas sin fecha + sin deadline + sin contexto mínimo cuando deberían tenerlo.
+- Mapeo opcional desde labels/proyecto/sección a ABC/PTN (sin romper autoridad de Todoist).
+- Reglas ad hoc por prioridad o por proyecto (si se quieren en el futuro).
 
-## Mejoras propuestas (acciones)
+## Estado del caso (v2)
 
-- Añadir un “doctor” MAR: reporte de tareas con propiedades inconsistentes (sin fecha cuando deberían, prioridad fuera de rango, etc.).
-- Añadir “reglas de mapeo” desde labels/proyecto/sección a ABC/PTN cuando aplique (sin romper autoridad de Todoist).
+- **Clasificador MAR** alineado con la tabla de reglas: `classify_mar_type` en `tools/todoist_tools.py`.
+- **Doctor MAR**: `apps/mar_doctor.py` (checks activables con flags; incluye `--check-tipo-consistency`).
+- **Check en un paso**: `apps\mar_check.bat` (sync + todos los checks; usar `--no-pause` en terminal).
+
+## Mejoras ya implementadas
+
+- Sync Todoist → Notion ampliado (descripción, Due/Deadline separados, IDs, etc.) y `.bat` de ayuda.
+- Schema `TODOIST-TAREAS` asegurable con `apps\ensure_todoist_tasks_schema.bat`.
+- Orquestación INX: `python agents/orchestrator_agent.py inx-sync` (cadena B0A-INX; fuera del flujo mínimo de este caso).
 
 ## Fallos típicos y diagnóstico rápido
 

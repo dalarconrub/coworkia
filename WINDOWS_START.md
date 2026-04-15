@@ -45,3 +45,7 @@ O desde `apps/` con:
 - Asegurar columnas TODOIST-TAREAS (una vez): `apps\ensure_todoist_tasks_schema.bat`
 - Doctor MAR (checks opcionales): `apps\mar_doctor.bat`
 - Check completo (sync + doctor): `apps\mar_check.bat 200 --no-pause`
+- INX solo desde Todoist (`TODOIST-TAREAS` → `INX-ENLACES`): `apps\inx_sync_todoist.bat 200 --no-pause`
+- Log PTN → `NOTION_DB`: `apps\log_ptn_changes.bat --no-pause`
+- INX desde log PTN (`NOTION_DB` → `INX-ENLACES`): `apps\inx_sync_notion.bat 200 --no-pause`
+- INX solo desde log Obsidian: `apps\inx_sync_obsidian.bat 200 --no-pause`

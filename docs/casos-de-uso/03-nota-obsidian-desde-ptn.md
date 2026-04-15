@@ -1,79 +1,129 @@
-## Caso de uso: Crear nota Obsidian desde PTN y dejarla enlazada (INX)
+# Caso de uso: Crear nota Obsidian desde PTN y dejarla enlazada (INX)
 
-### Objetivo
+## Objetivo
 
-Crear una nota (documento) en Obsidian asociada a un proyecto/tarea PTN y dejar la trazabilidad lista para navegar desde Notion y desde Obsidian.
+Crear una nota (`.md`) en Obsidian asociada a un **proyecto o tarea PTN**, y dejar **trazabilidad** en Notion (`OBSIDIAN_DB` + `INX-ENLACES`) para poder navegar entre PTN, el documento y el resto del puente INX.
 
-### Actores
+## Actores
 
 - **Usuario**: David
-- **Sistema(s)**: Notion (PTN + INX), Obsidian (documento), Notion (OBSIDIAN_DB + sync)
+- **Sistema(s)**: Obsidian (documento), Notion (PTN, `OBSIDIAN_DB`, `INX-ENLACES`)
 
-### Trigger
+## Trigger
 
-Un proyecto/tarea requiere pensamiento extendido, documentación o registro (decisiones, investigación, borradores).
+Un proyecto o tarea PTN requiere **pensamiento extendido**, documentación, decisiones o borradores que no caben solo en Notion/Todoist.
 
-### Precondiciones
+## Precondiciones
 
-- Vault ABGD accesible (`OBSIDIAN_ABGD_ROOT`, `OBSIDIAN_ALPHA_PATH`).
-- DB `OBSIDIAN_DB` en Notion configurada.
+- `.env` con:
+  - `OBSIDIAN_ABGD_ROOT`, `OBSIDIAN_ALPHA_PATH` (vault ABGD accesible)
+  - `OBSIDIAN_DB` (base log en Notion)
+  - `NOTION_DB_INX`
+  - Variables PTN si vas a relacionar desde INX: `NOTION_DS_PROYECTOS` / tareas / notas según tu flujo
 
-### Fuente de verdad (autoridad)
+## Fuente de verdad (autoridad)
 
-- **Documento**: Obsidian (ruta y contenido)
-- **Relación documento↔proyecto**: Notion (PTN) + `INX-ENLACES`
+- **Contenido y ruta del documento**: Obsidian
+- **Metadatos y relaciones tácticas**: Notion (PTN + log Obsidian + INX)
 
-### Flujo principal (happy path)
+## Contrato INX (clave canónica)
 
-1. En PTN (Notion), seleccionar el proyecto/tarea objetivo.
-2. Crear nota en Obsidian bajo la ruta ABC correspondiente.
-3. Registrar el cambio en `OBSIDIAN_DB` (log).
-4. Sincronizar `INX-ENLACES` desde Obsidian para que exista `Clave=obsidian:<ruta_relativa>`.
-5. Relacionar esa fila INX con el proyecto/tarea PTN.
+- Para una nota por ruta relativa al vault Alpha: **`Clave=obsidian:<ruta_relativa>`** (como en `sync_inx_links`).
+- La fila puede llevar **Area / Bloque / Contexto** si el path sigue ABC y **relaciones PTN** si existen en la fila fuente del log `OBSIDIAN_DB`.
 
-### Postcondiciones / Resultado verificable
+## Flujo principal (happy path)
 
-- Existe un archivo `.md` en Obsidian con ruta relativa estable.
-- En Notion `OBSIDIAN_DB` aparece una entrada (si el log corrió).
-- En `INX-ENLACES` existe:
-  - `Clave=obsidian:<ruta>`
-  - `Obsidian Ruta=<ruta>`
-  - relaciones ABC (si se detectan) y relación PTN (si se completó).
+1. En Notion PTN, tener claro el **proyecto o tarea** objetivo (IDs o enlaces).
+2. Crear o editar un `.md` en Obsidian bajo la jerarquía ABC (Alpha).
+3. Ejecutar el **log** Obsidian → Notion (`OBSIDIAN_DB`).
+4. Ejecutar sync **INX** desde fuente Obsidian para upsert en `INX-ENLACES`.
+5. En Notion, completar si hace falta la **relación PTN** en la fila de `OBSIDIAN_DB` o en `INX-ENLACES` (según tu schema), y verificar.
 
-### Automatización actual
+## Checklist ejecutable (v2)
 
-- Registrar cambios Obsidian → Notion:
+### Paso 0 — Log de cambios Obsidian → Notion
 
-```bash
-.\.venv\Scripts\python.exe tools/log_obsidian_changes.py
+```bat
+.\.venv\Scripts\python.exe tools\log_obsidian_changes.py
 ```
 
-- Upsert INX desde Obsidian:
+(o desde la raíz con venv ya activo)
 
-```bash
-.\.venv\Scripts\python.exe tools/sync_inx_links.py --source obsidian --limit 200
+### Paso 1 — Crear / guardar la nota en Obsidian
+
+- [ ] Ruta bajo Alpha coherente con ABC (carpetas = área/bloque/contexto cuando aplique).
+- [ ] Guardar el archivo para que el log detecte `mtime`.
+
+### Paso 2 — Propagar a INX (solo fuente Obsidian)
+
+```bat
+apps\inx_sync_obsidian.bat 200 --no-pause
 ```
 
-- Cadena INX completa:
+### Paso 3 — (Opcional) Cadena INX completa
 
-```bash
-.\.venv\Scripts\python.exe agents/orchestrator_agent.py inx-sync --limit 200
+Si además quieres refrescar Todoist + logs PTN + Obsidian + INX:
+
+```bat
+.\.venv\Scripts\python.exe agents\orchestrator_agent.py inx-sync --limit 200
 ```
 
-### Observabilidad
+### Paso 4 — Verificación
 
-- Revisar `artifacts/obsidian_log_state.json` para confirmar que el detector “avanza”.
-- Revisar `INX-ENLACES` por `Clave` prefijo `obsidian:`.
+- [ ] En **`OBSIDIAN_DB`**: entrada reciente con **Ruta** relativa y **Evento** / título coherente.
+- [ ] En **`INX-ENLACES`**: fila con prefijo **`obsidian:`** en **Clave** (o búsqueda por **Obsidian Ruta**).
+- [ ] Relaciones **ABC** o **PTN** presentes si las configuraste en el log o manualmente.
 
-### Gaps (lo que falta hoy)
+## Postcondiciones / Resultado verificable
 
-- No hay un enlace “clickable” de vuelta a Obsidian (depende de si se quiere usar `obsidian://` o enlaces de sistema).
-- Falta automatizar la creación de la relación PTN↔Obsidian (hoy es manual).
+- Archivo `.md` existente en el vault con ruta estable.
+- Entrada en `OBSIDIAN_DB` tras `log_obsidian_changes`.
+- Fila en `INX-ENLACES` para esa ruta (tras `sync_inx_links --source obsidian`).
 
-### Mejoras propuestas (acciones)
+## Criterios de aceptación (Definition of Done)
 
-- Añadir propiedad `URL` en INX para `obsidian://open?...` (si se decide estándar).
-- Comando “link-obsidian-to-ptn” que:
-  - detecte/cree la fila `obsidian:<ruta>` en INX
-  - la relacione con `PTN Proyecto`/`PTN Tarea`
+- [ ] La ruta en Notion coincide con la ruta real del archivo (relativa).
+- [ ] `INX-ENLACES` refleja la fila sin duplicar `Clave` para la misma ruta.
+- [ ] `artifacts\obsidian_log_state.json` avanza (no se queda “atascado” en el tiempo si editas de nuevo).
 
+## Automatización actual
+
+| Acción | Comando |
+| --- | --- |
+| Log Obsidian → Notion | `python tools/log_obsidian_changes.py` |
+| INX solo desde Obsidian | `apps\inx_sync_obsidian.bat` |
+| Cadena INX completa | `python agents/orchestrator_agent.py inx-sync` |
+
+## Observabilidad
+
+- `artifacts/obsidian_log_state.json` — estado del detector por `last_mtime`.
+- `INX-ENLACES` — filas `Clave` con prefijo `obsidian:`.
+
+## Gaps (pendientes)
+
+- Enlace `obsidian://` en propiedad **URL** de INX (convención por definir).
+- Comando único **link-obsidian-to-ptn** (crear/relacionar fila INX con PTN en un paso).
+
+## Mejoras ya implementadas / alineadas
+
+- `log_obsidian_changes.py` crea filas con ABC por ruta y tipo Nota.
+- `sync_inx_links.py` upsertea desde `OBSIDIAN_DB` hacia `INX-ENLACES`.
+
+## Fallos típicos
+
+- **No aparece entrada en el log**: ruta fuera de Alpha, vault mal en `.env`, o archivo no guardado.
+- **INX vacío para Obsidian**: no ejecutaste `sync_inx_links` o falta `NOTION_DB_INX` / permisos.
+
+## Validación práctica (opcional, una vez)
+
+Para comprobar el flujo con una nota real:
+
+1. Ejecuta el validador (hace log Obsidian → Notion, sync INX desde Obsidian y genera informe):
+
+   ```bat
+   apps\validate_case_03.bat --no-pause
+   ```
+
+2. El caso 3 queda **validado** cuando el informe muestra:
+   - `OBSIDIAN_DB ... Con Ruta: N` (N > 0)
+   - `Rutas OBSIDIAN_DB presentes en INX: N/N`

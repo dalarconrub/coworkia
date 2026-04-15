@@ -326,6 +326,10 @@ apps\sync_todoist_to_notion.bat 200
 apps\ensure_todoist_tasks_schema.bat
 apps\mar_doctor.bat
 apps\mar_check.bat 200 --no-pause
+apps\inx_sync_todoist.bat 200 --no-pause
+apps\log_ptn_changes.bat --no-pause
+apps\inx_sync_notion.bat 200 --no-pause
+apps\inx_sync_obsidian.bat 200 --no-pause
 ```
 
 Cadena INX completa (Todoist/PTN/Obsidian → INX-ENLACES):

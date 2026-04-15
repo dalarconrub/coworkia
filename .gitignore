@@ -20,6 +20,10 @@ logs/
 artifacts/sprints/*.md
 !artifacts/sprints/sprint-multiagent-1.md
 
+# Local state (do not commit)
+artifacts/*_log_state.json
+artifacts/*_state.json
+
 # OS
 .DS_Store
 Thumbs.db
