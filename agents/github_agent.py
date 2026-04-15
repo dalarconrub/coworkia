@@ -234,8 +234,16 @@ def sincronizar(db_id: str = None) -> str:
         props = {}
         if info["ultima_actividad"]:
             props["Última actividad"] = {"date": {"start": info["ultima_actividad"]}}
+        if info["creado"]:
+            props["Creado"] = {"date": {"start": info["creado"]}}
         props["Estrellas"] = {"number": info["estrellas"]}
         props["Forks"] = {"number": info["forks"]}
+        if info.get("url"):
+            props["URL"] = {"url": info["url"]}
+        if info.get("descripcion"):
+            props["Descripción"] = {"rich_text": [{"text": {"content": info["descripcion"][:2000]}}]}
+        if info.get("visibilidad"):
+            props["Visibilidad"] = {"select": {"name": info["visibilidad"]}}
         if lenguajes:
             props["Lenguajes"] = {"multi_select": [{"name": l} for l in lenguajes]}
         if info["archivado"]:

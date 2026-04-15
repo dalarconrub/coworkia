@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(C:/Python314/python.exe apps/export_zinbox.py --parent 326622cf-315b-80e7-bc59-eceac9f15815 --dry-run)",
-      "Bash(C:/Python314/python.exe apps/export_zinbox.py --parent 326622cf-315b-80e7-bc59-eceac9f15815)"
+      "Bash(C:/Python314/python.exe apps/export_zinbox.py --parent 326622cf-315b-80e7-bc59-eceac9f15815)",
+      "Bash(grep -l \"raise NotImplementedError\\\\|pass # TODO\\\\|raise ValueError.*TODO\" /c/Users/David/Desktop/MSI-20260321/03-GAMA/coworkia/agents/*.py /c/Users/David/Desktop/MSI-20260321/03-GAMA/coworkia/apps/*.py)"
     ]
   }
 }

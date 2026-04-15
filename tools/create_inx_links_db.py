@@ -29,6 +29,8 @@ def _schema() -> dict:
             {"name": "Todoist", "color": "red"},
             {"name": "Notion", "color": "blue"},
             {"name": "Obsidian", "color": "green"},
+            {"name": "GitHub", "color": "purple"},
+            {"name": "Paperpile", "color": "orange"},
             {"name": "Manual", "color": "gray"},
         ]}},
         "Estado": {"select": {"options": [

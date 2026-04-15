@@ -259,6 +259,10 @@ if __name__ == "__main__":
     p_nueva.add_argument("--proyecto",  default=None)
     p_nueva.add_argument("--tarea",     default=None)
 
+    p_prom = subparsers.add_parser("promote-ptn", help="Promover nota Obsidian a PTN-Notas")
+    p_prom.add_argument("nombre", help="Nombre de la nota en vault (con o sin .md)")
+    p_prom.add_argument("--proyecto", default=None, help="ID o nombre del proyecto PTN")
+
     args = parser.parse_args()
 
     if args.comando == "mapa":
@@ -277,5 +281,9 @@ if __name__ == "__main__":
         print(nueva_nota(args.area, args.bloque, args.contexto, args.nombre,
                          contenido=args.contenido, fecha=args.fecha,
                          proyecto=args.proyecto, tarea=args.tarea))
+    elif args.comando == "promote-ptn":
+        from tools.promote_obsidian_to_ptn import promote
+        res = promote(args.nombre, args.proyecto)
+        print(f"{res['action']}: {res['titulo']} (fecha={res['fecha']}) id={res['id']}")
     else:
         parser.print_help()

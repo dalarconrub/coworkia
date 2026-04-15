@@ -463,6 +463,14 @@ if __name__ == "__main__":
     p_nn.add_argument("--fecha",    default=None, help="YYYY-MM-DD")
     p_nn.add_argument("--proyecto", default=None, help="ID del proyecto")
 
+    p_lr = subparsers.add_parser("link-repo-to-ptn", help="Enlazar repo GitHub (REP) a proyecto PTN via INX")
+    p_lr.add_argument("repo", help="Nombre exacto del repo en REP-Repositorios")
+    p_lr.add_argument("proyecto", help="ID o nombre del proyecto PTN")
+
+    p_lp = subparsers.add_parser("link-paper-to-ptn", help="Enlazar paper Paperpile (BIB) a proyecto PTN via INX")
+    p_lp.add_argument("citekey", help="Citekey del paper en BIB-Bibliografía")
+    p_lp.add_argument("proyecto", help="ID o nombre del proyecto PTN")
+
     args = parser.parse_args()
 
     if args.comando == "recursos":
@@ -503,5 +511,13 @@ if __name__ == "__main__":
     elif args.comando == "nueva-nota":
         n = crear_nota(args.titulo, tarea=args.tarea, fecha=args.fecha, proyecto_id=args.proyecto)
         print(f"Nota creada: {n['id']}")
+    elif args.comando == "link-repo-to-ptn":
+        from tools.sync_inx_links import link_repo_to_ptn
+        res = link_repo_to_ptn(args.repo, args.proyecto)
+        print(f"Enlazado {res['key']} -> proyecto {res['proyecto_id']}")
+    elif args.comando == "link-paper-to-ptn":
+        from tools.sync_inx_links import link_paper_to_ptn
+        res = link_paper_to_ptn(args.citekey, args.proyecto)
+        print(f"Enlazado {res['key']} -> proyecto {res['proyecto_id']}")
     else:
         parser.print_help()
