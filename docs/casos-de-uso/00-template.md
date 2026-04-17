@@ -23,7 +23,7 @@
 - **Todoist**: `task_id`, `url`
 - **Notion**: `page_id`/`database_id`/`data_source_id`, `url`
 - **Obsidian**: `ruta_relativa` (y opcionalmente frontmatter si aplica)
-- **INX**: `Clave` canónica (`todoist:<id>` / `ptn:<id>` / `obsidian:<ruta>` / `github:<owner>/<repo>` / `bib:<citekey>`)
+- **INX**: `Clave` canónica (`todoist:<id>` / `ptn:<id>` / `obsidian:<ruta>` / `github:<Nombre>` / `paperpile:<citekey>`)
 
 ### Fuente de verdad (autoridad)
 

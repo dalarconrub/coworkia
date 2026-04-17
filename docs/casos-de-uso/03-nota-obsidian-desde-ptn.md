@@ -70,9 +70,27 @@ Si además quieres refrescar Todoist + logs PTN + Obsidian + INX:
 
 ### Paso 4 — Verificación
 
-- [ ] En **`OBSIDIAN_DB`**: entrada reciente con **Ruta** relativa y **Evento** / título coherente.
-- [ ] En **`INX-ENLACES`**: fila con prefijo **`obsidian:`** en **Clave** (o búsqueda por **Obsidian Ruta**).
+- [x] En **`OBSIDIAN_DB`**: entrada reciente con **Ruta** relativa y **Evento** / título coherente.
+- [x] En **`INX-ENLACES`**: fila con prefijo **`obsidian:`** en **Clave** (o búsqueda por **Obsidian Ruta**).
 - [ ] Relaciones **ABC** o **PTN** presentes si las configuraste en el log o manualmente.
+
+Validación técnica realizada el `2026-04-17`:
+
+- `tools/log_obsidian_changes.py` → `Entradas de log creadas: 0`
+- `tools/validate_case_03.py`:
+  - `OBSIDIAN_DB: 28 filas únicas`
+  - `Con Ruta: 28`
+  - `INX-ENLACES: 584 filas únicas`
+  - `Clave obsidian:*: 28`
+  - `Rutas OBSIDIAN_DB presentes en INX: 28/28`
+  - `OK: la cadena caso 3 está verificable (rutas de Obsidian reflejadas en INX).`
+- Comprobación local adicional:
+  - Rutas en `OBSIDIAN_DB` con fichero existente bajo `OBSIDIAN_ALPHA_PATH`: `28/28`
+  - Rutas faltantes en disco: `0`
+
+Nota de implementación:
+
+- En el estado actual no hay relaciones PTN en `OBSIDIAN_DB` ni en las filas `obsidian:*` de `INX-ENLACES` (`0` detectadas por el validador), así que ese aspecto del caso sigue siendo manual/no validado.
 
 ## Postcondiciones / Resultado verificable
 
@@ -82,8 +100,8 @@ Si además quieres refrescar Todoist + logs PTN + Obsidian + INX:
 
 ## Criterios de aceptación (Definition of Done)
 
-- [ ] La ruta en Notion coincide con la ruta real del archivo (relativa).
-- [ ] `INX-ENLACES` refleja la fila sin duplicar `Clave` para la misma ruta.
+- [x] La ruta en Notion coincide con la ruta real del archivo (relativa).
+- [x] `INX-ENLACES` refleja la fila sin duplicar `Clave` para la misma ruta.
 - [ ] `artifacts\obsidian_log_state.json` avanza (no se queda “atascado” en el tiempo si editas de nuevo).
 
 ## Automatización actual

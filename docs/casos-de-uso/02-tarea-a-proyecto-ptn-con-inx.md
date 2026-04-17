@@ -72,9 +72,29 @@ Alternativa (cadena completa B0A-INX: Todoist + logs PTN/Obsidian + INX):
 
 ### Paso 4 — Verificación
 
-- [ ] En **`INX-ENLACES`**: existe fila con **Clave** `todoist:<TodoistID>` (o búsqueda por **Todoist ID** / título).
-- [ ] La propiedad **PTN Proyecto** en esa fila apunta al proyecto correcto.
+- [x] En **`INX-ENLACES`**: existe fila con **Clave** `todoist:<TodoistID>` (o búsqueda por **Todoist ID** / título).
+- [x] La propiedad **PTN Proyecto** en esa fila apunta al proyecto correcto.
 - [ ] (Opcional) **Estado** = Activo en filas nuevas del sync.
+
+Validación técnica realizada el `2026-04-17`:
+
+- `tools/sync_todoist_to_notion.py --limit 200` → `Tareas sincronizadas: 77`
+- `tools/validate_case_02.py`:
+  - `TODOIST-TAREAS: 437 filas únicas`
+  - `Con relación PTN Proyecto: 3`
+  - `INX-ENLACES: 584 filas únicas`
+  - `Clave todoist:* con PTN Proyecto: 3`
+  - `OK: la cadena caso 2 está verificable (hay PTN en INX para fuente Todoist).`
+
+Ejemplos reales detectados por el validador:
+
+- `todoist:6gPF7FfC8MM6wW2c` → `BECAS PARA EL PRÓXIMO CURSO 2026/2027`
+- `todoist:6gP3VJJxVMXf29pc` → `TFG ALEXIA TS ...`
+- `todoist:6gF9HPmj7hW4fHcc` → `Christian Articulos ...`
+
+Nota de implementación:
+
+- En esta validación, `tools/sync_inx_links.py --source todoist --limit 200` devolvió una vez `504 Gateway Timeout` al consultar Notion. El validador posterior sí confirmó que el caso funciona con datos reales, así que el riesgo observado es de estabilidad/latencia de Notion, no de diseño del caso.
 
 ## Postcondiciones / Resultado verificable
 

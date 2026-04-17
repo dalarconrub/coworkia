@@ -1,8 +1,8 @@
-# Caso de uso: Capturar en la Bandeja de entrada de Todoist (Inbox) y clasificar a MAR
+# Caso de uso: Capturar en el inbox normal de Todoist y clasificar a MAR
 
 ## Objetivo
 
-Capturar rápidamente una entrada (idea/acción) en Todoist y dejarla **clasificada en MAR** con el mínimo contexto necesario para que pueda ejecutarse o derivarse a PTN/Obsidian.
+Capturar rápidamente una entrada (idea/acción) en el **inbox normal** de Todoist y dejarla **clasificada en MAR** con el mínimo contexto necesario para que pueda ejecutarse o derivarse a PTN/Obsidian.
 
 ## Actores
 
@@ -11,14 +11,19 @@ Capturar rápidamente una entrada (idea/acción) en Todoist y dejarla **clasific
 
 ## Trigger
 
-Surge una idea/acción en cualquier contexto (móvil/PC) y se captura en Todoist.
+Surge una idea/acción en cualquier contexto (móvil/PC) y se captura en el inbox normal de Todoist.
 
 ## Precondiciones
 
-- Todoist operativo y **Bandeja de entrada** accesible (Inbox), p. ej. `https://app.todoist.com/app/inbox`.
+- Todoist operativo y **Bandeja de entrada normal** accesible (Inbox), p. ej. `https://app.todoist.com/app/inbox`.
 - `.env` configurado para sincronización a Notion:
   - `TODOIST_API_KEY`
   - `TODOIST_DB_TAREAS`
+
+Nota:
+
+- Este caso cubre el flujo que sí entra en `tools/sync_todoist_to_notion.py`.
+- `Z-INBOX` es un flujo distinto de captura/triage y hoy queda excluido del sync operativo normal.
 
 ## Fuente de verdad (autoridad)
 
@@ -48,22 +53,22 @@ El clasificador en código (`tools/todoist_tools.py`, `classify_mar_type`) y el 
 
 ### Checklist — Paso 0 (una vez): asegurar schema en Notion
 
-- [ ] Ejecutar (crea columnas necesarias en `TODOIST-TAREAS` para mapear propiedades Todoist):
+- [x] Ejecutar (crea columnas necesarias en `TODOIST-TAREAS` para mapear propiedades Todoist):
 
 ```bat
 apps\ensure_todoist_tasks_schema.bat
 ```
 
-### Checklist — Captura (Inbox)
+### Checklist — Captura (inbox normal)
 
-- [ ] Abrir la Bandeja de entrada (Inbox) de Todoist: `https://app.todoist.com/app/inbox`
-- [ ] Crear la tarea con texto mínimo claro (verbo + objeto).
-- [ ] (Opcional) Añadir 1 línea de detalle si el texto no basta para ejecutarla en frío.
+- [ ] Abrir la Bandeja de entrada normal (Inbox) de Todoist: `https://app.todoist.com/app/inbox`
+- [x] Crear la tarea con texto mínimo claro (verbo + objeto).
+- [x] (Opcional) Añadir 1 línea de detalle si el texto no basta para ejecutarla en frío.
 
 ### Checklist — Clasificación MAR (en Todoist)
 
-- [ ] Ajustar campos nativos según la tabla de reglas (arriba). Referencia rápida:
-  - [ ] **Idea**: sin `Due` y sin `Deadline`.
+- [x] Ajustar campos nativos según la tabla de reglas (arriba). Referencia rápida:
+  - [x] **Idea**: sin `Due` y sin `Deadline`.
   - [ ] **Tarea**: `Due` (solo día, sin hora), sin `Deadline`, no recurrente.
   - [ ] **Meta**: `Deadline` presente; sin hora en `Due`; no recurrente (`Due` opcional).
   - [ ] **Evento**: `Due` con hora.
@@ -73,7 +78,7 @@ apps\ensure_todoist_tasks_schema.bat
 
 ### Checklist — Sincronización a Notion (espejo)
 
-- [ ] Ejecutar el sync Todoist → Notion:
+- [x] Ejecutar el sync Todoist → Notion:
 
 ```bash
 .\.venv\Scripts\python.exe tools/sync_todoist_to_notion.py --limit 200
@@ -97,15 +102,40 @@ apps\sync_todoist_to_notion.bat 200 --no-pause
 apps\mar_check.bat 200 --no-pause
 ```
 
-- [ ] (Opcional) Doctor MAR regla a regla: `apps\mar_doctor.bat --check-duplicates`, `--check-evento-hora`, `--check-meta-deadline`, `--check-tarea-fecha`, etc. Ver `apps\mar_doctor.py --help`.
+- [x] (Opcional) Doctor MAR regla a regla: `apps\mar_doctor.bat --check-duplicates`, `--check-evento-hora`, `--check-meta-deadline`, `--check-tarea-fecha`, etc. Ver `apps\mar_doctor.py --help`.
 
-- [ ] Verificar que la tarea aparece/actualiza en `TODOIST-TAREAS` (Notion):
-  - [ ] `Todoist ID` relleno
-  - [ ] `Estado=Activa` (si corresponde)
-  - [ ] `Tipo MAR` razonable
-  - [ ] `Descripcion` presente si usas descripción en Todoist
-  - [ ] `Due`/`Deadline`/`Recurrencia` coherentes con el tipo MAR (si existen)
+Verificación técnica realizada el `2026-04-17`:
+
+- `tools/ensure_todoist_tasks_schema.py` → `Schema OK: no hay propiedades nuevas que añadir.`
+- `tools/sync_todoist_to_notion.py --limit 200` → `Tareas sincronizadas: 76`
+- `apps/mar_doctor.py` con checks completos → `OK: no se detectaron issues con las reglas actuales.`
+
+- [x] Verificar que la tarea aparece/actualiza en `TODOIST-TAREAS` (Notion):
+  - [x] `Todoist ID` relleno
+  - [x] `Estado=Activa` (si corresponde)
+  - [x] `Tipo MAR` razonable
+  - [x] `Descripcion` presente si usas descripción en Todoist
+  - [x] `Due`/`Deadline`/`Recurrencia` coherentes con el tipo MAR (si existen)
   - [ ] `Fecha` y/o `URL` presentes si aplica
+
+Validación end-to-end realizada el `2026-04-17` con tarea real de prueba:
+
+- Todoist (inbox normal): `6gPwFvJ22qhQ7GCc` → `[TEST CASE 01] Validar inbox normal`
+- Descripción: `Prueba automatica Codex 2026-04-17 para validar el caso de uso 01 en inbox normal`
+- Fila espejo en `TODOIST-TAREAS`: `345622cf-315b-81ca-b82b-d3ed41e4c790`
+- Resultado observado en Notion:
+  - `Estado=Activa`
+  - `Tipo MAR=idea`
+  - `Descripcion` presente
+  - `Due` vacío
+  - `Deadline` vacío
+  - `Recurrencia=✗`
+  - `URL` vacía
+
+Nota de implementación:
+
+- La captura en `Z-INBOX` no valida este caso porque `tools/sync_todoist_to_notion.py` excluye proyectos `Z-*` del flujo operativo normal.
+- La API consultada de Todoist devolvió `url=None` para la tarea de prueba, así que el criterio sobre `URL` queda pendiente de confirmación o ajuste documental.
 
 ## Postcondiciones / Resultado verificable
 
@@ -116,7 +146,7 @@ apps\mar_check.bat 200 --no-pause
 
 ## Criterios de aceptación (Definition of Done)
 
-- [ ] La tarea está en Todoist Inbox (o ya movida si tu flujo lo hace) y es ejecutable/entendible.
+- [ ] La tarea está en el inbox normal de Todoist (o ya movida si tu flujo lo hace) y es ejecutable/entendible.
 - [ ] MAR está representado por campos nativos (due/deadline/hora/recurrence), no por “memoria”.
 - [ ] Tras ejecutar el sync, existe exactamente **1** fila en `TODOIST-TAREAS` con ese `Todoist ID`.
 - [ ] El `URL` de Todoist está presente en Notion (si Todoist lo expone para la tarea).

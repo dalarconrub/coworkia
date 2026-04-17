@@ -159,6 +159,7 @@ En Windows también puedes usar:
 ```bat
 apps\config_doctor.bat
 apps\notion_doctor.bat
+apps\inx_doctor.bat
 ```
 
 ## Uso Rápido
@@ -330,12 +331,15 @@ apps\inx_sync_todoist.bat 200 --no-pause
 apps\log_ptn_changes.bat --no-pause
 apps\inx_sync_notion.bat 200 --no-pause
 apps\inx_sync_obsidian.bat 200 --no-pause
+apps\inx_daily.bat 200
 ```
 
 Cadena INX completa (Todoist/PTN/Obsidian → INX-ENLACES):
 
 ```bash
 python agents/orchestrator_agent.py inx-sync --limit 200
+python apps/inx_doctor.py
+python apps/inx_daily.py --limit 200
 ```
 
 Estado actual de INX (resumen):

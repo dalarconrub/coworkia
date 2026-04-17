@@ -3,14 +3,16 @@ Doctor de calidad de INX-ENLACES.
 
 Reporta:
 - Conteo de filas por Fuente y Estado.
-- Filas INX sin relación PTN (Proyecto/Tarea/Nota).
-- Repos en REP-Repositorios sin entrada INX (huérfanos GitHub).
-- Papers en BIB-Bibliografía sin entrada INX (huérfanos Paperpile).
-- Claves duplicadas (mismo `Clave` en más de una fila).
+- Claves duplicadas.
+- Filas con campos mínimos ausentes según la fuente.
+- Filas sin relación PTN.
+- Repos en REP-Repositorios sin entrada INX.
+- Papers en BIB-Bibliografía sin entrada INX.
 """
 
 from __future__ import annotations
 
+import argparse
 import os
 import sys
 from collections import Counter, defaultdict
@@ -22,7 +24,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from tools.notion_tools import query_data_source, extract_property_value
+from tools.notion_tools import extract_property_value, query_data_source
 
 
 def _get(props: dict, name: str) -> str:
@@ -33,8 +35,71 @@ def _has_relation(props: dict, name: str) -> bool:
     return bool(props.get(name, {}).get("relation"))
 
 
-def main() -> int:
-    db_inx = os.getenv("NOTION_DB_INX")
+def _has_any_ptn(props: dict) -> bool:
+    return any(_has_relation(props, key) for key in ("PTN Proyecto", "PTN Tarea", "PTN Nota"))
+
+
+def _report_section(lines: list[str], title: str, max_lines: int) -> None:
+    print(f"\n[{title}] {len(lines)}")
+    for line in lines[:max_lines]:
+        print(f"  {line}")
+    if len(lines) > max_lines:
+        print(f"  ... ({len(lines) - max_lines} más)")
+
+
+def _required_field_issues(clave: str, elemento: str, fuente: str, props: dict) -> list[str]:
+    prefix = f"[{fuente}] {clave or '(sin clave)'} - {elemento or '(sin elemento)'}"
+    issues: list[str] = []
+
+    if not clave:
+        issues.append(f"{prefix} | falta Clave")
+    if not elemento:
+        issues.append(f"{prefix} | falta Elemento")
+    if not _get(props, "Estado"):
+        issues.append(f"{prefix} | falta Estado")
+
+    if fuente == "Todoist" and not _get(props, "Todoist ID"):
+        issues.append(f"{prefix} | falta Todoist ID")
+    if fuente == "Obsidian" and not _get(props, "Obsidian Ruta"):
+        issues.append(f"{prefix} | falta Obsidian Ruta")
+    if fuente in {"GitHub", "Paperpile"} and not _get(props, "URL"):
+        issues.append(f"{prefix} | falta URL")
+
+    return issues
+
+
+def _repo_orphans(db_repos: str | None, inx_keys: set[str]) -> list[str]:
+    if not db_repos:
+        return []
+    repos = query_data_source(db_repos)
+    return [
+        _get(r["properties"], "Nombre")
+        for r in repos
+        if _get(r["properties"], "Nombre")
+        and f"github:{_get(r['properties'], 'Nombre')}" not in inx_keys
+    ]
+
+
+def _paper_orphans(db_bib: str | None, inx_keys: set[str]) -> list[str]:
+    if not db_bib:
+        return []
+    papers = query_data_source(db_bib)
+    return [
+        _get(r["properties"], "Citekey")
+        for r in papers
+        if _get(r["properties"], "Citekey")
+        and f"paperpile:{_get(r['properties'], 'Citekey')}" not in inx_keys
+    ]
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Doctor de coherencia para INX-ENLACES")
+    parser.add_argument("--db", default=os.getenv("NOTION_DB_INX"), help="ID de INX-ENLACES")
+    parser.add_argument("--max", type=int, default=15, help="Máximo de filas impresas por sección")
+    parser.add_argument("--allow-missing-ptn", action="store_true", help="No fallar por filas sin relación PTN")
+    args = parser.parse_args(argv)
+
+    db_inx = args.db
     db_repos = os.getenv("NOTION_DB_REPOS")
     db_bib = os.getenv("NOTION_DB_BIB")
     if not db_inx:
@@ -42,81 +107,78 @@ def main() -> int:
         return 2
 
     inx_rows = query_data_source(db_inx)
-    print(f"\n=== INX-ENLACES: {len(inx_rows)} filas ===")
+    print(f"=== INX-ENLACES: {len(inx_rows)} filas ===")
 
     by_source = Counter()
     by_state = Counter()
-    sin_ptn = []
-    claves = defaultdict(list)
-    inx_keys = set()
+    duplicates = defaultdict(list)
+    inx_keys: set[str] = set()
+    missing_ptn: list[str] = []
+    missing_required: list[str] = []
 
-    for r in inx_rows:
-        p = r["properties"]
-        clave = _get(p, "Clave")
-        elemento = _get(p, "Elemento")
-        fuente = _get(p, "Fuente") or "(sin fuente)"
-        estado = _get(p, "Estado") or "(sin estado)"
+    for row in inx_rows:
+        props = row.get("properties", {})
+        clave = _get(props, "Clave").strip()
+        elemento = _get(props, "Elemento").strip()
+        fuente = (_get(props, "Fuente") or "(sin fuente)").strip()
+        estado = (_get(props, "Estado") or "(sin estado)").strip()
+
         by_source[fuente] += 1
         by_state[estado] += 1
+
         if clave:
-            claves[clave].append(elemento)
+            duplicates[clave].append(elemento or row["id"])
             inx_keys.add(clave)
-        tiene_ptn = any(_has_relation(p, k) for k in ("PTN Proyecto", "PTN Tarea", "PTN Nota"))
-        if not tiene_ptn:
-            sin_ptn.append((clave or "(sin clave)", elemento, fuente))
+
+        missing_required.extend(_required_field_issues(clave, elemento, fuente, props))
+
+        if not _has_any_ptn(props):
+            missing_ptn.append(f"[{fuente}] {clave or '(sin clave)'} - {elemento or '(sin elemento)'}")
 
     print("\nPor Fuente:")
-    for k, v in sorted(by_source.items(), key=lambda x: -x[1]):
-        print(f"  {k:12s} {v}")
+    for key, value in sorted(by_source.items(), key=lambda item: (-item[1], item[0])):
+        print(f"  {key:12s} {value}")
+
     print("\nPor Estado:")
-    for k, v in sorted(by_state.items(), key=lambda x: -x[1]):
-        print(f"  {k:12s} {v}")
+    for key, value in sorted(by_state.items(), key=lambda item: (-item[1], item[0])):
+        print(f"  {key:12s} {value}")
 
-    duplicados = {k: v for k, v in claves.items() if len(v) > 1}
-    if duplicados:
-        print(f"\n[WARN] {len(duplicados)} claves duplicadas:")
-        for k, v in list(duplicados.items())[:10]:
-            print(f"  {k}: {v}")
+    duplicate_lines = [f"{key}: {values}" for key, values in duplicates.items() if len(values) > 1]
+    if duplicate_lines:
+        _report_section(duplicate_lines, "Claves duplicadas", args.max)
     else:
-        print("\n[OK] Sin claves duplicadas")
+        print("\n[Claves duplicadas] 0")
+        print("  OK")
 
-    print(f"\nINX sin relación PTN: {len(sin_ptn)}")
-    for clave, elem, fuente in sin_ptn[:15]:
-        print(f"  [{fuente}] {clave} — {elem}")
-    if len(sin_ptn) > 15:
-        print(f"  ... ({len(sin_ptn) - 15} más)")
+    if missing_required:
+        _report_section(missing_required, "Campos mínimos ausentes", args.max)
+    else:
+        print("\n[Campos mínimos ausentes] 0")
+        print("  OK")
 
-    if db_repos:
-        repos = query_data_source(db_repos)
-        huerfanos = [
-            _get(r["properties"], "Nombre")
-            for r in repos
-            if _get(r["properties"], "Nombre")
-            and f"github:{_get(r['properties'], 'Nombre')}" not in inx_keys
-        ]
-        print(f"\nREP huérfanos (sin INX): {len(huerfanos)} / {len(repos)}")
-        for n in huerfanos[:10]:
-            print(f"  - {n}")
-        if len(huerfanos) > 10:
-            print(f"  ... ({len(huerfanos) - 10} más)")
-        print("  Solución: python tools/sync_inx_links.py --source github")
+    _report_section(missing_ptn, "Filas sin relación PTN", args.max)
 
-    if db_bib:
-        papers = query_data_source(db_bib)
-        huerfanos = [
-            _get(r["properties"], "Citekey")
-            for r in papers
-            if _get(r["properties"], "Citekey")
-            and f"paperpile:{_get(r['properties'], 'Citekey')}" not in inx_keys
-        ]
-        print(f"\nBIB huérfanos (sin INX): {len(huerfanos)} / {len(papers)}")
-        for c in huerfanos[:10]:
-            print(f"  - {c}")
-        if len(huerfanos) > 10:
-            print(f"  ... ({len(huerfanos) - 10} más)")
-        print("  Solución: python tools/sync_inx_links.py --source paperpile")
+    repo_orphans = _repo_orphans(db_repos, inx_keys)
+    if repo_orphans:
+        _report_section(repo_orphans, "REP huérfanos (sin INX)", args.max)
+        print("  Sugerencia: python tools/sync_inx_links.py --source github")
+    elif db_repos:
+        print("\n[REP huérfanos (sin INX)] 0")
+        print("  OK")
 
-    return 0
+    paper_orphans = _paper_orphans(db_bib, inx_keys)
+    if paper_orphans:
+        _report_section(paper_orphans, "BIB huérfanos (sin INX)", args.max)
+        print("  Sugerencia: python tools/sync_inx_links.py --source paperpile")
+    elif db_bib:
+        print("\n[BIB huérfanos (sin INX)] 0")
+        print("  OK")
+
+    has_failures = bool(duplicate_lines or missing_required or repo_orphans or paper_orphans)
+    if missing_ptn and not args.allow_missing_ptn:
+        has_failures = True
+
+    return 1 if has_failures else 0
 
 
 if __name__ == "__main__":

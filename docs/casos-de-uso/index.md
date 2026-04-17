@@ -11,9 +11,10 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 ## Índice
 
 - `00-template.md` — plantilla para nuevos casos
-- `01-captura-todoist-zinbox.md` — capturar y clasificar en Inbox + MAR (checklist v2, reglas canónicas, `mar_check`)
+- `00-template.md` — plantilla para nuevos casos, alineada con claves INX vigentes (`github:<Nombre>`, `paperpile:<citekey>`)
+- `01-captura-todoist-zinbox.md` — capturar y clasificar en el inbox normal + MAR (checklist v2, reglas canónicas, `mar_check`)
 - `02-tarea-a-proyecto-ptn-con-inx.md` — tarea → proyecto PTN + INX (checklist v2, `inx_sync_todoist.bat`)
 - `03-nota-obsidian-desde-ptn.md` — nota Obsidian + log + INX (checklist v2, `inx_sync_obsidian.bat`)
-- `04-sync-diario-inx.md` — sincronización diaria y verificación de coherencia
-- `05-github-rep-enlazado-a-ptn.md` — importar repo a REP y enlazar a PTN
-- `06-paperpile-bib-enlazado.md` — importar paper a BIB y enlazar a PTN/Obsidian
+- `04-sync-diario-inx.md` — sincronización diaria y verificación de coherencia (`inx_daily`)
+- `05-github-rep-enlazado-a-ptn.md` — importar repo a REP y enlazar a PTN, con sync GitHub → INX ya disponible
+- `06-paperpile-bib-enlazado.md` — importar paper a BIB y enlazar a PTN/Obsidian, con sync Paperpile → INX ya disponible

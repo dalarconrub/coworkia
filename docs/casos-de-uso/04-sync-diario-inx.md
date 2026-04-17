@@ -37,10 +37,16 @@ Inicio del día / cierre del día / antes de planificar.
 
 ## Automatización actual
 
-- Un solo comando:
+- Comando mínimo de sync:
 
 ```bash
 .\.venv\Scripts\python.exe agents/orchestrator_agent.py inx-sync --limit 200
+```
+
+- Comando diario recomendado (sync + doctor + artefacto):
+
+```bash
+.\.venv\Scripts\python.exe apps/inx_daily.py --limit 200 --allow-missing-ptn
 ```
 
 ## Atajos Windows (recomendados)
@@ -66,15 +72,47 @@ apps\inx_sync_obsidian.bat 200 --no-pause
 - `INX-ENLACES`: filtrar por `Estado=Activo` y comprobar fuentes.
 - `artifacts/*_state.json`: estado de los logs.
 
-## Gaps (lo que falta hoy)
+## Estado actual
 
-- No existe un “doctor” que haga auditoría de coherencia (p.ej. filas INX sin `URL` o sin relaciones cuando deberían).
-- No hay scheduling integrado (tarea programada en Windows) ni reporte resumido diario.
+- Existe `apps/inx_doctor.py` para auditar:
+  - duplicados por `Clave`
+  - campos mínimos ausentes según la `Fuente`
+  - filas sin relación PTN
+  - huérfanos de `REP` y `BIB`
+- Existe `apps/inx_daily.py` y `apps\inx_daily.bat` para ejecutar `inx-sync`, pasar el doctor y guardar un informe en `artifacts/inx/`.
+- Sigue sin haber scheduling integrado en Windows; el wrapper ya deja el flujo preparado para programarlo.
+
+Validación técnica realizada el `2026-04-17`:
+
+- `apps/inx_daily.py --limit 200 --allow-missing-ptn` generó el artefacto:
+  - `artifacts/inx/inx-daily-20260417-072710.md`
+- Resultado del artefacto:
+  - `sync=0`
+  - `doctor=1`
+- Sync observado:
+  - `Tareas sincronizadas: 77`
+  - `Entradas de log PTN creadas: 4`
+  - `Entradas de log Obsidian creadas: 0`
+  - `INX enlaces sincronizados: todoist=200 notion=15 obsidian=28 github=113 paperpile=0`
+- Hallazgos del doctor:
+  - `Claves duplicadas: 0`
+  - `Campos mínimos ausentes: 232`
+  - `Filas sin relación PTN: 574`
+  - `REP huérfanos: 0`
+  - `BIB huérfanos: 0`
+
+Lectura operativa:
+
+- La rutina diaria completa funciona y deja artefacto reproducible.
+- El fallo actual del doctor no viene del pipeline, sino de calidad de datos en `INX-ENLACES`, especialmente filas Todoist heredadas sin `Estado`.
 
 ## Mejoras propuestas (acciones)
 
-- `apps/inx_doctor.py`: chequeos de calidad y reporte:
-  - duplicados por `Clave`
-  - `Fuente` sin campos mínimos (`Todoist ID` vacío, `Obsidian Ruta` vacía, etc.)
-  - relaciones vacías para claves que deberían tener PTN (según reglas)
-- `apps/inx_daily.bat`: wrapper para correr `inx-sync` y luego `inx_doctor` y guardar un resumen en `artifacts/`.
+- Añadir una tarea programada en Windows que ejecute:
+
+```bat
+apps\inx_daily.bat 200
+```
+
+- Ajustar reglas de severidad del doctor si algunas fuentes deben tolerar ausencia de relación PTN.
+- Rellenar o normalizar `Estado` en filas antiguas de `INX-ENLACES` para que el doctor deje de fallar por `falta Estado`.
