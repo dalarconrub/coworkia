@@ -20,9 +20,11 @@ logs/
 artifacts/sprints/*.md
 !artifacts/sprints/sprint-multiagent-1.md
 
-# Local state (do not commit)
-artifacts/*_log_state.json
-artifacts/*_state.json
+# Regenerable outputs (each run produces a new file)
+artifacts/inx/
+
+# Nota: los cursores de sync (artifacts/*_log_state.json) SI se versionan
+# para poder retomar el trabajo en otra maquina sin reprocesar desde cero.
 
 # OS
 .DS_Store

@@ -1,0 +1,546 @@
+{
+  "plan": {
+    "sprint_name": "Sprint Multiagent Sync",
+    "objective": "Sincronizar Todoist PTN Obsidian GitHub",
+    "start_date": "2026-04-17",
+    "end_date": "2026-04-30",
+    "status": "planned",
+    "scrum_roles": [
+      {
+        "name": "Product Owner",
+        "mission": "Mantener la visión del sprint, priorizar backlog y validar valor de negocio.",
+        "owned_artifacts": [
+          "Product Goal",
+          "Product Backlog",
+          "Sprint Goal"
+        ]
+      },
+      {
+        "name": "Scrum Master",
+        "mission": "Facilitar el flujo del sprint, coordinar dependencias y eliminar bloqueos.",
+        "owned_artifacts": [
+          "Sprint Plan",
+          "Daily Sync",
+          "Retrospective"
+        ]
+      },
+      {
+        "name": "Developer",
+        "mission": "Entregar incrementos verificables mediante cambios, sincronización o catalogación.",
+        "owned_artifacts": [
+          "Increment",
+          "Task Board",
+          "Definition of Done"
+        ]
+      }
+    ],
+    "squad_agents": [
+      {
+        "key": "scrum_master_orchestrator",
+        "name": "Scrum Master Orchestrator",
+        "kind": "coordination",
+        "scope": "Orquestación global del sistema multiagente",
+        "owned_systems": [
+          "MAR",
+          "PTN",
+          "KIT",
+          "REP",
+          "BIB",
+          "ABGD"
+        ],
+        "owned_operations": [
+          "plan",
+          "coordinate",
+          "sprint"
+        ],
+        "responsibilities": [
+          "Construir squads por objetivo",
+          "Secuenciar trabajo por sprints",
+          "Asignar agentes y definir entregables"
+        ],
+        "interfaces": [
+          "agents/orchestrator_agent.py"
+        ],
+        "cli_entrypoint": "python agents/orchestrator_agent.py",
+        "capabilities": []
+      },
+      {
+        "key": "intake_triage_agent",
+        "name": "Intake & Triage Agent",
+        "kind": "operation",
+        "scope": "Clasificación de solicitudes y derivación al dominio correcto",
+        "owned_systems": [],
+        "owned_operations": [
+          "triage",
+          "routing"
+        ],
+        "responsibilities": [
+          "Analizar la intención de la solicitud",
+          "Asignar agentes de dominio y dependencias",
+          "Detectar si la acción es captura, importación, sincronización, consulta o backup"
+        ],
+        "interfaces": [
+          "multiagents/planner.py"
+        ],
+        "cli_entrypoint": null,
+        "capabilities": []
+      },
+      {
+        "key": "sync_operations_agent",
+        "name": "Sync Operations Agent",
+        "kind": "operation",
+        "scope": "Ejecución y seguimiento de importaciones y sincronizaciones",
+        "owned_systems": [
+          "Todoist",
+          "Notion",
+          "GitHub",
+          "Paperpile",
+          "Obsidian"
+        ],
+        "owned_operations": [
+          "import",
+          "sync",
+          "backup"
+        ],
+        "responsibilities": [
+          "Coordinar importaciones y sincronizaciones",
+          "Encadenar dependencias entre sistemas",
+          "Preparar incrementos verificables por sprint"
+        ],
+        "interfaces": [
+          "apps/backs_todoist.py",
+          "apps/backs_notion.py",
+          "apps/backs_obsidian.py"
+        ],
+        "cli_entrypoint": null,
+        "capabilities": []
+      },
+      {
+        "key": "reporting_retro_agent",
+        "name": "Reporting & Retro Agent",
+        "kind": "operation",
+        "scope": "Artefactos Scrum, seguimiento y retrospectiva",
+        "owned_systems": [],
+        "owned_operations": [
+          "report",
+          "inspect",
+          "retro"
+        ],
+        "responsibilities": [
+          "Generar backlog, sprint plan y resúmenes",
+          "Consolidar hallazgos y bloqueos",
+          "Documentar retrospectivas y acciones de mejora"
+        ],
+        "interfaces": [
+          "multiagents/artifacts.py"
+        ],
+        "cli_entrypoint": null,
+        "capabilities": []
+      },
+      {
+        "key": "todoist_mar_agent",
+        "name": "Todoist MAR Agent",
+        "kind": "domain",
+        "scope": "Dominio Todoist/MAR",
+        "owned_systems": [
+          "MAR",
+          "Todoist"
+        ],
+        "owned_operations": [
+          "capture",
+          "classify",
+          "schedule",
+          "dashboard"
+        ],
+        "responsibilities": [
+          "Clasificar acciones según MAR",
+          "Crear ideas, metas, hábitos, tareas y eventos",
+          "Construir vistas operativas de hoy, pendientes e inbox"
+        ],
+        "interfaces": [
+          "agents/todoist_agent.py",
+          "apps/dashboard.py"
+        ],
+        "cli_entrypoint": "python agents/todoist_agent.py",
+        "capabilities": [
+          {
+            "name": "resumen_hoy",
+            "description": "Resume acciones vigentes para hoy"
+          },
+          {
+            "name": "crear_accion",
+            "description": "Crea acciones Todoist según tipología MAR"
+          }
+        ]
+      },
+      {
+        "key": "notion_ptn_agent",
+        "name": "Notion PTN Agent",
+        "kind": "domain",
+        "scope": "Dominio PTN/Notion",
+        "owned_systems": [
+          "PTN",
+          "Notion"
+        ],
+        "owned_operations": [
+          "create",
+          "query",
+          "relate",
+          "status"
+        ],
+        "responsibilities": [
+          "Gestionar proyectos, tareas y notas",
+          "Consultar data sources PTN",
+          "Crear registros relacionados entre proyectos y tareas"
+        ],
+        "interfaces": [
+          "agents/notion_agent.py"
+        ],
+        "cli_entrypoint": "python agents/notion_agent.py",
+        "capabilities": []
+      },
+      {
+        "key": "github_rep_agent",
+        "name": "GitHub REP Agent",
+        "kind": "domain",
+        "scope": "Dominio REP/GitHub->Notion",
+        "owned_systems": [
+          "REP",
+          "GitHub",
+          "Notion"
+        ],
+        "owned_operations": [
+          "import",
+          "sync",
+          "catalog",
+          "explore"
+        ],
+        "responsibilities": [
+          "Importar repositorios desde GitHub",
+          "Sincronizar metadata técnica",
+          "Catalogar repositorios en Notion"
+        ],
+        "interfaces": [
+          "agents/github_agent.py",
+          "apps/github_gui.py",
+          "apps/catalogar_repos.py"
+        ],
+        "cli_entrypoint": "python agents/github_agent.py",
+        "capabilities": []
+      },
+      {
+        "key": "obsidian_abgd_agent",
+        "name": "Obsidian ABGD Agent",
+        "kind": "domain",
+        "scope": "Dominio ABGD/Obsidian",
+        "owned_systems": [
+          "ABGD",
+          "Obsidian"
+        ],
+        "owned_operations": [
+          "map",
+          "query",
+          "search",
+          "write"
+        ],
+        "responsibilities": [
+          "Navegar la jerarquía del vault",
+          "Buscar y leer notas",
+          "Crear notas en contexto"
+        ],
+        "interfaces": [
+          "agents/obsidian_agent.py"
+        ],
+        "cli_entrypoint": "python agents/obsidian_agent.py",
+        "capabilities": []
+      }
+    ],
+    "backlog": [
+      {
+        "key": "PB-001",
+        "title": "Definir objetivo y criterios de aceptación",
+        "description": "Traducir la petición a backlog operativo y Definition of Done.",
+        "systems": [
+          "Todoist",
+          "PTN",
+          "REP",
+          "ABGD"
+        ],
+        "operations": [
+          "plan"
+        ],
+        "acceptance_criteria": [
+          "Existe sprint goal explícito",
+          "Cada sistema afectado tiene dueño",
+          "Cada resultado tiene criterio verificable"
+        ],
+        "priority": "high",
+        "estimate_points": 3
+      },
+      {
+        "key": "PB-002",
+        "title": "Diseñar squad multiagente por dominio y operación",
+        "description": "Asignar agentes especializados por app y por tipo de trabajo.",
+        "systems": [
+          "Todoist",
+          "PTN",
+          "REP",
+          "ABGD"
+        ],
+        "operations": [
+          "plan"
+        ],
+        "acceptance_criteria": [
+          "Hay un agente de dominio por sistema implicado",
+          "Hay agentes transversales para triage, calidad y reporting",
+          "Se documentan dependencias entre agentes"
+        ],
+        "priority": "high",
+        "estimate_points": 5
+      },
+      {
+        "key": "PB-003",
+        "title": "Preparar incremento del sprint",
+        "description": "Convertir el objetivo en entregables ejecutables sobre el repo actual.",
+        "systems": [
+          "Todoist",
+          "PTN",
+          "REP",
+          "ABGD"
+        ],
+        "operations": [
+          "sync"
+        ],
+        "acceptance_criteria": [
+          "Cada entregable se puede mapear a un archivo o comando",
+          "Cada cambio tiene owner agente",
+          "Se puede inspeccionar el incremento al final del sprint"
+        ],
+        "priority": "high",
+        "estimate_points": 8
+      },
+      {
+        "key": "PB-004",
+        "title": "Orquestar flujo de importación y sincronización",
+        "description": "Secuenciar operaciones entre sistemas externos y el catálogo interno.",
+        "systems": [
+          "Todoist",
+          "PTN",
+          "REP",
+          "ABGD"
+        ],
+        "operations": [
+          "sync"
+        ],
+        "acceptance_criteria": [
+          "Las dependencias están ordenadas",
+          "Los pasos tienen artefacto de salida",
+          "Los riesgos de fallo externo están anotados"
+        ],
+        "priority": "medium",
+        "estimate_points": 5
+      }
+    ],
+    "tasks": [
+      {
+        "key": "ST-001",
+        "title": "Triage de objetivo y composición del squad",
+        "owner_agent": "scrum_master_orchestrator",
+        "scrum_role": "Scrum Master",
+        "depends_on": [],
+        "deliverable": "Sprint Goal, squad matrix y secuencia inicial",
+        "commands": []
+      },
+      {
+        "key": "ST-002",
+        "title": "Preparar incremento en Dominio Todoist/MAR",
+        "owner_agent": "todoist_mar_agent",
+        "scrum_role": "Developer",
+        "depends_on": [
+          "ST-001"
+        ],
+        "deliverable": "Entregable verificable en agents/todoist_agent.py, apps/dashboard.py",
+        "commands": [
+          {
+            "label": "Todoist -> TODOIST-TAREAS",
+            "script_path": "tools/sync_todoist_to_notion.py",
+            "args": [],
+            "accepts_limit": true
+          }
+        ]
+      },
+      {
+        "key": "ST-003",
+        "title": "Preparar incremento en Dominio PTN/Notion",
+        "owner_agent": "notion_ptn_agent",
+        "scrum_role": "Developer",
+        "depends_on": [
+          "ST-001"
+        ],
+        "deliverable": "Entregable verificable en agents/notion_agent.py",
+        "commands": [
+          {
+            "label": "PTN -> log changes",
+            "script_path": "tools/log_ptn_changes.py",
+            "args": [],
+            "accepts_limit": false
+          }
+        ]
+      },
+      {
+        "key": "ST-004",
+        "title": "Preparar incremento en Dominio REP/GitHub->Notion",
+        "owner_agent": "github_rep_agent",
+        "scrum_role": "Developer",
+        "depends_on": [
+          "ST-001"
+        ],
+        "deliverable": "Entregable verificable en agents/github_agent.py, apps/github_gui.py, apps/catalogar_repos.py",
+        "commands": []
+      },
+      {
+        "key": "ST-005",
+        "title": "Preparar incremento en Dominio ABGD/Obsidian",
+        "owner_agent": "obsidian_abgd_agent",
+        "scrum_role": "Developer",
+        "depends_on": [
+          "ST-001"
+        ],
+        "deliverable": "Entregable verificable en agents/obsidian_agent.py",
+        "commands": [
+          {
+            "label": "Obsidian -> log changes",
+            "script_path": "tools/log_obsidian_changes.py",
+            "args": [],
+            "accepts_limit": false
+          }
+        ]
+      },
+      {
+        "key": "ST-006",
+        "title": "Control transversal: Sync Operations Agent",
+        "owner_agent": "sync_operations_agent",
+        "scrum_role": "Developer",
+        "depends_on": [
+          "ST-001"
+        ],
+        "deliverable": "Criterios y soporte transversal para ejecución y seguimiento de importaciones y sincronizaciones",
+        "commands": [
+          {
+            "label": "Upsert INX from all sources",
+            "script_path": "tools/sync_inx_links.py",
+            "args": [
+              "--source",
+              "all"
+            ],
+            "accepts_limit": true
+          }
+        ]
+      },
+      {
+        "key": "ST-007",
+        "title": "Cierre del sprint y retrospectiva",
+        "owner_agent": "reporting_retro_agent",
+        "scrum_role": "Scrum Master",
+        "depends_on": [
+          "ST-001",
+          "ST-002",
+          "ST-003",
+          "ST-004",
+          "ST-005",
+          "ST-006"
+        ],
+        "deliverable": "Sprint Review, métricas y acciones de mejora",
+        "commands": []
+      }
+    ],
+    "events": [
+      "Sprint Planning",
+      "Daily Scrum",
+      "Backlog Refinement",
+      "Sprint Review",
+      "Sprint Retrospective"
+    ],
+    "artifacts": [
+      "Product Goal",
+      "Sprint Goal",
+      "Sprint Backlog",
+      "Increment",
+      "Definition of Done"
+    ]
+  },
+  "task_states": [
+    {
+      "task_key": "ST-001",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-002",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-003",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-004",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-005",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-006",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-007",
+      "status": "pending",
+      "started_at": null,
+      "finished_at": null,
+      "exit_code": null,
+      "artifacts": [],
+      "notes": [],
+      "command_results": []
+    }
+  ],
+  "created_at": "2026-04-17T15:00:08Z",
+  "updated_at": "2026-04-17T15:00:08Z"
+}
