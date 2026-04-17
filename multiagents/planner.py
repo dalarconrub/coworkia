@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import asdict
 from datetime import date, timedelta
 
-from multiagents.models import BacklogItem, SprintPlan, SprintTask
+from multiagents.models import BacklogItem, SprintPlan, SprintTask, TaskCommand
 from multiagents.registry import (
-    ALL_AGENTS,
     COORDINATION_AGENTS,
     DOMAIN_AGENTS,
     OPERATION_AGENTS,
@@ -156,7 +154,70 @@ def build_backlog(goal: str, systems: list[str], operations: list[str]) -> list[
     return items
 
 
-def build_tasks(goal: str, squad_agents: list, backlog: list[BacklogItem]) -> list[SprintTask]:
+def _infer_sync_sources(systems: list[str]) -> list[str]:
+    sources: list[str] = []
+    if any(system in {"MAR", "Todoist"} for system in systems):
+        sources.append("todoist")
+    if "REP" in systems:
+        sources.append("github")
+    if "BIB" in systems:
+        sources.append("paperpile")
+    return sources
+
+
+def _build_task_commands(agent_key: str, systems: list[str], operations: list[str]) -> list[TaskCommand]:
+    commands: list[TaskCommand] = []
+
+    if "sync" not in operations:
+        return commands
+
+    if agent_key == "todoist_mar_agent" and any(system in {"MAR", "Todoist"} for system in systems):
+        commands.append(
+            TaskCommand(
+                label="Todoist -> TODOIST-TAREAS",
+                script_path="tools/sync_todoist_to_notion.py",
+                accepts_limit=True,
+            )
+        )
+    elif agent_key == "notion_ptn_agent" and "PTN" in systems:
+        commands.append(
+            TaskCommand(
+                label="PTN -> log changes",
+                script_path="tools/log_ptn_changes.py",
+            )
+        )
+    elif agent_key == "obsidian_abgd_agent" and "ABGD" in systems:
+        commands.append(
+            TaskCommand(
+                label="Obsidian -> log changes",
+                script_path="tools/log_obsidian_changes.py",
+            )
+        )
+    elif agent_key == "sync_operations_agent":
+        sources = _infer_sync_sources(systems)
+        if len(sources) == 1:
+            commands.append(
+                TaskCommand(
+                    label=f"Upsert INX from {sources[0]}",
+                    script_path="tools/sync_inx_links.py",
+                    args=["--source", sources[0]],
+                    accepts_limit=True,
+                )
+            )
+        elif len(sources) > 1:
+            commands.append(
+                TaskCommand(
+                    label="Upsert INX from all sources",
+                    script_path="tools/sync_inx_links.py",
+                    args=["--source", "all"],
+                    accepts_limit=True,
+                )
+            )
+
+    return commands
+
+
+def build_tasks(goal: str, squad_agents: list, backlog: list[BacklogItem], systems: list[str], operations: list[str]) -> list[SprintTask]:
     coordination_agent = COORDINATION_AGENTS[0]
     tasks: list[SprintTask] = [
         SprintTask(
@@ -182,6 +243,7 @@ def build_tasks(goal: str, squad_agents: list, backlog: list[BacklogItem]) -> li
                 scrum_role="Developer",
                 depends_on=["ST-001"],
                 deliverable=f"Entregable verificable en {', '.join(agent.interfaces)}",
+                commands=_build_task_commands(agent.key, systems, operations),
             )
         )
         task_index += 1
@@ -197,6 +259,7 @@ def build_tasks(goal: str, squad_agents: list, backlog: list[BacklogItem]) -> li
                 scrum_role="Developer",
                 depends_on=["ST-001"],
                 deliverable=f"Criterios y soporte transversal para {agent.scope.lower()}",
+                commands=_build_task_commands(agent.key, systems, operations),
             )
         )
         task_index += 1
@@ -236,7 +299,7 @@ def plan_sprint(
             seen.add(agent.key)
 
     backlog = build_backlog(goal, systems, operations)
-    tasks = build_tasks(goal, deduped_agents, backlog)
+    tasks = build_tasks(goal, deduped_agents, backlog, systems, operations)
 
     events = [
         "Sprint Planning",
@@ -266,4 +329,3 @@ def plan_sprint(
         events=events,
         artifacts=artifacts,
     )
-

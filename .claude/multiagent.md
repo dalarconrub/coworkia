@@ -1,92 +1,116 @@
-# CLAUDE.md
+# Protocolo Multiagente Compartido
 
-> Este archivo es leído por Claude Code y también por Copilot (VS Code lo carga automáticamente).
-> **Si eres Copilot**: ignora la sección de identidad y rol. Tu identidad está en `.github/copilot-instructions.md`.
-> **Si eres Claude**: aplica todo este archivo.
+Este archivo define la capa de coordinación entre Claude, Copilot y Codex.
 
----
+## Fuente de verdad
 
-## Identidad y rol — SOLO PARA CLAUDE
+- `chat.md` en la raíz es el hilo conversacional compartido.
+- Cada agente debe leerlo completo antes de responder.
+- El hilo es append-only: nunca se editan ni borran mensajes previos.
+- `chat.md` debe mantenerse en `UTF-8`.
+- En `Windows PowerShell 5.1`, cualquier lectura o escritura manual sobre `chat.md` debe usar `-Encoding utf8`.
+- Los scripts que escriban en `chat.md` deben declarar `encoding="utf-8"` explícitamente.
 
-Eres **Claude** en un sistema multiagente coordinado por David.
-Especialidad: análisis profundo, razonamiento lógico, revisión crítica,
-conexiones teóricas, interpretación de resultados.
+## Cuándo responde un agente
 
----
+Un agente responde solo si se cumple alguna:
 
-## Chat Protocol — APLICA A TODOS LOS AGENTES
+1. David lo menciona directamente como `**David [@Agente]:**`
+2. Hay una decisión abierta esperando su evaluación o voto.
+3. Otro agente lo menciona explícitamente.
 
-### Fuente de verdad
-El archivo `chat.md` en la raíz del proyecto es el hilo conversacional compartido.
-Léelo **completo** antes de cada respuesta, sin excepción.
-Nunca edites ni borres mensajes anteriores del hilo.
+Un agente no debe responder dos veces a la misma decisión abierta salvo que:
 
-### Cuándo responder
-Responde **únicamente** si se cumple alguna de estas condiciones:
-1. El último mensaje de David te menciona: `**David [@Claude]:**`
-2. Hay una decisión abierta (VOTO, EVALUACIÓN, CREATIVIDAD) esperando tu participación.
-3. Otro agente te menciona explícitamente con @Claude.
+- haya nueva información relevante
+- David lo vuelva a mencionar
+- otro agente le pida una réplica concreta
 
-Si ninguna condición se cumple, no respondas.
-Si David entra desde tu interfaz con `**David [@OtroAgente]:**`, no respondas tú.
+## Formato común
 
-### Formato de respuesta
-Escribe siempre al final de `chat.md`:
-```
-**Claude:** [tu respuesta]
+```md
+**David [@Destinatario]:** mensaje
+**Copilot:** mensaje
+**Claude:** mensaje
+**Codex:** mensaje
 ```
 
----
+Regla de estilo:
+
+- mensajes cortos
+- una intención por mensaje
+- mención explícita al siguiente owner cuando proceda
+
+## Marcadores canónicos
+
+Estos marcadores permiten memoria estructurada y logs:
+
+```md
+MEMORIA: hecho o acuerdo duradero
+BLOQUEO: impedimento concreto
+SIGUIENTE: siguiente acción u owner
+```
+
+Ejemplo:
+
+```md
+**Claude:** 🔍 EVAL #4 desde análisis: C > A > B.
+MEMORIA: la autoridad canónica de proyectos sigue siendo PTN en Notion.
+SIGUIENTE: @Codex aterriza el cambio de implementación.
+```
 
 ## Modos de decisión
 
 ### 🗳️ VOTO
-Para decisiones binarias o de preferencia rápida.
-```
+
+```md
 🗳️ VOTO #N: ✅/❌ [razón breve]
 ```
 
 ### 🔍 EVALUACIÓN
-Analiza cada alternativa desde tu especialidad.
-```
+
+Claude usa:
+
+```md
 🔍 EVAL #N desde análisis: [valoración]. Ranking: X > Y > Z
 ```
-Si eres quien abre la evaluación, sintetiza cuando todos hayan respondido:
+
+Copilot usa:
+
+```md
+🔍 EVAL #N desde orquestación: [valoración]. Ranking: X > Y > Z
 ```
-🔍 SÍNTESIS #N: [decisión adoptada con justificación]
-✅ CERRADO #N: [decisión]
+
+Codex usa:
+
+```md
+🔍 EVAL #N desde implementación: [valoración]. Ranking: X > Y > Z
 ```
 
 ### 🎯 ESPECIALIDAD
-Si David te la asigna, decides autónomamente sin esperar consenso.
-Indica tu decisión y razonamiento. Cierra con:
-```
+
+Solo David puede delegarla.
+
+```md
 ✅ CERRADO: [decisión adoptada]
 ```
 
 ### 💡 CREATIVIDAD
-Brainstorm sin restricciones ni autocensura. Formato libre.
 
----
+Formato libre, pero con propuestas concretas.
 
-## Cómo proponer a otros agentes
+## Cierre y memoria
+
+Cuando una conversación deja acuerdos o estado operativo relevante, cualquier agente puede recomendar:
+
+```bash
+python agents/orchestrator_agent.py sync-chat-memory
 ```
-🗳️ PROPUESTA #N: [acción]. @Copilot @Codex ¿de acuerdo?
-🔍 EVALUACIÓN #N: [pregunta]. @Copilot @Codex valorad desde vuestra especialidad.
-💡 CREATIVIDAD #N: [pregunta]. @Copilot @Codex proponed libremente.
-```
 
-## Cierre de decisiones
-```
-✅ CERRADO #N: [decisión adoptada]
-```
-Cualquier agente puede pedir una ronda adicional antes del cierre.
+Ese comando genera:
 
----
-
-## Reglas absolutas
-- Leer `chat.md` completo antes de cada respuesta, sin excepción.
-- No editar ni borrar mensajes anteriores del hilo.
-- David puede vetar o redirigir en cualquier momento: acata sin debate.
-- No respondas si no te han mencionado y no hay decisiones pendientes.
-- Si David entra desde tu interfaz dirigiéndose a otro agente, no respondas.
+- `artifacts/multiagent/conversation_records.jsonl`
+- `artifacts/multiagent/decision_log.json`
+- `artifacts/multiagent/agent_state.json`
+- `artifacts/multiagent/memory_records.json`
+- `artifacts/multiagent/chat_memory_snapshot.json`
+- `artifacts/multiagent/chat_memory.md`

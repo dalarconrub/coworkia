@@ -1,126 +1,61 @@
 # Sistema Multiagente Scrum Para Coworkia
 
-## Objetivo
+## Resumen
 
-Añadir una capa de coordinación por encima de los agentes existentes para que Coworkia deje de ser solo una colección de CLIs y pase a funcionar como un sistema multiagente organizado por:
+Coworkia usa dos capas complementarias:
 
-- dominio o app
-- tipo de operación
-- roles Scrum
-- producción por sprints
+1. `chat.md` como hilo compartido entre David, Copilot, Claude y Codex
+2. `multiagents/*` como capa de planificación, ejecución, estado y memoria
 
-## Principios
+La comunicación humana vive en `chat.md`, pero sus decisiones y hechos relevantes se pueden persistir a logs estructurados.
 
-- Cada agente tiene un `scope` explícito.
-- Los agentes de dominio son dueños de un sistema.
-- Los agentes de operación son dueños de una clase de trabajo transversal.
-- La coordinación se hace con artefactos Scrum y no con improvisación.
-- El incremento de cada sprint debe mapearse a cambios verificables en el repo o a resultados ejecutables sobre los sistemas externos.
+## Protocolo común
 
-## Tipos De Agentes
+- `chat.md` es append-only
+- cada agente lo lee completo antes de responder
+- cada agente responde solo cuando ha sido mencionado o cuando hay una decisión abierta que requiere su participación
+- los mensajes deben ser breves y orientados a acción
 
-### Agentes de dominio
+Marcadores comunes:
 
-- `Todoist MAR Agent`
-- `Notion PTN Agent`
-- `Notion KIT Agent`
-- `GitHub REP Agent`
-- `Paperpile BIB Agent`
-- `Obsidian ABGD Agent`
-
-Son responsables de entender el modelo del sistema concreto y ejecutar trabajo especializado sobre su app.
-
-### Agentes de operación
-
-- `Intake & Triage Agent`
-- `Catalog Quality Agent`
-- `Sync Operations Agent`
-- `Reporting & Retro Agent`
-
-Son responsables de trabajo transversal: triage, calidad semántica, sincronización, reporting y retrospectiva.
-
-### Agente de coordinación
-
-- `Scrum Master Orchestrator`
-
-Es responsable de construir squads, secuenciar dependencias y producir el sprint plan.
-
-## Roles Scrum
-
-### Product Owner
-
-- mantiene la visión del objetivo
-- prioriza backlog
-- valida valor del incremento
-
-### Scrum Master
-
-- facilita la coordinación
-- elimina bloqueos
-- mantiene los eventos y artefactos del sprint
-
-### Developer
-
-- ejecuta el trabajo de dominio u operación
-- produce entregables verificables
-
-## Artefactos
-
-Cada sprint debe producir:
-
-- `Product Goal`
-- `Sprint Goal`
-- `Sprint Backlog`
-- `Increment`
-- `Definition of Done`
-
-## Flujo Operativo
-
-1. Se recibe un objetivo.
-2. El `Intake & Triage Agent` detecta sistemas y operaciones implicadas.
-3. El `Scrum Master Orchestrator` construye el squad.
-4. Se genera un sprint plan con backlog, tareas, dependencias, eventos y artefactos.
-5. Los agentes de dominio ejecutan su parte del incremento.
-6. Los agentes transversales validan calidad, coherencia y reporting.
-7. El sprint cierra con review y retrospective.
-
-## CLI Disponible
-
-Listado de agentes:
-
-```bash
-python agents/orchestrator_agent.py agentes
+```md
+MEMORIA: acuerdo o contexto duradero
+BLOQUEO: impedimento concreto
+SIGUIENTE: siguiente acción recomendada
 ```
 
-Listado de roles:
+## CLI principal
 
 ```bash
-python agents/orchestrator_agent.py roles
+python agents/orchestrator_agent.py plan-sprint "Objetivo" --nombre "Sprint X" --guardar
+python agents/orchestrator_agent.py status "Sprint X"
+python agents/orchestrator_agent.py run-task "Sprint X" ST-003
+python agents/orchestrator_agent.py run-sprint "Sprint X"
+python agents/orchestrator_agent.py sync-chat-memory
 ```
 
-Generar sprint:
+## Memoria del chat
 
-```bash
-python agents/orchestrator_agent.py plan-sprint "Implementar sincronización GitHub y catalogación REP con control de calidad" --nombre "Sprint REP 1" --guardar
-```
+`sync-chat-memory` genera:
 
-## Encaje Con El Repo Actual
+- `artifacts/multiagent/conversation_records.jsonl`
+- `artifacts/multiagent/decision_log.json`
+- `artifacts/multiagent/agent_state.json`
+- `artifacts/multiagent/memory_records.json`
+- `artifacts/multiagent/chat_memory_snapshot.json`
+- `artifacts/multiagent/chat_memory.md`
 
-La implementación actual no sustituye los agentes existentes. Los envuelve.
+## Estado actual
 
-- `agents/*.py` siguen siendo ejecutores de dominio.
-- `multiagents/registry.py` define catálogo y ownership.
-- `multiagents/planner.py` compone squads y sprints.
-- `multiagents/artifacts.py` genera artefactos Markdown.
-- `agents/orchestrator_agent.py` expone el sistema por CLI.
+La iteración actual ya cubre:
 
-## Siguiente Nivel Recomendado
+1. sprint planning persistido en Markdown y JSON
+2. ejecución básica de tareas con estado
+3. memoria estructurada del chat
+4. extracción de decisiones, handoffs y bloqueos desde el hilo
 
-La siguiente iteración útil sería:
+## Siguiente iteración útil
 
-1. conectar el orquestador con ejecución real de comandos de agentes
-2. persistir backlog y sprints en Notion
-3. registrar estado de tareas por agente
-4. añadir Definition of Done por sistema
-5. incorporar una capa LLM para planificación y reasignación dinámica
-
+1. asociar decisiones del chat con tareas del sprint
+2. búsqueda semántica sobre memoria
+3. resúmenes incrementales por sesión

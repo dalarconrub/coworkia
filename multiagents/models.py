@@ -8,6 +8,7 @@ from typing import Literal
 AgentKind = Literal["domain", "operation", "coordination"]
 SprintStatus = Literal["planned", "active", "completed"]
 Priority = Literal["high", "medium", "low"]
+TaskStatus = Literal["pending", "running", "completed", "failed", "blocked", "skipped"]
 
 
 @dataclass(frozen=True)
@@ -50,6 +51,14 @@ class BacklogItem:
 
 
 @dataclass(frozen=True)
+class TaskCommand:
+    label: str
+    script_path: str
+    args: list[str] = field(default_factory=list)
+    accepts_limit: bool = False
+
+
+@dataclass(frozen=True)
 class SprintTask:
     key: str
     title: str
@@ -57,6 +66,7 @@ class SprintTask:
     scrum_role: str
     depends_on: list[str]
     deliverable: str
+    commands: list[TaskCommand] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -73,3 +83,33 @@ class SprintPlan:
     events: list[str]
     artifacts: list[str]
 
+
+@dataclass
+class CommandExecution:
+    label: str
+    command: list[str]
+    status: TaskStatus = "pending"
+    started_at: str | None = None
+    finished_at: str | None = None
+    exit_code: int | None = None
+    note: str | None = None
+
+
+@dataclass
+class TaskExecution:
+    task_key: str
+    status: TaskStatus = "pending"
+    started_at: str | None = None
+    finished_at: str | None = None
+    exit_code: int | None = None
+    artifacts: list[str] = field(default_factory=list)
+    notes: list[str] = field(default_factory=list)
+    command_results: list[CommandExecution] = field(default_factory=list)
+
+
+@dataclass
+class SprintRun:
+    plan: SprintPlan
+    task_states: list[TaskExecution]
+    created_at: str
+    updated_at: str
