@@ -4,12 +4,17 @@ Este archivo define la capa de coordinación entre Claude, Copilot y Codex.
 
 ## Fuente de verdad
 
-- `chat.md` en la raíz es el hilo conversacional compartido.
-- Cada agente debe leerlo completo antes de responder.
+- Hay un chat por día en `chats/chat_YYYY-MM-DD.md`.
+- Para resolver la ruta del chat del día (creándolo desde plantilla si no existe):
+  `python tools/init_chat.py` → imprime la ruta activa.
+- La plantilla canónica es `multiagents/chat_template.md`.
+- Los chats de días anteriores se preservan en `chats/` como histórico.
+- Cada agente debe leer el chat del día completo antes de responder.
 - El hilo es append-only: nunca se editan ni borran mensajes previos.
-- `chat.md` debe mantenerse en `UTF-8`.
-- En `Windows PowerShell 5.1`, cualquier lectura o escritura manual sobre `chat.md` debe usar `-Encoding utf8`.
-- Los scripts que escriban en `chat.md` deben declarar `encoding="utf-8"` explícitamente.
+- Todos los chats deben mantenerse en `UTF-8`.
+- En `Windows PowerShell 5.1`, cualquier lectura o escritura manual sobre los ficheros de `chats/` debe usar `-Encoding utf8`.
+- Los scripts que escriban en un chat deben declarar `encoding="utf-8"` explícitamente.
+- Si aparece mojibake, repararlo con `python tools/fix_chat_mojibake.py <ruta>`.
 
 ## Cuándo responde un agente
 

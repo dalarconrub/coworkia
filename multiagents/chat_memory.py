@@ -72,17 +72,28 @@ def _utc_now_iso() -> str:
     return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
 
 
-def _read_text_fallback(path: Path) -> str:
-    for encoding in ("utf-8", "cp1252", "latin-1"):
-        try:
-            return path.read_text(encoding=encoding)
-        except UnicodeDecodeError:
-            continue
-    return path.read_text(encoding="latin-1", errors="replace")
+def _read_text_strict(path: Path) -> str:
+    try:
+        return path.read_text(encoding="utf-8")
+    except UnicodeDecodeError as exc:
+        raise UnicodeDecodeError(
+            exc.encoding,
+            exc.object,
+            exc.start,
+            exc.end,
+            (
+                f"{path} no es UTF-8 valido. "
+                "Repara con `python tools/fix_chat_mojibake.py <ruta>` "
+                "y asegura que toda escritura use encoding='utf-8'."
+            ),
+        ) from exc
 
 
 def _sanitize_text(text: str) -> str:
     return "".join(ch for ch in text if ch in "\n\t" or ord(ch) >= 32)
+
+
+CODE_FENCE_RE = re.compile(r"^\s*```")
 
 
 def parse_chat_messages(chat_text: str) -> list[ChatMessage]:
@@ -90,6 +101,7 @@ def parse_chat_messages(chat_text: str) -> list[ChatMessage]:
     messages: list[ChatMessage] = []
     current_actor: str | None = None
     current_body: list[str] = []
+    in_code_block = False
 
     def flush() -> None:
         nonlocal current_actor, current_body
@@ -134,6 +146,15 @@ def parse_chat_messages(chat_text: str) -> list[ChatMessage]:
         current_body = []
 
     for line in lines:
+        if CODE_FENCE_RE.match(line):
+            in_code_block = not in_code_block
+            if current_actor is not None:
+                current_body.append(line)
+            continue
+        if in_code_block:
+            if current_actor is not None:
+                current_body.append(line)
+            continue
         match = MESSAGE_RE.match(line)
         if match:
             flush()
@@ -210,9 +231,14 @@ def build_memory_records(messages: list[ChatMessage]) -> list[MemoryRecord]:
     return records
 
 
-def build_chat_memory(chat_path: str = "chat.md") -> ChatMemorySnapshot:
-    source = Path(chat_path)
-    messages = parse_chat_messages(_read_text_fallback(source))
+def build_chat_memory(chat_path: str | Path | None = None) -> ChatMemorySnapshot:
+    if chat_path is None:
+        from tools.init_chat import ensure_today_chat
+
+        source, _ = ensure_today_chat()
+    else:
+        source = Path(chat_path)
+    messages = parse_chat_messages(_read_text_strict(source))
     decisions = build_decision_logs(messages)
     states = build_agent_states(messages, decisions)
     memory_records = build_memory_records(messages)

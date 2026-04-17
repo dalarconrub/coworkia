@@ -1,0 +1,33 @@
+{
+  "generated_at": "2026-04-17T19:26:49Z",
+  "source_path": "C:\\Users\\David\\Desktop\\MSI-20260321\\03-GAMA\\coworkia\\chats\\chat_2026-04-17.md",
+  "message_count": 0,
+  "last_actor": null,
+  "decisions_open": [],
+  "decisions_all": [],
+  "agent_states": [
+    {
+      "name": "Copilot",
+      "last_message_index": null,
+      "last_direct_mention_index": null,
+      "pending_mentions": [],
+      "pending_decisions": []
+    },
+    {
+      "name": "Claude",
+      "last_message_index": null,
+      "last_direct_mention_index": null,
+      "pending_mentions": [],
+      "pending_decisions": []
+    },
+    {
+      "name": "Codex",
+      "last_message_index": null,
+      "last_direct_mention_index": null,
+      "pending_mentions": [],
+      "pending_decisions": []
+    }
+  ],
+  "memory_records": [],
+  "messages": []
+}

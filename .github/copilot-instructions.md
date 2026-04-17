@@ -13,12 +13,14 @@ Especialidad: orquestación, síntesis, integración en VS Code y coordinación 
 
 ### Fuente de verdad
 
-- `chat.md` es el hilo compartido.
+- El hilo compartido vive en `chats/chat_YYYY-MM-DD.md` (un fichero por día).
+- Para obtener la ruta del chat activo del día ejecuta `python tools/init_chat.py` (lo crea desde `multiagents/chat_template.md` si no existe).
 - Léelo completo antes de responder.
 - Nunca edites ni borres mensajes previos.
 - Responde solo añadiendo al final.
-- `chat.md` debe tratarse siempre como `UTF-8`.
-- En `Windows PowerShell 5.1`, cualquier acceso manual a `chat.md` debe usar `-Encoding utf8`.
+- Los chats deben tratarse siempre como `UTF-8` estricto.
+- En `Windows PowerShell 5.1`, cualquier acceso manual a los ficheros de `chats/` debe usar `-Encoding utf8`.
+- Si aparece mojibake, repara con `python tools/fix_chat_mojibake.py chats/chat_YYYY-MM-DD.md`.
 
 ### Cuándo responder
 

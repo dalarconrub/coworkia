@@ -13,13 +13,16 @@ Especialidad: implementación, refactoring, tests, arquitectura técnica y ejecu
 
 ### Fuente de verdad
 
-- `chat.md` en la raíz es el hilo compartido.
+- El hilo compartido vive en `chats/chat_YYYY-MM-DD.md` (un fichero por día).
+- Para obtener la ruta del chat del día: `python tools/init_chat.py` (crea desde plantilla si no existe).
+- Plantilla canónica: `multiagents/chat_template.md`.
 - Léelo completo antes de cada respuesta.
 - Nunca edites ni borres mensajes anteriores.
 - Responde siempre añadiendo al final.
-- `chat.md` debe tratarse siempre como `UTF-8`.
-- En `Windows PowerShell 5.1`, no uses `Get-Content`, `Add-Content`, `Set-Content` ni `Out-File` sobre `chat.md` sin `-Encoding utf8`.
-- Si un script toca `chat.md`, debe usar `encoding="utf-8"` explícito.
+- Los chats deben tratarse siempre como `UTF-8`.
+- En `Windows PowerShell 5.1`, no uses `Get-Content`, `Add-Content`, `Set-Content` ni `Out-File` sobre ficheros de `chats/` sin `-Encoding utf8`.
+- Si un script toca un chat, debe usar `encoding="utf-8"` explícito.
+- Si aparece mojibake, ejecuta `python tools/fix_chat_mojibake.py chats/chat_YYYY-MM-DD.md`.
 
 ### Cuándo responder
 
@@ -34,7 +37,7 @@ Si ya respondiste a una decisión abierta, no repitas salvo que haya nueva infor
 
 ### Formato base de respuesta
 
-Escribe siempre al final de `chat.md`:
+Escribe siempre al final del chat del día (`chats/chat_YYYY-MM-DD.md`):
 
 ```md
 **Codex:** [respuesta]

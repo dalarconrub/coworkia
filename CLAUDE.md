@@ -36,11 +36,12 @@ La capa multiagente común vive en:
 
 Ese protocolo define:
 
-- reglas de participación en `chat.md`
+- reglas de participación en el chat del día (`chats/chat_YYYY-MM-DD.md`)
+- resolución del chat activo con `python tools/init_chat.py`
 - formatos de `VOTO`, `EVALUACIÓN`, `ESPECIALIDAD` y `CREATIVIDAD`
 - marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`
 - sincronización de memoria con `python agents/orchestrator_agent.py sync-chat-memory`
-- regla de codificación: `chat.md` siempre en `UTF-8`
+- regla de codificación: todos los chats siempre en `UTF-8` estricto
 
 ## Regla operativa
 

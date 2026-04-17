@@ -252,7 +252,7 @@ def sprint_status(sprint_name: str) -> str:
     return "\n".join(lines)
 
 
-def sync_chat_memory(chat_path: str = "chat.md") -> str:
+def sync_chat_memory(chat_path: str | None = None) -> str:
     snapshot = build_chat_memory(chat_path=chat_path)
     paths = write_chat_memory_artifacts(snapshot)
     return (
@@ -322,8 +322,8 @@ if __name__ == "__main__":
     p_run_sprint.add_argument("nombre", help="Nombre del sprint persistido")
     p_run_sprint.add_argument("--limit", type=int, default=None, help="Límite opcional para comandos que lo soporten")
 
-    p_chat_memory = subparsers.add_parser("sync-chat-memory", help="Parsear chat.md y generar memoria/logs multiagente")
-    p_chat_memory.add_argument("--chat", default="chat.md", help="Ruta al chat compartido")
+    p_chat_memory = subparsers.add_parser("sync-chat-memory", help="Parsear chat del dia y generar memoria/logs multiagente")
+    p_chat_memory.add_argument("--chat", default=None, help="Ruta al chat (por defecto chats/chat_YYYY-MM-DD.md de hoy)")
 
     p_inx = subparsers.add_parser("inx-sync", help="Ejecutar cadena de sincronización INX (Todoist/PTN/Obsidian -> INX-ENLACES)")
     p_inx.add_argument("--limit", type=int, default=None, help="Limitar elementos procesados (solo para fuentes enumerables)")
