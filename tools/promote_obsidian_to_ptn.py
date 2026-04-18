@@ -71,7 +71,7 @@ def promote(nombre: str, proyecto_ref: str | None = None) -> dict:
     props = {
         "Título": {"title": [{"text": {"content": titulo}}]},
         "Fecha": {"date": {"start": fecha}},
-        "Tarea": {"rich_text": [{"text": {"content": nota.get("relativo", "")}}]},
+        "Ruta Obsidian": {"rich_text": [{"text": {"content": nota.get("relativo", "")}}]},
     }
     if proyecto_ref:
         if not db_proy:

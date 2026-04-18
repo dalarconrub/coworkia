@@ -30,7 +30,8 @@ O mediante mención lateral:
 
 | Subagente | Raíz | Dominio / foco | Cuándo invocar | Activado en |
 | --------- | ---- | -------------- | -------------- | ----------- |
-| _ninguno_ |      |                |                |             |
+| Claude/ABGD | Claude | vault Obsidian y jerarquía ABPC (ABGD) | auditoría de notas, promoción a PTN, sync INX Obsidian↔otros, revisión de `obsidian_agent.py`/`obsidian_tools.py`/`log_obsidian_changes.py` | chat_2026-04-18.md |
+| Codex/ABGD | Codex | implementación técnica de la capa Obsidian (ABGD) | validadores de casos Obsidian, refactor de `obsidian_tools.py`/`promote_obsidian_to_ptn.py`, nuevos `.bat` de apps/, pruebas de sync INX desde Obsidian | chat_2026-04-18.md |
 
 > Añadir una fila cuando David confirme la activación (o tras `✅ CERRADO` que lo cree). Incluir el chat del día donde se activó (`chat_YYYY-MM-DD.md`).
 

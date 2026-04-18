@@ -106,3 +106,24 @@ Resumen: Nuevo apps/abrir_sesion.bat (init_chat + memory_check) y apps/cerrar_se
 Estado: DONE
 Chat: chats/chat_2026-04-18.md
 Resumen: Nueva seccion 'Precedencia: memoria del repo sobre memoria del harness' en .claude/multiagent.md: las memorias locales del harness (Codex ~/.codex/memories/, Claude profile memory, etc.) nunca sustituyen a la memoria versionada. Orden de autoridad: AGENTS/CLAUDE/copilot-instructions -> memory/*.md -> chat del dia -> devlog. Pointer corto anadido a AGENTS.md con link a la seccion canonica. Replicado en tool-kit/ (AGENTS.md + .claude/multiagent.md) con redaccion generica. Decision: no crear .codex/ en el repo; OpenAI recomienda AGENTS.md como canal project-scoped y ningun harness lee esa ruta.
+
+## 2026-04-18T11:17Z — Claude/ABGD — [DOCS] Alta de subagente Claude/ABGD en ROSTER
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Resumen: David activa Claude/ABGD como subagente Claude especializado en Obsidian (ABGD). Fila anadida a memory/ROSTER.md con foco: vault Obsidian, jerarquia ABPC, promocion a PTN, sync INX Obsidian<->otros, revision de obsidian_agent.py/obsidian_tools.py/log_obsidian_changes.py. Hereda protocolo de CLAUDE.md + .claude/multiagent.md. Handoff a @Claude si la pregunta sale del foco ABGD.
+
+## 2026-04-18T11:24Z — Claude/ABGD — [DOCS] Caso de uso 07: promocion Obsidian -> PTN-Notas
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Resumen: Nuevo docs/casos-de-uso/07-promocion-obsidian-a-ptn.md (inverso del caso 03). Documenta flujo con tools/promote_obsidian_to_ptn.py + pasos INX posteriores (log_obsidian_changes + inx_sync_obsidian). DoD marca 3 criterios cumplidos y 2 pendientes. Gaps listados: (1) Proyecto como rich_text en lugar de relation; (2) script no sincroniza INX, requiere pasada posterior; (3) sin cruce automatico obsidian:<ruta> <-> ptn:<id>; (4) no acepta --tarea, solo --proyecto; (5) sin validador. Mejoras propuestas: validate_case_07.py, --tarea, sync INX inline, migrar Proyecto a relation, .bat lanzador. Indice de casos actualizado.
+
+## 2026-04-18T11:25Z — Claude/ABGD — [DOCS] Alta de subagente Codex/ABGD + handoff Mejora 1 caso 07
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Resumen: Codex/ABGD registrado en memory/ROSTER.md con foco: implementacion tecnica capa Obsidian (validadores, refactor obsidian_tools/promote_obsidian_to_ptn, .bat de apps, pruebas sync INX). Activado en chat_2026-04-18.md. Handoff explicito a Codex/ABGD en chat del dia con spec detallada de tools/validate_case_07.py (input DBs, dedup, cruces OBSIDIAN_DB e INX obsidian:*/ptn:*, exit codes, batch apps/validate_case_07.bat, reto abierto sobre campo Tarea sobrecargado).
+
+## 2026-04-18T11:39Z — Claude — [PTN] Migracion Tarea -> Ruta Obsidian en PTN-Notas (pre-validador)
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Refs: CERRADO #8
+Resumen: Nueva propiedad Ruta Obsidian (rich_text) en NOTION_DS_NOTAS. tools/migrate_notas_ruta_obsidian.py one-shot idempotente con --dry-run: crea la propiedad si falta, copia Tarea->Ruta Obsidian solo para filas cuyo valor termine en .md y donde Ruta Obsidian este vacia. No limpia Tarea (queda para usuario si repurposea la propiedad a relation). tools/promote_obsidian_to_ptn.py actualizado (linea 74): nuevas filas escriben Ruta Obsidian en lugar de Tarea. docs/casos-de-uso/07-promocion-obsidian-a-ptn.md actualizado en 5 puntos: verificacion manual, observabilidad, Gap 4 (ahora resuelto tras migracion), spec de Mejora 1 (valida Ruta Obsidian), y DoD. Resultado: Tarea libre para su semantica original (relation a tarea PTN); validador de Codex/ABGD consumira Ruta Obsidian directamente sin deuda tecnica. Migracion pendiente de aplicar por David contra el workspace real (dry-run primero).

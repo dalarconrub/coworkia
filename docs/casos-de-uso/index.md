@@ -18,3 +18,4 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 - `04-sync-diario-inx.md` — sincronización diaria y verificación de coherencia (`inx_daily`)
 - `05-github-rep-enlazado-a-ptn.md` — importar repo a REP y enlazar a PTN, con sync GitHub → INX ya disponible
 - `06-paperpile-bib-enlazado.md` — importar paper a BIB y enlazar a PTN/Obsidian, con sync Paperpile → INX ya disponible
+- `07-promocion-obsidian-a-ptn.md` — promover nota Obsidian a PTN-Notas (inverso del caso 03), con `promote_obsidian_to_ptn.py` + gaps de cruce INX bidireccional
