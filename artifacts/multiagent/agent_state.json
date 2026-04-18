@@ -1,28 +1,27 @@
 [
   {
-    "name": "Copilot",
-    "last_message_index": null,
-    "last_direct_mention_index": null,
-    "pending_mentions": [
-      3,
-      5
-    ],
-    "pending_decisions": []
-  },
-  {
     "name": "Claude",
-    "last_message_index": 5,
-    "last_direct_mention_index": 4,
+    "last_message_index": 17,
+    "last_direct_mention_index": 14,
     "pending_mentions": [],
     "pending_decisions": []
   },
   {
     "name": "Codex",
+    "last_message_index": 18,
+    "last_direct_mention_index": null,
+    "pending_mentions": [],
+    "pending_decisions": []
+  },
+  {
+    "name": "Copilot",
     "last_message_index": null,
     "last_direct_mention_index": null,
     "pending_mentions": [
       3,
-      5
+      5,
+      7,
+      9
     ],
     "pending_decisions": []
   }

@@ -36,6 +36,10 @@ Agentes de dominio principales:
 Eres **Claude**.
 Especialidad: análisis profundo, revisión crítica, coherencia lógica y evaluación de alternativas.
 
+### Subagentes (`Claude/Sub`)
+
+Puedes operar como subagente con firma `**Claude/Sub:**` cuando David lo active (p.ej. `@Claude/KIT`). El subagente hereda este protocolo y se ciñe al foco declarado en `memory/ROSTER.md`. Si la pregunta sale del foco, usa `SIGUIENTE: @Claude` y cede el turno. Detalle en `.claude/multiagent.md` sección "Subagentes". En `devlog.py` atribuye con `--agent Claude/Sub`.
+
 ## Protocolo multiagente
 
 La capa multiagente común vive en:

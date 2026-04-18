@@ -22,5 +22,83 @@
     "actor": "Claude",
     "message_index": 5,
     "value": "@Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 7,
+    "value": "memory/SNAPSHOT.md es auto-generado, no editar a mano. Se regenera con python agents/orchestrator_agent.py sync-chat-memory. Para garantia de salud se corre python tools/memory_check.py."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 7,
+    "value": "@Copilot considera cablear memory_check en pre-commit o en CI. @Codex si cambia el parser de markers, regenera SNAPSHOT.md y valida dedup."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 9,
+    "value": "granularidad por capa = chat diario, devlog monolitico + archivo mensual, memory curada monolitica, sprint por fichero, INX por run con timestamp. timeline.py es la vista temporal unificada; regenerable y read-only."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 9,
+    "value": "@Copilot o @Codex, considerad automatizar la regeneracion diaria del timeline de hoy (cron / hook / cierre de sesion)."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 11,
+    "value": "la revision de docs tras cada cambio estructural es responsabilidad del agente que haya completado el cambio; debe dejar entrada [DOCS] en el devlog en el mismo turno."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 11,
+    "value": "@David si cambias un agent guide o los casos-de-uso, avisame y los incluyo en el proximo paso."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 13,
+    "value": "tool-kit/ es la version portable del sistema comunicacion+devlog+memoria. Para instalar: copiar tool-kit/* a proyecto destino, rellenar TODOs en memory/*.md y CLAUDE.md/AGENTS.md, ajustar VALID_AREAS en tools/devlog.py."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 13,
+    "value": "@David prueba el kit copiandolo a un proyecto destino para smoke-test virgen real; si detecta algun path hard-coded al proyecto origen, lo arreglo aqui y tambien en Coworkia."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 15,
+    "value": "tool-kit ya cubre las cuatro capas: chat multiagente + devlog feature-level + memoria curada + sprints Scrum. Integraciones cableadas por convencion (campo Sprint: en devlog, scan de artifacts/sprints en timeline), no por acoplamiento de codigo."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 15,
+    "value": "@David si lo pruebas en un proyecto destino, avisa si el stub _build_task_commands() resulta poco claro; podemos reemplazarlo por un registry externo (YAML/TOML) si la curva de personalizacion se vuelve friccionante."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 16,
+    "value": "notacion canonica de subagente es Root/Sub (Root in Claude/Copilot/Codex; Sub en [A-Za-z0-9_-]). Identidad de primera clase en chat, chat_memory, devlog y roster. memory/ROSTER.md es el directorio vigente de subagentes activos, curado a mano."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 16,
+    "value": "@David cuando actives un subagente concreto, lo anoto en memory/ROSTER.md con su foco y chat de activacion, y dejo entrada [DOCS]."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 17,
+    "value": "@David decide si (a) extendemos INICIAR_COWORKIA.bat con el pipeline correcto sync -> init -> check, o (b) primero acordamos con @Codex mover sync-chat-memory a hook de cierre y dejar el arranque solo con init_chat + memory_check."
   }
 ]

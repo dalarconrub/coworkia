@@ -13,6 +13,7 @@
 | [memory/PURPOSE.md](PURPOSE.md)                      | Qué es Coworkia, visión, funcionalidades, principios no negociables |
 | [memory/STRUCTURE.md](STRUCTURE.md)                  | Mapa de carpetas, lógica de organización, árbol auto-generado |
 | [memory/SNAPSHOT.md](SNAPSHOT.md)                    | Agregado auto-generado de `MEMORIA:` / `BLOQUEO:` / `SIGUIENTE:` de todos los chats (regenerado por `sync-chat-memory`) |
+| [memory/ROSTER.md](ROSTER.md)                        | Directorio curado de subagentes activos (`Root/Sub`) y su foco |
 | [README.md](../README.md)                            | Guía pública del proyecto                                 |
 
 ## 1. Protocolo de agentes (obligatorio leer según identidad)
@@ -98,11 +99,12 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 1. **[memory/INDEX.md](INDEX.md)** — este fichero.
 2. **[memory/PURPOSE.md](PURPOSE.md)** — qué hace Coworkia.
 3. **[memory/STRUCTURE.md](STRUCTURE.md)** — cómo está organizado.
-4. **Archivo de identidad** según agente: `CLAUDE.md` | `AGENTS.md` | `.github/copilot-instructions.md`.
-5. **[.claude/multiagent.md](../.claude/multiagent.md)** — protocolo compartido.
-6. **Chat del día** vía `python tools/init_chat.py` → leer completo.
-7. **Últimas entradas del devlog** vía `python tools/devlog.py view --limit 20`.
-8. Opcional si hay pregunta sobre decisiones previas: **[artifacts/multiagent/chat_memory.md](../artifacts/multiagent/chat_memory.md)**.
+4. **[memory/ROSTER.md](ROSTER.md)** — subagentes activos (si los hay).
+5. **Archivo de identidad** según agente: `CLAUDE.md` | `AGENTS.md` | `.github/copilot-instructions.md`.
+6. **[.claude/multiagent.md](../.claude/multiagent.md)** — protocolo compartido.
+7. **Chat del día** vía `python tools/init_chat.py` → leer completo.
+8. **Últimas entradas del devlog** vía `python tools/devlog.py view --limit 20`.
+9. Opcional si hay pregunta sobre decisiones previas: **[artifacts/multiagent/chat_memory.md](../artifacts/multiagent/chat_memory.md)**.
 
 ---
 

@@ -55,11 +55,13 @@ Un fichero por día (`chat_YYYY-MM-DD.md`). Append-only, UTF-8 estricto. Fuente 
 `DEVLOG.md` narrativo con entradas por hito (no por commit). Escrito vía `tools/devlog.py`. Obligatorio para todo agente cuando cierra decisión, completa feature, marca bloqueo, etc. Ver `.claude/multiagent.md` sección "DevLog obligatorio".
 
 ### `memory/` — memoria curada del proyecto
-Esta carpeta. Contiene los tres MDs de alto nivel que definen al proyecto frente a cualquier agente nuevo:
+Esta carpeta. Contiene los MDs de alto nivel que definen al proyecto frente a cualquier agente nuevo:
 
 - `PURPOSE.md` — qué es y qué hace (curado).
 - `STRUCTURE.md` — este mapa (híbrido).
 - `INDEX.md` — meta-índice de todos los recursos (curado, se actualiza cuando nace un recurso nuevo).
+- `ROSTER.md` — directorio curado de subagentes (`Root/Sub`) activos y su foco. Se edita a mano cuando David activa o retira un subagente; cada cambio deja entrada `[DOCS]` en el devlog.
+- `SNAPSHOT.md` — agregado auto-generado de `MEMORIA:` / `BLOQUEO:` / `SIGUIENTE:` (no editar).
 
 ### `artifacts/` — salidas operativas (regenerables)
 Todo lo derivado que se regenera desde fuentes:
@@ -108,7 +110,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T06:37Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -125,11 +127,13 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T06:37Z. No editar 
   - orchestrator_agent.py
   - todoist_agent.py
 - apps/
+  - abrir_sesion.bat
   - backs_notion.py
   - backs_obsidian.py
   - backs_todoist.py
   - bib_gui.py
   - catalogar_repos.py
+  - cerrar_sesion.bat
   - config_doctor.bat
   - config_doctor.py
   - dashboard.bat
@@ -157,6 +161,9 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T06:37Z. No editar 
   - validate_case_02.bat
   - validate_case_03.bat
 - artifacts/
+  - daily/
+    - 2026-04-17.md
+    - 2026-04-18.md
   - inx/
     - inx-daily-20260417-072710.md
   - multiagent/
@@ -203,6 +210,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T06:37Z. No editar 
 - memory/
   - INDEX.md
   - PURPOSE.md
+  - ROSTER.md
   - SNAPSHOT.md
   - STRUCTURE.md
 - multiagents/
@@ -289,6 +297,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T06:37Z. No editar 
   - snapshot_structure.py
   - sync_inx_links.py
   - sync_todoist_to_notion.py
+  - timeline.py
   - todoist_create_c_sections.py
   - todoist_tools.py
   - validate_case_02.py
@@ -296,7 +305,6 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T06:37Z. No editar 
 - .env.example
 - AGENTS.md
 - CLAUDE.md
-- extract-portable-toolkit.md
 - INICIAR_COWORKIA.bat
 - README.md
 - requirements.txt

@@ -91,3 +91,18 @@ Estado: DONE
 Chat: chats/chat_2026-04-18.md
 Refs: CERRADO #7
 Resumen: Extraido el sistema Scrum al kit con personalizacion documentada e integracion cross-capa. Copiados models.py (generico) y artifacts.py (generico) intactos. Generalizados registry.py y planner.py: registry deja DOMAIN_AGENTS vacio con ejemplo comentado y conserva COORDINATION+OPERATION con intake/reporting minimos; planner limpia SYSTEM_KEYWORDS y pone _build_task_commands() en stub con docstring de ejemplo, fallback en infer_systems agrega systems declarados por DOMAIN_AGENTS. Nuevo tools/sprint.py CLI autonomo (subcomandos plan/list/status; escribe a artifacts/sprints/<slug>.md + .json via write_sprint_run_artifacts). tools/timeline.py gana de vuelta parseo de sprints activos (<start>..<end>) leyendo artifacts/sprints/*.json, y muestra seccion 'Sprints activos' en los daily. tools/devlog.py --sprint ya enlaza entradas al ciclo activo (ya estaba). Docs actualizados: README.md (nueva seccion Sprints + estructura + smoke test + personalizacion), memory/STRUCTURE.md (multiagents amplia descripcion, tools suma sprint.py, artifacts suma sprints/), memory/INDEX.md (artifacts/sprints/ + nota de sprints), .claude/multiagent.md (bloque 'Sistema de sprints' con CLI y integracion). Smoke-test end-to-end pasa: sprint plan --save genera fichero, list y status lo detectan, timeline lo cruza con chat+devlog. Kit queda limpio tras tests.
+
+## 2026-04-18T10:33Z — Claude — [MULTIAGENT] Subagentes Root/Sub como identidad de primera clase
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Resumen: chat_memory.py: MENTION_RE acepta Root/Sub y build_agent_states descubre subagentes (raices siempre presentes). devlog.py: VALID_AGENTS generaliza a Root/Sub, CLI valida con type=_agent_arg, ENTRY_HEADER_RE amplia agent. Nuevo memory/ROSTER.md como directorio curado de subagentes activos (stub sin filas). memory/INDEX.md y memory/STRUCTURE.md enlazan ROSTER y lo citan como PASO 4 de lectura. Protocolo documentado en .claude/multiagent.md + CLAUDE.md + AGENTS.md + .github/copilot-instructions.md. Smoke test: parser descubre Claude/KIT y Copilot/OPS con estados correctos; devlog acepta Claude/KIT y rechaza Bogus.
+
+## 2026-04-18T10:56Z — Claude — [TOOLING] Apertura/cierre de sesion multiagente cableados
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Resumen: Nuevo apps/abrir_sesion.bat (init_chat + memory_check) y apps/cerrar_sesion.bat (sync-chat-memory + memory_check). INICIAR_COWORKIA.bat invoca apertura antes de lanzar el GUI (no bloquea el dashboard si apertura falla, solo avisa). Evita cargo-cult: sync-chat-memory queda reservado para cierre (tras MEMORIA/CERRADO), no al abrir. memory_check detecto TREE desfasado durante el smoke test -> regenerado con snapshot_structure.py (ahora incluye ROSTER.md y los dos nuevos .bat). Smoke test verde end-to-end: apertura imprime briefing (memoria + 3 ultimas entradas devlog) y valida memory/; cierre regenera los 6 artifacts + SNAPSHOT y revalida.
+
+## 2026-04-18T11:07Z — Claude — [DOCS] Regla de precedencia repo-vs-harness-memories
+Estado: DONE
+Chat: chats/chat_2026-04-18.md
+Resumen: Nueva seccion 'Precedencia: memoria del repo sobre memoria del harness' en .claude/multiagent.md: las memorias locales del harness (Codex ~/.codex/memories/, Claude profile memory, etc.) nunca sustituyen a la memoria versionada. Orden de autoridad: AGENTS/CLAUDE/copilot-instructions -> memory/*.md -> chat del dia -> devlog. Pointer corto anadido a AGENTS.md con link a la seccion canonica. Replicado en tool-kit/ (AGENTS.md + .claude/multiagent.md) con redaccion generica. Decision: no crear .codex/ en el repo; OpenAI recomienda AGENTS.md como canal project-scoped y ningun harness lee esa ruta.

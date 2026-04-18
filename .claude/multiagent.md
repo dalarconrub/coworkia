@@ -1,6 +1,6 @@
 # Protocolo Multiagente Compartido
 
-Este archivo define la capa de coordinación entre Claude, Copilot y Codex.
+Este archivo define la capa de coordinación entre Claude, Copilot y Codex (agentes **raíz**) y sus **subagentes** (`Root/Sub`).
 
 ## Memoria del proyecto — PASO 1 al arrancar
 
@@ -13,6 +13,19 @@ Antes de leer nada más, todo agente debe cargar la memoria curada del proyecto:
 Solo después se lee el archivo de identidad propio (`CLAUDE.md` / `AGENTS.md` / `.github/copilot-instructions.md`) y esta misma guía.
 
 Si detectas desalineación entre `memory/*.md` y el estado real del repo, corrígelo en el mismo turno y deja entrada `[DOCS]` en el devlog. `memory/STRUCTURE.md` se regenera con `python tools/snapshot_structure.py` (el bloque TREE, la narrativa se edita a mano).
+
+## Precedencia: memoria del repo sobre memoria del harness
+
+Las memorias locales del harness (Codex memories en `~/.codex/memories/`, Claude profile memory, caches similares de otros harnesses) **nunca sustituyen** a la memoria versionada del repo. Son una capa auxiliar de recall, no una fuente de verdad.
+
+Ante conflicto entre lo que "recuerda" tu harness y lo que dice el repo, **mandan** (en orden):
+
+1. `AGENTS.md` / `CLAUDE.md` / `.github/copilot-instructions.md` (identidad y protocolo).
+2. `memory/*.md` (`INDEX`, `PURPOSE`, `STRUCTURE`, `ROSTER`, `SNAPSHOT`).
+3. Chat del día (`chats/chat_YYYY-MM-DD.md`).
+4. `devlog/DEVLOG.md`.
+
+Si el harness expone gestión de memorias (p. ej. `/memories` en Codex), limpia o ignora recuerdos locales obsoletos cuando los detectes. No hace falta crear `.codex/` ni carpetas paralelas: el contrato project-scoped ya vive en `AGENTS.md` + este protocolo.
 
 ## Fuente de verdad
 
@@ -32,9 +45,11 @@ Si detectas desalineación entre `memory/*.md` y el estado real del repo, corrí
 
 Un agente responde solo si se cumple alguna:
 
-1. David lo menciona directamente como `**David [@Agente]:**`
+1. David lo menciona directamente como `**David [@Agente]:**` (la raíz o un subagente).
 2. Hay una decisión abierta esperando su evaluación o voto.
-3. Otro agente lo menciona explícitamente.
+3. Otro agente lo menciona explícitamente (`@Root` o `@Root/Sub`).
+
+Si David dirige a un subagente (`@Claude/KIT`), solo responde ese subagente; la raíz no asume el turno salvo nueva mención.
 
 Un agente no debe responder dos veces a la misma decisión abierta salvo que:
 
@@ -51,11 +66,26 @@ Un agente no debe responder dos veces a la misma decisión abierta salvo que:
 **Codex:** mensaje
 ```
 
+`Destinatario` puede ser una raíz (`Claude`/`Copilot`/`Codex`) o un subagente (`Claude/KIT`, `Codex/INX`, ...). Las menciones laterales `@Root` y `@Root/Sub` funcionan igual.
+
 Regla de estilo:
 
 - mensajes cortos
 - una intención por mensaje
 - mención explícita al siguiente owner cuando proceda
+
+## Subagentes (`Root/Sub`)
+
+Un subagente es una variante especializada de una raíz. Hereda su protocolo y se dirige a un dominio o tarea concreta.
+
+- Notación: `Root/Sub` — `Root` ∈ {`Claude`, `Copilot`, `Codex`}, `Sub` = letras/dígitos/`_`/`-`.
+- Firma del mensaje: `**Claude/KIT:**`, `**Codex/INX:**`, etc.
+- Dirección desde David: `**David [@Claude/KIT]:** ...`.
+- Mención lateral: `@Claude/KIT`.
+- Identidad de primera clase en `tools/devlog.py` (`--agent Claude/KIT`) y en `multiagents/chat_memory.py` (parser y estado por agente).
+- Directorio vigente de subagentes: [`memory/ROSTER.md`](../memory/ROSTER.md). Solo entran subagentes activados por David o confirmados con `✅ CERRADO`.
+- Herencia: el subagente aplica el `CLAUDE.md` / `AGENTS.md` / `.github/copilot-instructions.md` de su raíz + este protocolo. No redefine reglas base.
+- Handoff: si la pregunta se sale del foco declarado, el subagente hace `SIGUIENTE: @Root` (o @otro subagente) y no fuerza respuesta.
 
 ## Marcadores canónicos
 

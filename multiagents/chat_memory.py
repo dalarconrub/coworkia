@@ -7,11 +7,22 @@ from datetime import datetime
 from pathlib import Path
 
 
+ROOT_AGENTS = ("Claude", "Copilot", "Codex")
+
 MESSAGE_RE = re.compile(r"^\*\*(?P<actor>.+?):\*\*\s?(?P<body>.*)$")
 DIRECTED_RE = re.compile(r"^(?P<name>[^\[]+)\[@(?P<target>[^\]]+)\]$")
-MENTION_RE = re.compile(r"@(?P<agent>Copilot|Claude|Codex)\b")
+# Acepta raiz (Claude/Copilot/Codex) y subagentes `Root/Sub` (Sub: letras, digitos, _, -).
+MENTION_RE = re.compile(r"@(?P<agent>(?:Claude|Copilot|Codex)(?:/[A-Za-z0-9_\-]+)?)\b")
 MODE_RE = re.compile(r"(PROPUESTA|VOTO|EVALUACIÓN|EVAL|SÍNTESIS|CREATIVIDAD|CERRADO)\s*#?(?P<num>\d+)?")
 MEMORY_LINE_RE = re.compile(r"^(MEMORIA|BLOQUEO|SIGUIENTE):\s*(?P<value>.+)$", re.MULTILINE)
+
+
+def _agent_root(name: str) -> str | None:
+    """Devuelve la raiz si `name` es un agente (raiz o subagente), si no None."""
+    if not name:
+        return None
+    head = name.split("/", 1)[0]
+    return head if head in ROOT_AGENTS else None
 
 
 @dataclass
@@ -195,25 +206,50 @@ def build_decision_logs(messages: list[ChatMessage]) -> list[DecisionLog]:
 
 
 def build_agent_states(messages: list[ChatMessage], decisions: list[DecisionLog]) -> list[AgentState]:
-    agents = {name: AgentState(name=name) for name in ("Copilot", "Claude", "Codex")}
+    """Descubre agentes raiz y subagentes (`Root/Sub`) citados en el hilo.
+
+    Un agente se registra si aparece como actor, como destino de `David [@X]`
+    o como mencion `@X`, siempre que su raiz sea Claude/Copilot/Codex.
+    Las raices se garantizan siempre presentes.
+    """
+    agents: dict[str, AgentState] = {name: AgentState(name=name) for name in ROOT_AGENTS}
+
+    def ensure(name: str | None) -> AgentState | None:
+        if not name or _agent_root(name) is None:
+            return None
+        if name not in agents:
+            agents[name] = AgentState(name=name)
+        return agents[name]
+
+    for message in messages:
+        ensure(message.actor)
+        if message.actor_type == "director":
+            ensure(message.target)
+        for mention in message.mentions:
+            ensure(mention)
+
     open_decisions = [decision.number for decision in decisions if decision.status != "closed"]
 
     for message in messages:
-        if message.actor in agents:
-            agents[message.actor].last_message_index = message.index
-        if message.actor == "David" and message.target in agents:
-            agents[message.target].last_direct_mention_index = message.index
-            agents[message.target].pending_mentions.append(message.index)
+        actor_state = agents.get(message.actor)
+        if actor_state is not None:
+            actor_state.last_message_index = message.index
+        if message.actor == "David":
+            target_state = agents.get(message.target) if message.target else None
+            if target_state is not None:
+                target_state.last_direct_mention_index = message.index
+                target_state.pending_mentions.append(message.index)
         for mention in message.mentions:
-            if mention in agents and mention != message.actor:
-                agents[mention].pending_mentions.append(message.index)
+            mention_state = agents.get(mention)
+            if mention_state is not None and mention != message.actor:
+                mention_state.pending_mentions.append(message.index)
 
     for state in agents.values():
         responded_after = state.last_message_index or 0
         state.pending_mentions = [idx for idx in state.pending_mentions if idx > responded_after]
         state.pending_decisions = open_decisions[:]
 
-    return list(agents.values())
+    return sorted(agents.values(), key=lambda s: (s.name.count("/"), s.name))
 
 
 def build_memory_records(messages: list[ChatMessage]) -> list[MemoryRecord]:

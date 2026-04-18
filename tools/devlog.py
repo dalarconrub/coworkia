@@ -45,7 +45,9 @@ _ROOT = Path(__file__).resolve().parent.parent
 DEVLOG_PATH = _ROOT / "devlog" / "DEVLOG.md"
 CHATS_DIR = _ROOT / "chats"
 
-VALID_AGENTS = {"David", "Claude", "Copilot", "Codex"}
+ROOT_AGENTS = {"Claude", "Copilot", "Codex"}
+VALID_AGENTS = {"David"} | ROOT_AGENTS  # raices + director; subagentes admitidos como Root/Sub
+_SUBAGENT_RE = re.compile(r"^(?P<root>Claude|Copilot|Codex)/(?P<sub>[A-Za-z0-9_\-]+)$")
 VALID_STATUSES = {"START", "PROGRESS", "BLOCKED", "UNBLOCKED", "DONE", "REVERT"}
 VALID_AREAS = {
     "MAR", "PTN", "KIT", "REP", "BIB", "ABGD", "INX",
@@ -54,8 +56,15 @@ VALID_AREAS = {
 
 ENTRY_HEADER_RE = re.compile(
     r"^## (?P<ts>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z) "
-    r"\u2014 (?P<agent>\w+) \u2014 \[(?P<area>\w+)\] (?P<title>.+)$"
+    r"\u2014 (?P<agent>[\w/\-]+) \u2014 \[(?P<area>\w+)\] (?P<title>.+)$"
 )
+
+
+def _is_valid_agent(name: str) -> bool:
+    """Acepta raices (David/Claude/Copilot/Codex) y subagentes `Root/Sub`."""
+    if name in VALID_AGENTS:
+        return True
+    return bool(_SUBAGENT_RE.match(name))
 
 
 @dataclass
@@ -93,8 +102,11 @@ def append_entry(
     chat: str = "",
     sprint: str = "",
 ) -> str:
-    if agent not in VALID_AGENTS:
-        raise SystemExit(f"Agente invalido: {agent}. Validos: {sorted(VALID_AGENTS)}")
+    if not _is_valid_agent(agent):
+        raise SystemExit(
+            f"Agente invalido: {agent}. Validos: {sorted(VALID_AGENTS)} o subagente `Root/Sub` "
+            f"(Root in {sorted(ROOT_AGENTS)}, Sub: letras/digitos/_/-)."
+        )
     if status not in VALID_STATUSES:
         raise SystemExit(f"Estado invalido: {status}. Validos: {sorted(VALID_STATUSES)}")
     if area not in VALID_AREAS:
@@ -205,8 +217,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
 
+    def _agent_arg(value: str) -> str:
+        if not _is_valid_agent(value):
+            raise argparse.ArgumentTypeError(
+                f"Agente invalido: {value}. Usa {sorted(VALID_AGENTS)} o `Root/Sub` "
+                f"(Root in {sorted(ROOT_AGENTS)})."
+            )
+        return value
+
     ap_append = sub.add_parser("append", help="Anadir entrada al devlog")
-    ap_append.add_argument("--agent", required=True, choices=sorted(VALID_AGENTS))
+    ap_append.add_argument(
+        "--agent", required=True, type=_agent_arg,
+        help="David/Claude/Copilot/Codex o subagente `Root/Sub` (p.ej. Claude/KIT)",
+    )
     ap_append.add_argument("--area", required=True, choices=sorted(VALID_AREAS))
     ap_append.add_argument("--status", required=True, choices=sorted(VALID_STATUSES))
     ap_append.add_argument("--title", required=True)
@@ -218,7 +241,10 @@ def main() -> int:
 
     ap_view = sub.add_parser("view", help="Consultar devlog")
     ap_view.add_argument("--area", choices=sorted(VALID_AREAS))
-    ap_view.add_argument("--agent", choices=sorted(VALID_AGENTS))
+    ap_view.add_argument(
+        "--agent", type=_agent_arg,
+        help="Filtra por agente. Acepta raiz o `Root/Sub`.",
+    )
     ap_view.add_argument("--status", choices=sorted(VALID_STATUSES))
     ap_view.add_argument("--limit", type=int, default=20, help="0 = sin limite")
 
