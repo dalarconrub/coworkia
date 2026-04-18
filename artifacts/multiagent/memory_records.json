@@ -100,5 +100,185 @@
     "actor": "Claude",
     "message_index": 17,
     "value": "@David decide si (a) extendemos INICIAR_COWORKIA.bat con el pipeline correcto sync -> init -> check, o (b) primero acordamos con @Codex mover sync-chat-memory a hook de cierre y dejar el arranque solo con init_chat + memory_check."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 19,
+    "value": "el pipeline canonico es apertura = init_chat + memory_check; cierre = sync-chat-memory + memory_check. INICIAR_COWORKIA.bat encadena apertura -> GUI. sync-chat-memory NO corre al abrir."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 19,
+    "value": "@David al terminar el trabajo del dia, cierra con apps\\cerrar_sesion.bat para dejar memory/SNAPSHOT.md al dia."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 20,
+    "value": "@Codex valida desde tu lado (1) que no hay ningun path de configuracion Codex que me este perdiendo, (2) que la regla de precedencia es operable (puedes purgar /memories cuando detectes conflicto), y (3) si compras la redaccion propuesta o prefieres otra."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 22,
+    "value": "las memorias locales del harness (Codex ~/.codex/memories/, Claude profile memory, etc.) son capa de recall, no fuente de verdad. Orden de autoridad ante conflicto: AGENTS/CLAUDE/copilot-instructions -> memory/*.md -> chat del dia -> devlog. Purgar /memories locales si se detectan recuerdos obsoletos."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 22,
+    "value": "@David si quieres, cerramos sesion con apps\\cerrar_sesion.bat para dejar memory/SNAPSHOT.md al dia."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude/ABGD",
+    "message_index": 28,
+    "value": "@Codex/ABGD redactar tools/validate_case_07.py analogo a tools/validate_case_03.py. Spec:"
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 29,
+    "value": "@David decide (a) migrar ahora antes del validador, (b) no migrar pero exigir a @Codex/ABGD parametrizar el nombre de la propiedad, o (c) aceptar la deuda y que @Codex/ABGD siga con la spec original."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 31,
+    "value": "en NOTION_DS_NOTAS la ruta Obsidian vive en la propiedad 'Ruta Obsidian' (rich_text), no en 'Tarea'. 'Tarea' queda libre para su semantica original (relacion a tarea PTN, pendiente Mejora 2 del caso 07). Migracion idempotente en tools/migrate_notas_ruta_obsidian.py."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 31,
+    "value": "@Codex/ABGD retoma la implementacion de validate_case_07.py con la spec original pero leyendo 'Ruta Obsidian' en lugar de 'Tarea'. Eliminada la deuda tecnica. El reto abierto sobre sobrecarga queda resuelto por la migracion."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude/ABGD",
+    "message_index": 32,
+    "value": "@David ejecutar `python tools/migrate_notas_ruta_obsidian.py --dry-run` y reportar el scan. Una vez aplicada, @Codex/ABGD tiene via libre para validate_case_07.py + el ajuste defensivo del promote (opcion c)."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 34,
+    "value": "el validador del caso 07 detecta por si mismo si PTN-Notas sigue con schema viejo y no migrado, y le dice a David que ejecute el migrate. No hay falso negativo posible. Lo mismo el promote: falla rapido con mensaje claro en vez de dejar que la API de Notion devuelva un error opaco."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 34,
+    "value": "@David cuando corras `python tools/migrate_notas_ruta_obsidian.py --dry-run` y luego sin flag, promociona una nota de prueba con `python tools/promote_obsidian_to_ptn.py \"<nota>\" [--proyecto \"<x>\"]` y lanza `apps\\validate_case_07.bat --no-pause`. El informe deberia mostrar promociones > 0, match OBSIDIAN_DB y match INX obsidian:* al 100%. El match ptn:* probablemente quede incompleto (Gap 3) hasta que cablemos el sync ptn:<id> automatico."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 35,
+    "value": "el cruce doble `obsidian:<ruta>` <-> `ptn:<id>` en INX requiere que la fila PTN-Notas recien creada pase por `log_ptn_changes.py` antes de `sync_inx_links --source notion`. Sin ese log intermedio, `--source notion` no ve la fila. El bat del caso 07 ya lo encadena; `orchestrator inx-sync` tambien (cadena completa)."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 35,
+    "value": "@David Gap 1 y Gap 4 abiertos como backlog. Si quieres cerrar Mejora 3 (sync inline en promote_obsidian_to_ptn.py) delega handoff; evita los 4 pasos del bat a costa de acoplar el promote con sync_inx_links."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 37,
+    "value": "flag --sync en promote_obsidian_to_ptn.py equivale al pipeline completo del caso 07 en un comando. Propiedades relation Proyecto PTN / Tarea PTN son la forma canonica de enlazar PTN-Notas con proyectos/tareas; 'Proyecto' y 'Tarea' rich_text quedan como legacy tras migrate_notas_ptn_relations.py y pueden limpiarse cuando se quiera. El promote detecta dinamicamente cual usar, asi que funciona antes y despues de la migracion."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 37,
+    "value": "@David caso 07 cerrado. Proximos candidatos logicos: caso 08 (anclar notas a KIT) o caso 10 (tareas MAR nacidas dentro de notas). Dime cual activamos."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 39,
+    "value": "el flujo canonico de promocion Obsidian->PTN-Notas post-2026-04-18 es un solo comando: `apps\\promote_obsidian_to_ptn.bat \"<nota>\" [--proyecto \"<ref>\"] [--tarea \"<ref>\"] --sync`. No hace falta ejecutar el .bat de validacion salvo para auditoria posterior. Cleanup de legacy es opcional y puede correrse tras migrate_notas_ptn_relations."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 39,
+    "value": "@David caso 07 definitivamente cerrado. Los siguientes casos del plan son: 08 (KIT), 09 (BIB->Obsidian), 10 (MAR desde nota), 11 (journal diario), 12 (backfill INX historico), 13 (busqueda cross-system). Dime cual activamos o si queremos cerrar sesion con apps\\cerrar_sesion.bat."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 43,
+    "value": "KIT ya es ciudadano de primera en INX. Clave canonica kit:<page_id>. No hay log intermedio (a diferencia de PTN/Obsidian): _sync_kit lee directo de NOTION_DB_KIT. Cruce Obsidian<->KIT sigue sin logica automatica; queda como Gap 1 del caso 08 para el futuro alcance C."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 43,
+    "value": "@David caso 08 cerrado en alcance B. Candidatos que siguen: 09 (BIB->Obsidian), 10 (MAR desde notas), 11 (journal), 12 (backfill INX historico), 13 (busqueda cross-system), o subir a alcance C del caso 08 (Usada en relation + cruce automatico). Dime."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 45,
+    "value": "el flujo BIB->ficha Obsidian es `promote_bib_to_obsidian.py <citekey> --sync`. Crea .md bajo A1-INV/B13-PUB/<contexto> con frontmatter citekey/bib-id/doi, y cierra cruce INX obsidian:<ruta> + paperpile:<citekey> en un comando. Dedup por nombre (no sobreescribe salvo --force)."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 45,
+    "value": "@David si quieres validar end-to-end el caso 09, carga BIB con `python agents/bib_agent.py importar`. Proximos casos: 10 (tareas MAR desde notas), 11 (journal diario), 12 (backfill INX historico), 13 (busqueda cross-system)."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 47,
+    "value": "captura obsidian->todoist via marker inline `<!-- todoist:<id> -->` es idempotente y visible en el .md original. Re-ejecutar el promote sobre la misma nota no duplica tareas. Para batch o close-on-check ver Gaps 1-2."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 47,
+    "value": "@David casos candidatos restantes: 11 (journal diario cruzado con timeline), 12 (backfill INX historico), 13 (busqueda cross-system). Dime cual sigue o si paramos aqui para cerrar sesion."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 49,
+    "value": "timeline.py reconoce el journal diario del vault por convencion N<YYMMDD>-*.md bajo A0-GTD/B0C-PLA/C0C9-Notas/. Es el primer consumidor del vault desde el lado operativo (chat/devlog) y requiere OBSIDIAN_ALPHA_PATH cargado. Sin la variable, la seccion del timeline queda \"Sin journal\" pero no falla."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 49,
+    "value": "@David quedan casos 12 (backfill INX historico) y 13 (busqueda cross-system). Tambien podemos cerrar sesion aqui con apps\\cerrar_sesion.bat."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 51,
+    "value": "backfill_obsidian_to_inx.py complementa a log_obsidian_changes.py. log_obsidian es diff por mtime para cambios continuos; backfill es full-scan idempotente para historico o tras corrupcion de obsidian_log_state.json. Juntos garantizan cobertura completa."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 51,
+    "value": "@David solo queda caso 13 (busqueda cross-system) o cierre con apps\\cerrar_sesion.bat."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex/ABGD",
+    "message_index": 53,
+    "value": "sintaxis cross-system `[[<prefix>:<id>]]` con prefix en {ptn, kit, paperpile, todoist, github}. UUIDs de ptn y kit se normalizan (ignora guiones). Auditable con `tools/obsidian_wikilinks.py audit`. Busqueda inversa con `find <prefix>:<id>`. INX-ENLACES es el resolver; requiere sync reciente para que la auditoria sea fiable."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Codex/ABGD",
+    "message_index": 53,
+    "value": "@David casos 07-13 todos implementados. Notas de prueba locales (2) en A0-GTD/B0C-PLA/C0C9-Notas/ del vault por si quieres borrarlas. Cerramos sesion con apps\\cerrar_sesion.bat para regenerar SNAPSHOT.md?"
   }
 ]

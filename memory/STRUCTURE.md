@@ -110,7 +110,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -156,10 +156,18 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar 
   - notion_doctor.py
   - project_hub_gui.bat
   - project_hub_gui.py
+  - promote_bib_to_obsidian.bat
+  - promote_notas_checkboxes_to_todoist.bat
+  - promote_obsidian_to_ptn.bat
   - setup_venv.bat
   - sync_todoist_to_notion.bat
   - validate_case_02.bat
   - validate_case_03.bat
+  - validate_case_07.bat
+  - validate_case_08.bat
+  - validate_case_09.bat
+  - validate_case_10.bat
+  - ... (3 mas)
 - artifacts/
   - daily/
     - 2026-04-17.md
@@ -196,6 +204,13 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar 
     - 04-sync-diario-inx.md
     - 05-github-rep-enlazado-a-ptn.md
     - 06-paperpile-bib-enlazado.md
+    - 07-promocion-obsidian-a-ptn.md
+    - 08-kit-en-inx.md
+    - 09-bib-a-obsidian.md
+    - 10-checkboxes-obsidian-a-todoist.md
+    - 11-journal-diario-en-timeline.md
+    - 12-backfill-inx-historico.md
+    - 13-wikilinks-cross-system.md
     - index.md
   - abc-taxonomy.md
   - bib-agent.md
@@ -270,6 +285,8 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar 
     - requirements.txt
     - vercel.json
 - tools/
+  - backfill_obsidian_to_inx.py
+  - cleanup_notas_legacy_props.py
   - create_abc_taxonomy_dbs.py
   - create_inx_links_db.py
   - dedupe_abc_taxonomy.py
@@ -286,10 +303,15 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar 
   - log_ptn_changes.py
   - memory_check.py
   - migrate_database.py
+  - migrate_notas_ptn_relations.py
+  - migrate_notas_ruta_obsidian.py
   - migrate_ptn.py
   - notion_tools.py
   - obsidian_tools.py
+  - obsidian_wikilinks.py
   - paperpile_tools.py
+  - promote_bib_to_obsidian.py
+  - promote_notas_checkboxes_to_todoist.py
   - promote_obsidian_to_ptn.py
   - prune_abc_taxonomy.py
   - set_ptn_project_area_select.py
@@ -302,6 +324,8 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T10:55Z. No editar 
   - todoist_tools.py
   - validate_case_02.py
   - validate_case_03.py
+  - validate_case_07.py
+  - ... (6 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

@@ -1,16 +1,18 @@
 [
   {
     "name": "Claude",
-    "last_message_index": 17,
-    "last_direct_mention_index": 14,
+    "last_message_index": 31,
+    "last_direct_mention_index": 30,
     "pending_mentions": [],
     "pending_decisions": []
   },
   {
     "name": "Codex",
-    "last_message_index": 18,
+    "last_message_index": 21,
     "last_direct_mention_index": null,
-    "pending_mentions": [],
+    "pending_mentions": [
+      22
+    ],
     "pending_decisions": []
   },
   {
@@ -23,6 +25,20 @@
       7,
       9
     ],
+    "pending_decisions": []
+  },
+  {
+    "name": "Claude/ABGD",
+    "last_message_index": 41,
+    "last_direct_mention_index": 25,
+    "pending_mentions": [],
+    "pending_decisions": []
+  },
+  {
+    "name": "Codex/ABGD",
+    "last_message_index": 53,
+    "last_direct_mention_index": 52,
+    "pending_mentions": [],
     "pending_decisions": []
   }
 ]

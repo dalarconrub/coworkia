@@ -114,18 +114,25 @@ apps\inx_sync_obsidian.bat 200 --no-pause
 
 - [x] `promote_obsidian_to_ptn.py` retorna `created` o `updated` sin excepción.
 - [x] Re-ejecutar el comando sobre la misma nota **no duplica** fila en PTN-Notas.
-- [x] Ruta presente en `INX-ENLACES` con prefijo `obsidian:` tras paso 3.
-- [ ] La nota PTN recién creada aparece en `INX-ENLACES` con clave `ptn:<id>` (hoy requiere pasada extra de sync desde PTN; ver Gap 2).
-- [ ] Cruce `obsidian:<ruta>` ↔ `ptn:<id>` es navegable en INX en un solo salto (ver Gap 3).
+- [x] Ruta presente en `INX-ENLACES` con prefijo `obsidian:` tras el sync Obsidian.
+- [x] La nota PTN recién creada aparece en `INX-ENLACES` con clave `ptn:<id>` tras `log_ptn_changes.py` + `sync_inx_links --source notion` (encadenado en `apps/validate_case_07.bat`).
+- [x] Cruce `obsidian:<ruta>` ↔ `ptn:<id>` es navegable en INX en un solo salto — verificado el 2026-04-18 con 3/3 promociones en cruce doble tras ejecutar el bat.
 
 ## Automatización actual
 
 | Acción | Comando |
 | --- | --- |
-| Promoción Obsidian → PTN-Notas | `python tools/promote_obsidian_to_ptn.py <nombre> [--proyecto <ref>]` |
+| Promoción + cruce INX completo en un comando | `python tools/promote_obsidian_to_ptn.py <nombre> [--proyecto <ref>] [--tarea <ref>] --sync` |
+| Promoción desde Windows (wrapper con pause) | `apps\promote_obsidian_to_ptn.bat "<nombre>" [--proyecto "<ref>"] [--tarea "<ref>"] [--sync]` |
+| Promoción sin sync (solo escribe PTN-Notas) | `python tools/promote_obsidian_to_ptn.py <nombre> [--proyecto <ref>] [--tarea <ref>]` |
+| Migración schema: Ruta Obsidian | `python tools/migrate_notas_ruta_obsidian.py` |
+| Migración schema: Proyecto PTN / Tarea PTN (relations) | `python tools/migrate_notas_ptn_relations.py` |
+| Limpieza legacy Proyecto/Tarea (rich_text) | `python tools/cleanup_notas_legacy_props.py` |
 | Log Obsidian → Notion | `python tools/log_obsidian_changes.py` |
+| Log PTN → NOTION_DB | `python tools/log_ptn_changes.py` |
 | INX solo desde Obsidian | `apps\inx_sync_obsidian.bat` |
-| Cadena INX completa | `python agents/orchestrator_agent.py inx-sync` |
+| Pipeline completo del caso 07 (validación) | `apps\validate_case_07.bat --no-pause` |
+| Cadena INX completa multi-sistema | `python agents/orchestrator_agent.py inx-sync` |
 
 ## Observabilidad
 
@@ -135,19 +142,20 @@ apps\inx_sync_obsidian.bat 200 --no-pause
 
 ## Gaps (pendientes)
 
-- **Gap 1 — Proyecto como `rich_text`, no `relation`**: el script guarda `pid` como texto plano en la propiedad `Proyecto`. Esto evita depender del schema relacional de Notion pero rompe navegación nativa Notion. Decisión pendiente: ¿migrar a `relation` real contra `NOTION_DS_PROYECTOS`?
-- **Gap 2 — No sincroniza INX en el mismo paso**: el script promociona pero no crea fila `ptn:<id>` en `INX-ENLACES`. Hoy hace falta una pasada posterior (`orchestrator_agent.py inx-sync` o sync desde fuente PTN-Notas).
-- **Gap 3 — Falta el cruce bidireccional automático**: no existe lógica que, al detectar `obsidian:<ruta>` y una nueva fila `ptn:<id>` derivada de esa misma ruta, las enlace entre sí en INX. Mismo gap que caso 03 lista como "comando único `link-obsidian-to-ptn`".
-- **Gap 4 — Solo acepta `--proyecto`, no `--tarea`**: una nota puede promocionarse asociada a una tarea PTN, no solo a un proyecto. Desde 2026-04-18 la ruta relativa vive en `Ruta Obsidian` (no en `Tarea`), así que `Tarea` queda libre para su semántica original de relación a tarea PTN. Falta implementar `--tarea` en `promote_obsidian_to_ptn.py` (Mejora 2).
-- **Gap 5 — Sin validador**: no existe `tools/validate_case_07.py` análogo al del caso 03.
+- **Gap 1 — [RESUELTO] Proyecto/Tarea como `relation`**: `tools/migrate_notas_ptn_relations.py` añade props `Proyecto PTN` y `Tarea PTN` (relation single_property) y migra los IDs legacy. `promote_obsidian_to_ptn.py` detecta dinámicamente las nuevas props y escribe relations; si el schema no está migrado, cae al legacy `Proyecto` / `Tarea` (rich_text). Validado 2026-04-18 con promoción creando relation contra proyecto "Sofia" y relation contra ID de tarea directo.
+- **Gap 2 — [RESUELTO] No sincroniza INX en el mismo paso**: flag `--sync` en `promote_obsidian_to_ptn.py` encadena `log_obsidian_changes` + `log_ptn_changes` + `sync_inx_links --source {obsidian,notion}` vía subprocess. Equivalente al bat pero en un solo comando.
+- **Gap 3 — [RESUELTO] Cruce bidireccional automático**: cada promoción con `--sync` produce `obsidian:<ruta>` + `ptn:<id>` en INX-ENLACES. Validado 2026-04-18 con 5/5 cruce doble.
+- **Gap 4 — [RESUELTO] `--tarea <T-ref>`**: implementado. Acepta ID directo o nombre (match case-insensitive contra propiedades `Nombre de la tarea`/`Nombre`/`Tarea`/`Título`).
+- **Gap 5 — [RESUELTO] Validador**: `tools/validate_case_07.py` + `apps/validate_case_07.bat` implementados el 2026-04-18.
 
 ## Mejoras propuestas
 
-- **Mejora 1 — `validate_case_07.py`**: contar filas PTN-Notas con `Ruta Obsidian` no vacía, cruzar contra `OBSIDIAN_DB.Ruta` y `INX-ENLACES` (`obsidian:*` + `ptn:*` con esa ruta). Reportar rutas promocionadas sin cruce INX. La propiedad a leer es `Ruta Obsidian` (tras migración `tools/migrate_notas_ruta_obsidian.py`), no `Tarea`.
-- **Mejora 2 — `--tarea <T-code>`** en `promote_obsidian_to_ptn.py`, resolviendo contra `NOTION_DS_TAREAS` (si existe) con el mismo patrón que `_resolve_project_id`.
-- **Mejora 3 — Sync INX inline**: tras crear/actualizar la fila en PTN-Notas, el script puede disparar un upsert directo a `INX-ENLACES` con clave `ptn:<id>` y propiedad `Obsidian Ruta = <ruta>`, eliminando la necesidad del paso 3 manual.
-- **Mejora 4 — Relación real a proyecto**: convertir `Proyecto` en `relation` si David confirma. Implica migración de filas existentes.
-- **Mejora 5 — `apps/promote_obsidian_to_ptn.bat`**: lanzador análogo a `log_ptn_changes.bat` para el flujo manual desde Windows.
+- **Mejora 1 — [HECHO] `validate_case_07.py`**: implementado el 2026-04-18.
+- **Mejora 2 — [HECHO] `--tarea <T-ref>`**: implementado el 2026-04-18 en `promote_obsidian_to_ptn.py`.
+- **Mejora 3 — [HECHO] Sync INX inline**: flag `--sync` en el promote encadena log + sync de obsidian y notion.
+- **Mejora 4 — [HECHO] Relación real a proyecto/tarea**: `tools/migrate_notas_ptn_relations.py` crea `Proyecto PTN` / `Tarea PTN` (relation) y migra IDs; el promote detecta y escribe relations.
+- **Mejora 5 — [HECHO] `apps/promote_obsidian_to_ptn.bat`**: lanzador Windows implementado el 2026-04-18. Acepta los mismos flags que el CLI (`--proyecto`, `--tarea`, `--sync`). Imprime mensaje de uso si se invoca sin argumentos.
+- **Mejora 6 — [HECHO] Limpieza de props legacy `Proyecto` / `Tarea` (rich_text)**: `tools/cleanup_notas_legacy_props.py` vacía las props legacy solo cuando la relation equivalente (`Proyecto PTN` / `Tarea PTN`) ya contiene el mismo UUID. Idempotente, `--dry-run`. Aplicado el 2026-04-18 (1 fila limpiada; re-run confirma 0 a limpiar).
 
 ## Fallos típicos
 
@@ -156,9 +164,9 @@ apps\inx_sync_obsidian.bat 200 --no-pause
 - **INX no refleja la nota**: se saltó paso 2 o paso 3. El script de promoción **no** toca `OBSIDIAN_DB` ni `INX-ENLACES`.
 - **Duplicado aparente**: PTN-Notas muestra dos filas con `Título` igual → una fue creada antes del dedup actual, o con capitalización distinta. Limpiar manualmente antes de re-promover.
 
-## Validación práctica (pendiente de implementar)
+## Validación práctica
 
-Cuando exista la Mejora 1:
+Implementada el 2026-04-18:
 
 ```bat
 apps\validate_case_07.bat --no-pause

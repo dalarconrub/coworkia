@@ -28,17 +28,51 @@ pip install bibtexparser
 ### Variables en `.env`
 
 ```
-PAPERPILE_BIBTEX_URL=https://paperpile.com/eb/...   # URL de exportación automática
-NOTION_BIB_PARENT_PAGE=xxx                           # ID de la página padre en Notion
-NOTION_DB_BIB=                                        # Se llena tras ejecutar crear-db
+PAPERPILE_BIBTEX_URL=https://raw.githubusercontent.com/<user>/<repo>/main/library.bib   # raw URL del .bib en tu repo GitHub
+GITHUB_TOKEN=<PAT con scope repo>                                                        # obligatorio si el repo es privado
+NOTION_BIB_PARENT_PAGE=xxx                                                               # ID de la página padre en Notion
+NOTION_DB_BIB=                                                                            # Se llena tras ejecutar crear-db
 ```
 
-### Cómo obtener `PAPERPILE_BIBTEX_URL`
+### Cómo obtener `PAPERPILE_BIBTEX_URL` (flow GitHub)
 
-1. Abre Paperpile → **Settings** → **Workflows & Integrations**
-2. En **Automatic BibTeX Export**, activa para **toda la biblioteca** (o carpetas específicas)
-3. Copia la **URL de descarga** (empieza con `https://paperpile.com/eb/...`)
-4. Pega la URL en `.env` como `PAPERPILE_BIBTEX_URL`
+Desde 2026, Paperpile no expone una URL pública genérica `paperpile.com/eb/...`. Los destinos soportados son **GitHub**, **Google Drive** y **Overleaf**. Coworkia usa el de **GitHub** porque permite raw URL + autenticación por token.
+
+Pasos:
+
+1. **Crear repo destino** (privado recomendado):
+   ```bash
+   gh repo create paperpile-lib --private --add-readme
+   ```
+   Anota `git@github.com:<user>/paperpile-lib.git` y branch `main`.
+
+2. **Configurar Paperpile**:
+   - Click en tu **foto de perfil** (arriba derecha) → **Workflows and Integrations** → **Add** → **BibTeX export**.
+   - **References**: toda la biblioteca (o carpetas específicas).
+   - **Destination**: **GitHub**.
+   - **Repository**: `git@github.com:<user>/paperpile-lib.git` (SSH o HTTPS, ambos valen).
+   - **Branch**: `main` (o deja vacío para default).
+   - **Filename**: `library.bib` (coincide con la ruta que pones en `.env`).
+   - Guarda. Paperpile mostrará un aviso: **invita a `paperpile-bot` como colaborador con permiso `push`**.
+
+3. **Invitar `paperpile-bot`**:
+   ```bash
+   gh api --method PUT repos/<user>/paperpile-lib/collaborators/paperpile-bot -f permission=push
+   ```
+   Paperpile acepta la invitación automáticamente y hace el primer push en segundos.
+
+4. **Configurar `.env`**:
+   ```
+   PAPERPILE_BIBTEX_URL=https://raw.githubusercontent.com/<user>/paperpile-lib/main/library.bib
+   GITHUB_TOKEN=<tu PAT con scope repo>
+   ```
+   `tools/paperpile_tools.fetch_bibtex` detecta `raw.githubusercontent.com` y añade `Authorization: Bearer $GITHUB_TOKEN` automáticamente.
+
+5. **Verificar**:
+   ```bash
+   gh api repos/<user>/paperpile-lib/contents/library.bib --jq '{size, sha}'
+   ```
+   Debe devolver tamaño > 0.
 
 ### Cómo obtener `NOTION_BIB_PARENT_PAGE`
 

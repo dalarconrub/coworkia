@@ -243,6 +243,34 @@ def _sync_github(db_links: str, db_repos: str, existing: dict, limit: int | None
     return n
 
 
+def _sync_kit(db_links: str, db_kit: str, existing: dict, limit: int | None) -> int:
+    rows = query_data_source(db_kit)
+    if limit:
+        rows = rows[:limit]
+    n = 0
+    for r in rows:
+        props = r.get("properties", {})
+        titulo = extract_property_value(props.get("Titulo", {})) \
+            or extract_property_value(props.get("Título", {})) or ""
+        if not titulo:
+            continue
+        tipo = extract_property_value(props.get("Tipo", {}))
+        subtipo = extract_property_value(props.get("Subtipo", {}))
+        enlace = extract_property_value(props.get("Enlace", {}))
+        detalle_parts = [p for p in [tipo and f"Tipo: {tipo}", subtipo and f"Subtipo: {subtipo}"] if p]
+        data = {
+            "Fuente": {"select": {"name": "Notion"}},
+            "Estado": {"select": {"name": "Activo"}},
+        }
+        if enlace:
+            data["URL"] = {"url": enlace}
+        if detalle_parts:
+            data["Detalle"] = {"rich_text": [{"text": {"content": " | ".join(detalle_parts)[:2000]}}]}
+        _upsert(db_links, f"kit:{r['id']}", titulo[:2000], data, existing)
+        n += 1
+    return n
+
+
 def _sync_paperpile(db_links: str, db_bib: str, existing: dict, limit: int | None) -> int:
     rows = query_data_source(db_bib)
     if limit:
@@ -278,7 +306,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Sync INX links")
     parser.add_argument(
         "--source",
-        choices=["todoist", "notion", "obsidian", "github", "paperpile", "all"],
+        choices=["todoist", "notion", "obsidian", "github", "paperpile", "kit", "all"],
         default="all",
     )
     parser.add_argument("--limit", type=int, default=None)
@@ -289,6 +317,7 @@ def main() -> int:
     db_obsidian = os.getenv("OBSIDIAN_DB")
     db_repos = os.getenv("NOTION_DB_REPOS")
     db_bib = os.getenv("NOTION_DB_BIB")
+    db_kit = os.getenv("NOTION_DB_KIT")
     if not db_links:
         print("Falta NOTION_DB_INX en .env")
         return 2
@@ -299,6 +328,7 @@ def main() -> int:
         "obsidian": ("OBSIDIAN_DB", db_obsidian),
         "github": ("NOTION_DB_REPOS", db_repos),
         "paperpile": ("NOTION_DB_BIB", db_bib),
+        "kit": ("NOTION_DB_KIT", db_kit),
     }
     sources = list(required) if args.source == "all" else [args.source]
     missing = [required[s][0] for s in sources if not required[s][1]]
@@ -317,6 +347,8 @@ def main() -> int:
         counts["github"] = _sync_github(db_links, db_repos, _existing_map(db_links), args.limit)
     if "paperpile" in sources:
         counts["paperpile"] = _sync_paperpile(db_links, db_bib, _existing_map(db_links), args.limit)
+    if "kit" in sources:
+        counts["kit"] = _sync_kit(db_links, db_kit, _existing_map(db_links), args.limit)
     print("INX enlaces sincronizados: " + " ".join(f"{k}={v}" for k, v in counts.items() if k in sources))
     return 0
 

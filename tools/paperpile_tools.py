@@ -1,7 +1,21 @@
 """
 Wrappers para obtener y parsear datos de Paperpile.
-Usa la URL de Automatic BibTeX Export para leer la biblioteca.
-Documentación: https://paperpile.com/h/automatic-bibtex-export/
+
+Flow 2026 (Paperpile retiró la URL pública paperpile.com/eb/...):
+  1. Crear repo GitHub (privado) como destino de Automatic BibTeX Export.
+  2. En Paperpile -> Profile -> Workflows and Integrations -> Add BibTeX
+     export con Destination = GitHub, Repository del paso 1.
+  3. Invitar `paperpile-bot` como colaborador con permission=push.
+  4. En .env:
+       PAPERPILE_BIBTEX_URL=https://raw.githubusercontent.com/<user>/<repo>/main/library.bib
+       GITHUB_TOKEN=<PAT scope repo>   # para raw URLs privadas
+
+`fetch_bibtex` detecta raw.githubusercontent.com y autentica con
+GITHUB_TOKEN automaticamente. Para cualquier otra URL (p.ej. Google Drive
+o servidor propio que devuelva bibtex en texto plano), funciona sin auth.
+
+Documentacion: https://paperpile.com/h/automatic-bibtex-export/
+Guia interna: docs/bib-agent.md (seccion "Como obtener PAPERPILE_BIBTEX_URL").
 """
 
 import os
@@ -17,14 +31,24 @@ PAPERPILE_BIBTEX_URL = os.getenv("PAPERPILE_BIBTEX_URL", "")
 # ─── OBTENER DATOS ───────────────────────────────────────────────────────────
 
 def fetch_bibtex(url: str = None) -> str:
-    """Descarga el archivo BibTeX desde la URL de Paperpile."""
+    """Descarga el archivo BibTeX desde la URL de Paperpile.
+
+    Si la URL es `raw.githubusercontent.com` de un repo privado, usa
+    GITHUB_TOKEN del .env como Bearer auth.
+    """
     bibtex_url = url or PAPERPILE_BIBTEX_URL
     if not bibtex_url:
         raise ValueError(
             "Falta PAPERPILE_BIBTEX_URL en .env. "
             "Activa Automatic BibTeX Export en Paperpile y copia la URL."
         )
-    resp = requests.get(bibtex_url, timeout=60)
+    headers = {}
+    if "raw.githubusercontent.com" in bibtex_url:
+        token = os.getenv("GITHUB_TOKEN")
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+            headers["Accept"] = "application/vnd.github.raw"
+    resp = requests.get(bibtex_url, headers=headers, timeout=60)
     resp.raise_for_status()
     return resp.text
 

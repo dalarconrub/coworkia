@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from dataclasses import dataclass, field
@@ -34,6 +35,12 @@ except Exception:
 
 _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv(_ROOT / ".env")
+except Exception:
+    pass
 
 CHATS_DIR = _ROOT / "chats"
 DEVLOG_PATH = _ROOT / "devlog" / "DEVLOG.md"
@@ -76,6 +83,7 @@ class DailyBundle:
     devlog_entries: list[DevlogEntryLite] = field(default_factory=list)
     inx_runs: list[Path] = field(default_factory=list)
     active_sprints: list[SprintLite] = field(default_factory=list)
+    journal_path: Path | None = None
 
 
 def _parse_devlog() -> list[DevlogEntryLite]:
@@ -189,6 +197,19 @@ def _active_sprints_on(day: str, sprints: list[SprintLite]) -> list[SprintLite]:
     return active
 
 
+def _journal_for(day: str) -> Path | None:
+    alpha = os.getenv("OBSIDIAN_ALPHA_PATH")
+    if not alpha:
+        return None
+    base = Path(alpha) / "A0-GTD" / "B0C-PLA" / "C0C9-Notas"
+    if not base.exists():
+        return None
+    yymmdd = day.replace("-", "")[2:]
+    for p in base.rglob(f"N{yymmdd}-*.md"):
+        return p
+    return None
+
+
 def build_daily(day: str, devlog: list[DevlogEntryLite], sprints: list[SprintLite]) -> DailyBundle:
     chat_path, msg_count, closed = _chat_stats(day)
     day_prefix = day
@@ -201,6 +222,7 @@ def build_daily(day: str, devlog: list[DevlogEntryLite], sprints: list[SprintLit
         devlog_entries=devlog_hits,
         inx_runs=_inx_runs_for(day),
         active_sprints=_active_sprints_on(day, sprints),
+        journal_path=_journal_for(day),
     )
 
 
@@ -267,6 +289,23 @@ def render_daily(bundle: DailyBundle) -> str:
             lines.append(
                 f"- `{sp.name}` ({sp.start} \u2192 {sp.end}) status=`{sp.status}` \u2014 {sp.objective}"
             )
+    lines.append("")
+
+    lines.append("## Journal Obsidian (A0-GTD/B0C-PLA/C0C9-Notas)")
+    lines.append("")
+    if bundle.journal_path is None:
+        lines.append("- Sin journal para esta fecha.")
+    else:
+        alpha = os.getenv("OBSIDIAN_ALPHA_PATH", "")
+        if alpha:
+            try:
+                rel = bundle.journal_path.relative_to(Path(alpha))
+                display = str(rel)
+            except ValueError:
+                display = bundle.journal_path.name
+        else:
+            display = bundle.journal_path.name
+        lines.append(f"- `{display}`")
     lines.append("")
 
     return "\n".join(lines)
