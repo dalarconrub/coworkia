@@ -2,6 +2,18 @@
 
 Este archivo define la capa de coordinación entre Claude, Copilot y Codex.
 
+## Memoria del proyecto — PASO 1 al arrancar
+
+Antes de leer nada más, todo agente debe cargar la memoria curada del proyecto:
+
+1. `memory/INDEX.md` — mapa de todos los recursos.
+2. `memory/PURPOSE.md` — qué es Coworkia y qué hace.
+3. `memory/STRUCTURE.md` — organización de carpetas y lógica.
+
+Solo después se lee el archivo de identidad propio (`CLAUDE.md` / `AGENTS.md` / `.github/copilot-instructions.md`) y esta misma guía.
+
+Si detectas desalineación entre `memory/*.md` y el estado real del repo, corrígelo en el mismo turno y deja entrada `[DOCS]` en el devlog. `memory/STRUCTURE.md` se regenera con `python tools/snapshot_structure.py` (el bloque TREE, la narrativa se edita a mano).
+
 ## Fuente de verdad
 
 - Hay un chat por día en `chats/chat_YYYY-MM-DD.md`.
@@ -119,3 +131,65 @@ Ese comando genera:
 - `artifacts/multiagent/memory_records.json`
 - `artifacts/multiagent/chat_memory_snapshot.json`
 - `artifacts/multiagent/chat_memory.md`
+
+## DevLog obligatorio
+
+El log de desarrollo feature-level vive en `devlog/DEVLOG.md` (append-only, UTF-8). Complementa a `git log` (commits) y al chat del día (conversación): narra *qué se trabajó, por qué y con qué impacto*.
+
+### Lectura inicial
+
+Todos los agentes deben, al arrancar, leer las **últimas ~20 entradas** para tener contexto de trabajo reciente:
+
+```bash
+python tools/devlog.py view --limit 20
+```
+
+### Escritura obligatoria
+
+Un agente **debe** añadir entrada al devlog cuando, en el mismo turno:
+
+1. Cierra una decisión con `✅ CERRADO #N`.
+2. Registra una `MEMORIA:` duradera con impacto operativo.
+3. Completa una tarea de código con cambios mergeados (hito de feature).
+4. Registra un `BLOQUEO:` real (`Estado: BLOCKED`); al resolverse, otro `UNBLOCKED`.
+5. Hace `REVERT` o rollback significativo.
+
+No se escribe entrada para refactors menores, fixes triviales o ediciones sin impacto en comportamiento.
+
+### Cómo escribir
+
+Usar el helper (garantiza UTF-8, timestamp UTC y enlace al chat del día):
+
+```bash
+python tools/devlog.py append \
+  --agent Claude --area PTN --status DONE \
+  --title "Sync INX con Paperpile estabilizado" \
+  --summary "Se valida la ruta paperpile:<citekey>; se retira el fallback temporal." \
+  --commits d5c6b5c --refs "CERRADO #7" --sprint "sprint-multiagent-1"
+```
+
+Tags válidos de `--area`: `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+Estados válidos: `START`, `PROGRESS`, `BLOCKED`, `UNBLOCKED`, `DONE`, `REVERT`.
+Campo opcional `Sprint:` para cruzar con `artifacts/sprints/<sprint>.json` — usarlo cuando la tarea pertenezca a un sprint activo.
+
+### Consulta
+
+```bash
+python tools/devlog.py view                         # últimas 20
+python tools/devlog.py view --area PTN
+python tools/devlog.py view --agent Codex --limit 5
+python tools/devlog.py view --status BLOCKED        # bloqueos vigentes
+```
+
+### Vista temporal (cross-capa)
+
+Para unificar chat + devlog + INX + sprints de una fecha o rango:
+
+```bash
+python tools/timeline.py                    # hoy
+python tools/timeline.py --date 2026-04-18
+python tools/timeline.py --days 7           # ultimos 7 dias
+python tools/timeline.py --from 2026-04-15 --to 2026-04-18
+```
+
+Escribe `artifacts/daily/YYYY-MM-DD.md` (regenerable, read-only sobre fuentes).

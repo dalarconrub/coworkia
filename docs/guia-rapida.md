@@ -194,6 +194,82 @@ python agents/obsidian_agent.py estado
 
 ---
 
+## Coordinación multiagente
+
+Capas de conocimiento y herramientas que usan Claude, Copilot y Codex cuando trabajan sobre el proyecto (y que tú puedes consultar directamente).
+
+### Memoria curada — `memory/`
+
+Primer lugar donde mirar si quieres entender el proyecto hoy.
+
+| Archivo | Qué contiene |
+|---------|--------------|
+| `memory/INDEX.md` | Meta-índice de todos los recursos con orden de lectura |
+| `memory/PURPOSE.md` | Qué es Coworkia, visión, principios no negociables |
+| `memory/STRUCTURE.md` | Mapa de carpetas + árbol auto-generado |
+| `memory/SNAPSHOT.md` | Agregado de `MEMORIA:` / `BLOQUEO:` / `SIGUIENTE:` de todos los chats (auto-generado) |
+
+Regeneración y salud:
+
+```bash
+python tools/snapshot_structure.py         # regenera el árbol de STRUCTURE.md
+python tools/memory_check.py               # valida memory/ (ficheros, enlaces, TREE)
+python tools/memory_check.py --fix-tree    # idem pero regenera el árbol si está desfasado
+```
+
+### Chat del día — `chats/`
+
+Hilo compartido append-only, un fichero por día.
+
+```bash
+python tools/init_chat.py                  # resolver chat activo + briefing (memory + devlog)
+python tools/init_chat.py --quiet          # solo la ruta (uso desde scripts)
+```
+
+`init_chat.py` sin flags imprime el estado de `memory/` y las últimas 3 entradas del devlog — útil para arrancar sesión.
+
+### DevLog — `devlog/DEVLOG.md`
+
+Registro append-only de hitos del proyecto (features, cierres, bloqueos, reverts). No es por commit, es por hito.
+
+```bash
+python tools/devlog.py view                                    # últimas 20
+python tools/devlog.py view --area PTN --limit 5
+python tools/devlog.py view --status BLOCKED
+
+python tools/devlog.py append \
+  --agent Claude --area PTN --status DONE \
+  --title "..." --summary "..." \
+  [--commits sha1,sha2] [--refs "CERRADO #N"] [--sprint "<nombre>"]
+```
+
+Áreas: `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+Estados: `START`, `PROGRESS`, `BLOCKED`, `UNBLOCKED`, `DONE`, `REVERT`.
+
+### Vista temporal — `artifacts/daily/`
+
+Agrega chat + devlog + INX + sprints por fecha:
+
+```bash
+python tools/timeline.py                             # hoy
+python tools/timeline.py --date 2026-04-18
+python tools/timeline.py --from 2026-04-15 --to 2026-04-18
+python tools/timeline.py --days 7                    # últimos 7 días
+python tools/timeline.py --date 2026-04-18 --stdout  # no escribe, imprime
+```
+
+### Memoria multiagente derivada — `artifacts/multiagent/`
+
+Se regenera desde el chat del día más `memory/SNAPSHOT.md` (proyecto):
+
+```bash
+python agents/orchestrator_agent.py sync-chat-memory
+```
+
+Genera `conversation_records.jsonl`, `decision_log.json`, `agent_state.json`, `memory_records.json`, `chat_memory.md`, y actualiza `memory/SNAPSHOT.md` agregando `MEMORIA/BLOQUEO/SIGUIENTE` de todos los chats.
+
+---
+
 ## Setup de tokens y APIs
 
 ### Todoist
@@ -224,10 +300,23 @@ python agents/obsidian_agent.py estado
 
 ## Rutinas recomendadas
 
+### Al empezar sesión
+```bash
+python tools/init_chat.py                   # chat del día + briefing (memory + devlog)
+python tools/memory_check.py                # valida memory/ en orden
+```
+
 ### Diaria
 ```bash
 python apps/dashboard.py                    # Ver pendientes + hoy
 python agents/todoist_agent.py resumen      # Resumen MAR
+python tools/timeline.py                    # Timeline del día (opcional)
+```
+
+### Al cerrar un hito o sesión
+```bash
+python tools/devlog.py append ...                    # registrar hito feature-level
+python agents/orchestrator_agent.py sync-chat-memory # propagar MEMORIA del chat a memory/SNAPSHOT.md
 ```
 
 ### Semanal

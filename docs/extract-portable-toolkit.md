@@ -31,13 +31,21 @@ Lista todos los ficheros implicados en la funcionalidad. Clasifícalos en tres c
 
 | Fichero | Cubo | Acción |
 | --- | --- | --- |
-| `tools/init_chat.py` | Núcleo | Copiado intacto. |
+| `tools/init_chat.py` | Núcleo | Copiado. Generalizar el briefing (rutas a `memory/` y al devlog son portables). |
 | `tools/fix_chat_mojibake.py` | Núcleo | Copiado intacto. |
-| `multiagents/chat_memory.py` | Núcleo | Copiado (parser UTF-8 estricto). |
+| `tools/devlog.py` | Núcleo | Copiado. La lista de `VALID_AREAS` se revisa por proyecto (son etiquetas de dominio). |
+| `tools/snapshot_structure.py` | Núcleo | Copiado. El bloque TREE se regenera contra la raíz del proyecto destino. |
+| `tools/memory_check.py` | Núcleo | Copiado. Valida los tres MD curados y el bloque TREE; no depende del dominio. |
+| `tools/timeline.py` | Híbrido | Núcleo del agregador es genérico; el parseo de INX (`artifacts/inx/inx-daily-*.md`) y de sprints (`artifacts/sprints/*.json`) es específico de Coworkia y debe parametrizarse o eliminarse en el kit. |
+| `multiagents/chat_memory.py` | Núcleo | Copiado. Incluye `build_project_memory_entries` / `render_project_memory_markdown` / `write_project_memory_snapshot` (agregador de MEMORIA/BLOQUEO/SIGUIENTE). |
 | `multiagents/chat_template.md` | Híbrido | Se copia sin referencias a Coworkia. |
-| `.claude/multiagent.md` | Híbrido | Se copia reemplazando `David` por "director". |
-| `AGENTS.md` / `CLAUDE.md` / `copilot-instructions.md` | Híbrido | Se copian generalizando identidad y ejemplos. |
-| `agents/orchestrator_agent.py` | Específico (Scrum Coworkia) | Se queda. Se extrae solo `sync-chat-memory` como CLI autónomo. |
+| `.claude/multiagent.md` | Híbrido | Se copia reemplazando `David` por "director". Incluye las secciones "Memoria del proyecto — PASO 1" y "DevLog obligatorio". |
+| `AGENTS.md` / `CLAUDE.md` / `copilot-instructions.md` | Híbrido | Se copian generalizando identidad y ejemplos. Todos referencian `memory/` y `devlog/` como obligatorios. |
+| `memory/PURPOSE.md` | Híbrido | Plantilla vacía con placeholders — el proyecto destino rellena su propia visión. |
+| `memory/STRUCTURE.md` | Híbrido | Marcadores `<!-- TREE:START -->` / `<!-- TREE:END -->` intactos; narrativa se rehace. |
+| `memory/INDEX.md` | Híbrido | Estructura copiada, tabla de recursos se ajusta al destino. |
+| `devlog/DEVLOG.md` | Núcleo | Cabecera y reglas copiadas; sin entradas (cada proyecto arranca su histórico). |
+| `agents/orchestrator_agent.py` | Específico (Scrum Coworkia) | Se queda. Se extrae solo `sync-chat-memory` (y el acoplamiento a `write_project_memory_snapshot`) como CLI autónomo. |
 | `multiagents/registry.py`, `planner.py`, `artifacts.py` | Específico | Se quedan. |
 
 ## 3. Generalizar los híbridos

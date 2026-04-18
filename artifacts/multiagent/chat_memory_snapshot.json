@@ -1,22 +1,54 @@
 {
-  "generated_at": "2026-04-17T19:26:49Z",
-  "source_path": "C:\\Users\\David\\Desktop\\MSI-20260321\\03-GAMA\\coworkia\\chats\\chat_2026-04-17.md",
-  "message_count": 0,
-  "last_actor": null,
+  "generated_at": "2026-04-18T06:37:54Z",
+  "source_path": "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\chats\\chat_2026-04-18.md",
+  "message_count": 5,
+  "last_actor": "Claude",
   "decisions_open": [],
-  "decisions_all": [],
+  "decisions_all": [
+    {
+      "number": 1,
+      "mode": "CERRADO",
+      "opened_by": "Claude",
+      "status": "closed",
+      "closed_by": "Claude",
+      "last_message_index": 3,
+      "participants": [
+        "Claude",
+        "Codex",
+        "Copilot"
+      ],
+      "summary": "✅ CERRADO #1: DevLog global feature-level creado en devlog/DEVLOG.md, helper tools/devlog.py (append + view), obligatoriedad integrada en .claude/multiagent.md y propagada a CLAUDE.md, AGENTS.md y .github/copilot-instructions.md. MEMORIA: todo agente lee devlog al arrancar (python tools/devlog.py view --limit 20) y añade entrada en el mismo turno en que cierra decisión, marca MEMORIA operativa, completa feature, abre/cierra BLOQUEO o hace REVERT. SIGUIENTE: @Copilot y @Codex al reactivarse, incorporar la lectura del devlog al arranque y usar el helper en todas las escrituras."
+    },
+    {
+      "number": 2,
+      "mode": "CERRADO",
+      "opened_by": "Claude",
+      "status": "closed",
+      "closed_by": "Claude",
+      "last_message_index": 5,
+      "participants": [
+        "Claude",
+        "Codex",
+        "Copilot"
+      ],
+      "summary": "✅ CERRADO #2: memory/ creada. Tres MDs: - memory/PURPOSE.md — proposito y funcionalidades canonicas (curado). - memory/STRUCTURE.md — mapa de carpetas + bloque TREE auto-generado. - memory/INDEX.md — meta-indice de recursos con orden de lectura. Nuevo helper tools/snapshot_structure.py regenera el TREE (con --check para CI). Protocolo actualizado: todo agente carga memory/INDEX.md -> PURPOSE.md -> STRUCTURE.md como PASO 1 al arrancar, antes de leer su archivo de identidad y el chat del dia. MEMORIA: el punto de entrada canonico para cualquier agente es memory/INDEX.md. Si memory/*.md desalinean con el repo real, los agentes corrigen en el mismo turno y dejan entrada [DOCS] en el devlog. SIGUIENTE: @Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level."
+    }
+  ],
   "agent_states": [
     {
       "name": "Copilot",
       "last_message_index": null,
       "last_direct_mention_index": null,
-      "pending_mentions": [],
+      "pending_mentions": [
+        3,
+        5
+      ],
       "pending_decisions": []
     },
     {
       "name": "Claude",
-      "last_message_index": null,
-      "last_direct_mention_index": null,
+      "last_message_index": 5,
+      "last_direct_mention_index": 4,
       "pending_mentions": [],
       "pending_decisions": []
     },
@@ -24,10 +56,95 @@
       "name": "Codex",
       "last_message_index": null,
       "last_direct_mention_index": null,
-      "pending_mentions": [],
+      "pending_mentions": [
+        3,
+        5
+      ],
       "pending_decisions": []
     }
   ],
-  "memory_records": [],
-  "messages": []
+  "memory_records": [
+    {
+      "kind": "MEMORIA",
+      "actor": "Claude",
+      "message_index": 3,
+      "value": "todo agente lee devlog al arrancar (python tools/devlog.py view --limit 20) y añade entrada en el mismo turno en que cierra decisión, marca MEMORIA operativa, completa feature, abre/cierra BLOQUEO o hace REVERT."
+    },
+    {
+      "kind": "SIGUIENTE",
+      "actor": "Claude",
+      "message_index": 3,
+      "value": "@Copilot y @Codex al reactivarse, incorporar la lectura del devlog al arranque y usar el helper en todas las escrituras."
+    },
+    {
+      "kind": "MEMORIA",
+      "actor": "Claude",
+      "message_index": 5,
+      "value": "el punto de entrada canonico para cualquier agente es memory/INDEX.md. Si memory/*.md desalinean con el repo real, los agentes corrigen en el mismo turno y dejan entrada [DOCS] en el devlog."
+    },
+    {
+      "kind": "SIGUIENTE",
+      "actor": "Claude",
+      "message_index": 5,
+      "value": "@Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level."
+    }
+  ],
+  "messages": [
+    {
+      "index": 1,
+      "actor": "Claude",
+      "actor_type": "agent",
+      "target": null,
+      "body": "sesión iniciada. Chat del día leído, sin decisiones abiertas. Listo para análisis, evaluaciones y revisión crítica. @David dime en qué enfocamos hoy.",
+      "mentions": [],
+      "mode": null,
+      "mode_number": null
+    },
+    {
+      "index": 2,
+      "actor": "David",
+      "actor_type": "director",
+      "target": "Claude",
+      "body": "construye un devlog global con tag [AREA] y oblígalo para los agentes.",
+      "mentions": [],
+      "mode": null,
+      "mode_number": null
+    },
+    {
+      "index": 3,
+      "actor": "Claude",
+      "actor_type": "agent",
+      "target": null,
+      "body": "✅ CERRADO #1: DevLog global feature-level creado en devlog/DEVLOG.md, helper tools/devlog.py (append + view), obligatoriedad integrada en .claude/multiagent.md y propagada a CLAUDE.md, AGENTS.md y .github/copilot-instructions.md.\nMEMORIA: todo agente lee devlog al arrancar (python tools/devlog.py view --limit 20) y añade entrada en el mismo turno en que cierra decisión, marca MEMORIA operativa, completa feature, abre/cierra BLOQUEO o hace REVERT.\nSIGUIENTE: @Copilot y @Codex al reactivarse, incorporar la lectura del devlog al arranque y usar el helper en todas las escrituras.",
+      "mentions": [
+        "Codex",
+        "Copilot"
+      ],
+      "mode": "CERRADO",
+      "mode_number": 1
+    },
+    {
+      "index": 4,
+      "actor": "David",
+      "actor_type": "director",
+      "target": "Claude",
+      "body": "crea un sistema de memoria del proyecto con PURPOSE, STRUCTURE e INDEX; nombres en ingles; STRUCTURE hibrido con helper.",
+      "mentions": [],
+      "mode": null,
+      "mode_number": null
+    },
+    {
+      "index": 5,
+      "actor": "Claude",
+      "actor_type": "agent",
+      "target": null,
+      "body": "✅ CERRADO #2: memory/ creada. Tres MDs:\n- memory/PURPOSE.md — proposito y funcionalidades canonicas (curado).\n- memory/STRUCTURE.md — mapa de carpetas + bloque TREE auto-generado.\n- memory/INDEX.md — meta-indice de recursos con orden de lectura.\nNuevo helper tools/snapshot_structure.py regenera el TREE (con --check para CI).\nProtocolo actualizado: todo agente carga memory/INDEX.md -> PURPOSE.md -> STRUCTURE.md como PASO 1 al arrancar, antes de leer su archivo de identidad y el chat del dia.\nMEMORIA: el punto de entrada canonico para cualquier agente es memory/INDEX.md. Si memory/*.md desalinean con el repo real, los agentes corrigen en el mismo turno y dejan entrada [DOCS] en el devlog.\nSIGUIENTE: @Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level.",
+      "mentions": [
+        "Codex",
+        "Copilot"
+      ],
+      "mode": "CERRADO",
+      "mode_number": 2
+    }
+  ]
 }

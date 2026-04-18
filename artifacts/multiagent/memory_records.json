@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 3,
+    "value": "todo agente lee devlog al arrancar (python tools/devlog.py view --limit 20) y añade entrada en el mismo turno en que cierra decisión, marca MEMORIA operativa, completa feature, abre/cierra BLOQUEO o hace REVERT."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 3,
+    "value": "@Copilot y @Codex al reactivarse, incorporar la lectura del devlog al arranque y usar el helper en todas las escrituras."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Claude",
+    "message_index": 5,
+    "value": "el punto de entrada canonico para cualquier agente es memory/INDEX.md. Si memory/*.md desalinean con el repo real, los agentes corrigen en el mismo turno y dejan entrada [DOCS] en el devlog."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 5,
+    "value": "@Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level."
+  }
+]

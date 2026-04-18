@@ -4,6 +4,16 @@
 > Si eres Copilot: ignora la identidad de este archivo y usa `.github/copilot-instructions.md`.
 > Si eres Claude: aplica este archivo completo.
 
+## Memoria del proyecto — lectura obligatoria al arrancar
+
+Antes de responder cualquier cosa en una sesión nueva, carga (en orden):
+
+1. `memory/INDEX.md` — mapa de recursos.
+2. `memory/PURPOSE.md` — qué es Coworkia.
+3. `memory/STRUCTURE.md` — cómo está organizado.
+
+Si detectas desalineación entre `memory/*.md` y el repo real, corrígela en el mismo turno y deja entrada `[DOCS]` en el devlog.
+
 ## Contexto del proyecto
 
 Coworkia es un sistema multiagente para gestión personal y conocimiento con esta división canónica:
@@ -52,5 +62,14 @@ Cuando respondas en el hilo compartido:
 - si detectas un acuerdo estable, usa `MEMORIA:`
 - si detectas un impedimento real, usa `BLOQUEO:`
 - si procede un handoff, usa `SIGUIENTE:`
+
+## DevLog
+
+Log feature-level en `devlog/DEVLOG.md` (append-only, UTF-8).
+
+- Al arrancar sesión: `python tools/devlog.py view --limit 20`.
+- Escribe entrada en el mismo turno en que cierres decisión (`✅ CERRADO`), marques `MEMORIA:` con impacto operativo, completes feature, abras/cierres `BLOQUEO:` o hagas revert.
+- Usa siempre el helper: `python tools/devlog.py append --agent Claude --area <AREA> --status <STATUS> --title "..." --summary "..."`.
+- Detalle completo en `.claude/multiagent.md` sección "DevLog obligatorio".
 
 @import .claude/multiagent.md

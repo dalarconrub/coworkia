@@ -28,7 +28,13 @@ from multiagents.artifacts import (
     write_sprint_artifact,
     write_sprint_run_artifacts,
 )
-from multiagents.chat_memory import build_chat_memory, render_chat_memory_markdown, write_chat_memory_artifacts
+from multiagents.chat_memory import (
+    build_chat_memory,
+    build_project_memory_entries,
+    render_chat_memory_markdown,
+    write_chat_memory_artifacts,
+    write_project_memory_snapshot,
+)
 from multiagents.models import CommandExecution, SprintRun, TaskExecution, TaskStatus
 from multiagents.planner import plan_sprint
 from multiagents.registry import ALL_AGENTS, SCRUM_ROLES
@@ -255,6 +261,8 @@ def sprint_status(sprint_name: str) -> str:
 def sync_chat_memory(chat_path: str | None = None) -> str:
     snapshot = build_chat_memory(chat_path=chat_path)
     paths = write_chat_memory_artifacts(snapshot)
+    project_entries = build_project_memory_entries()
+    project_snapshot_path = write_project_memory_snapshot(project_entries)
     return (
         f"{render_chat_memory_markdown(snapshot)}\n"
         f"Artifacts:\n"
@@ -263,7 +271,8 @@ def sync_chat_memory(chat_path: str | None = None) -> str:
         f"- {paths['conversation']}\n"
         f"- {paths['decisions']}\n"
         f"- {paths['agent_state']}\n"
-        f"- {paths['memory_records']}"
+        f"- {paths['memory_records']}\n"
+        f"- {project_snapshot_path} (proyecto, agregado de MEMORIA/BLOQUEO/SIGUIENTE)"
     )
 
 

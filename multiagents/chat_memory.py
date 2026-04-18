@@ -298,6 +298,94 @@ def render_chat_memory_markdown(snapshot: ChatMemorySnapshot) -> str:
     return "\n".join(lines)
 
 
+@dataclass
+class ProjectMemoryEntry:
+    kind: str
+    actor: str
+    value: str
+    chat_date: str
+    chat_path: str
+    message_index: int
+
+
+def build_project_memory_entries(chats_dir: str | Path = "chats") -> list[ProjectMemoryEntry]:
+    """Agrega MEMORIA/BLOQUEO/SIGUIENTE de todos los chats en `chats/`.
+
+    Dedup por (kind, value normalizado) conservando la aparicion mas reciente.
+    """
+    directory = Path(chats_dir)
+    if not directory.exists():
+        return []
+
+    collected: list[ProjectMemoryEntry] = []
+    for chat_path in sorted(directory.glob("chat_*.md")):
+        stem = chat_path.stem
+        chat_date = stem.replace("chat_", "")
+        try:
+            text = _read_text_strict(chat_path)
+        except UnicodeDecodeError:
+            continue
+        messages = parse_chat_messages(text)
+        records = build_memory_records(messages)
+        for record in records:
+            collected.append(
+                ProjectMemoryEntry(
+                    kind=record.kind,
+                    actor=record.actor,
+                    value=record.value,
+                    chat_date=chat_date,
+                    chat_path=str(chat_path.as_posix()),
+                    message_index=record.message_index,
+                )
+            )
+
+    seen: dict[tuple[str, str], ProjectMemoryEntry] = {}
+    for entry in collected:
+        key = (entry.kind, " ".join(entry.value.lower().split()))
+        seen[key] = entry
+    return sorted(seen.values(), key=lambda e: (e.kind, e.chat_date, e.message_index))
+
+
+def render_project_memory_markdown(entries: list[ProjectMemoryEntry]) -> str:
+    now = _utc_now_iso()
+    lines = [
+        "# Project Memory Snapshot",
+        "",
+        f"_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ {now}. No editar a mano._",
+        "",
+        "Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.",
+        "Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).",
+        "",
+    ]
+
+    for kind, title in (("MEMORIA", "## MEMORIA (acuerdos duraderos)"),
+                        ("BLOQUEO", "## BLOQUEO (impedimentos)"),
+                        ("SIGUIENTE", "## SIGUIENTE (handoffs pendientes)")):
+        subset = [e for e in entries if e.kind == kind]
+        lines.append(title)
+        lines.append("")
+        if not subset:
+            lines.append("- Ninguno.")
+            lines.append("")
+            continue
+        for e in subset:
+            lines.append(f"- **[{e.chat_date}]** `{e.actor}` \u2014 {e.value}")
+            lines.append(f"  - origen: `{e.chat_path}` (msg #{e.message_index})")
+        lines.append("")
+
+    return "\n".join(lines)
+
+
+def write_project_memory_snapshot(
+    entries: list[ProjectMemoryEntry],
+    output_path: str | Path = "memory/SNAPSHOT.md",
+) -> Path:
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(render_project_memory_markdown(entries), encoding="utf-8")
+    return path
+
+
 def write_chat_memory_artifacts(
     snapshot: ChatMemorySnapshot,
     output_dir: str = "artifacts/multiagent",

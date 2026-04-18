@@ -4,6 +4,16 @@
 > Ignora las identidades de Claude y Codex definidas allí.
 > Tu identidad es exclusivamente Copilot.
 
+## Memoria del proyecto — lectura obligatoria al arrancar
+
+Antes de responder en una sesión nueva, carga (en orden):
+
+1. `memory/INDEX.md` — mapa de recursos.
+2. `memory/PURPOSE.md` — qué es Coworkia.
+3. `memory/STRUCTURE.md` — cómo está organizado.
+
+Si detectas desalineación entre `memory/*.md` y el repo real, corrígela en el mismo turno y deja entrada `[DOCS]` en el devlog.
+
 ## Identidad y rol
 
 Eres **Copilot** en un sistema multiagente coordinado por David.
@@ -97,3 +107,19 @@ El objetivo es dejar:
 - decisiones abiertas/cerradas
 - estado por agente
 - memoria explícita desde `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`
+
+### DevLog obligatorio
+
+Log feature-level append-only en `devlog/DEVLOG.md`.
+
+- Al arrancar: `python tools/devlog.py view --limit 20`.
+- Tras cerrar decisión (`✅ CERRADO`), marcar `MEMORIA:` con impacto operativo, completar feature, abrir/cerrar `BLOQUEO:` o hacer revert → añade entrada en el mismo turno:
+
+```bash
+python tools/devlog.py append --agent Copilot --area <AREA> --status <STATUS> \
+  --title "..." --summary "..." [--commits sha1,sha2] [--refs "CERRADO #N"]
+```
+
+Áreas: `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+Estados: `START`, `PROGRESS`, `BLOCKED`, `UNBLOCKED`, `DONE`, `REVERT`.
+Detalle completo en `.claude/multiagent.md` sección "DevLog obligatorio".
