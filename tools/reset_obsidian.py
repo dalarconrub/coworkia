@@ -4,7 +4,10 @@ Reset Obsidian (Fase 3) — rotar vault construyendo uno nuevo como sibling.
 Estrategia C del diseño:
   - El vault viejo queda INTACTO en su path actual (OBSIDIAN_ABGD_ROOT). Sus notas
     siguen siendo leibles; los `obsidian:<path>` del INX mantienen validez fisica.
-  - El vault nuevo nace en `--new-vault-path` con:
+  - El vault nuevo nace en `--new-vault-path` o, si no se pasa, en el sibling
+    derivado automaticamente con la regla `ABGD-yymmdd` bajo la misma raiz del
+    vault actual. Ejemplo: `C:/GDrive/.../ABGD/ABGD-260419`.
+    Con:
       * Estructura de carpetas canonica replicada desde el viejo hasta `--depth N`
         (default 3: Area -> Bloque -> Contexto). Sin ficheros .md.
       * Carpeta `.obsidian/` completa (plugins, hotkeys, themes, snippets).
@@ -13,7 +16,7 @@ Estrategia C del diseño:
   - El CLI NO edita `.env`. Al terminar imprime la linea que debes reemplazar.
 
 Subcomandos:
-  rotate --new-vault-path PATH [--depth N] [--dry-run] [--snapshot]
+  rotate [--new-vault-path PATH] [--depth N] [--dry-run] [--snapshot]
          [--no-inx] [--force]
   status
   list-archived
@@ -23,16 +26,15 @@ Flags:
   --dry-run      No crea carpetas ni llama a Notion; solo informa.
   --snapshot     Vuelca artifacts/resets/YYYY-MM-DD/obsidian-rotate-<ts>.json.
   --no-inx       Omite el flip INX (solo toca filesystem).
-  --force        Permite escribir en --new-vault-path aunque ya exista no-vacio.
+  --force        Permite escribir en la ruta destino aunque ya exista no-vacio.
   --depth N      Profundidad de replica estructural (default 3; -1 = todo).
 
 Ejemplos:
   python tools/reset_obsidian.py status
+  python tools/reset_obsidian.py rotate --dry-run --snapshot
+  python tools/reset_obsidian.py rotate
   python tools/reset_obsidian.py rotate \
-      --new-vault-path C:/GDrive/dalarconrub/ABGD/ABGD-26.04.19 \
-      --dry-run --snapshot
-  python tools/reset_obsidian.py rotate \
-      --new-vault-path C:/GDrive/dalarconrub/ABGD/ABGD-26.04.19
+      --new-vault-path C:/GDrive/dalarconrub/ABGD/ABGD-260419
   python tools/reset_obsidian.py list-archived
   python tools/reset_obsidian.py restore --from C:/GDrive/dalarconrub/ABGD/ABGD-25.09.05
 """
@@ -81,6 +83,11 @@ DEFAULT_DEPTH = 3   # Area -> Bloque -> Contexto. -1 = todo.
 def _current_vault() -> Path | None:
     raw = os.getenv(ENV_VAULT)
     return Path(raw) if raw else None
+
+
+def _derived_new_vault_path(old: Path) -> Path:
+    stamp = Date.today().strftime("%y%m%d")
+    return (old.resolve().parent / f"ABGD-{stamp}").resolve()
 
 
 def _inx_id() -> str:
@@ -262,9 +269,9 @@ def cmd_rotate(args) -> int:
         raise SystemExit(f"{ENV_VAULT} no definida en .env")
     if not old.exists():
         raise SystemExit(f"Vault actual no existe: {old}")
-    new = Path(args.new_vault_path).resolve()
+    new = Path(args.new_vault_path).resolve() if args.new_vault_path else _derived_new_vault_path(old)
     if new == old.resolve():
-        raise SystemExit("--new-vault-path no puede coincidir con el vault actual")
+        raise SystemExit("La ruta destino derivada no puede coincidir con el vault actual; usa --new-vault-path para override")
     if new.exists() and not _is_path_empty(new) and not args.force:
         raise SystemExit(
             f"--new-vault-path ya existe y no esta vacia: {new}\n"
@@ -273,6 +280,7 @@ def cmd_rotate(args) -> int:
 
     print(f"Vault actual   : {old}")
     print(f"Vault nuevo    : {new}")
+    print(f"Ruta derivada  : {not bool(args.new_vault_path)}")
     print(f"Profundidad    : {'sin limite' if args.depth < 0 else args.depth}")
     print(f"Dry-run        : {args.dry_run}")
     print()
@@ -400,7 +408,8 @@ def main() -> int:
     p_st.set_defaults(func=cmd_status)
 
     p_ro = sub.add_parser("rotate", help="Crear vault nuevo + marcar INX obsidian:* como Archivado")
-    p_ro.add_argument("--new-vault-path", required=True, help="Ruta donde nace el nuevo vault (obligatorio)")
+    p_ro.add_argument("--new-vault-path",
+                      help="Ruta donde nace el nuevo vault (opcional; default = sibling ABGD-yymmdd)")
     p_ro.add_argument("--depth", type=int, default=DEFAULT_DEPTH,
                       help=f"Profundidad de replica (default {DEFAULT_DEPTH}; -1 = todo el arbol)")
     p_ro.add_argument("--dry-run", action="store_true")

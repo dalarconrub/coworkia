@@ -382,9 +382,9 @@ python tools/reset_all.py --dry-run --mar-limit 10 --notion-limit 5
 **Orden, política y protección:**
 - **1. MAR** → `reset_mar.py reset-all` (marker reversible en descripción, no hay snapshot porque la tarea es su propia referencia).
 - **2. Notion** → `reset_notion.py reset-ptn-all --snapshot` (snapshot forzado siempre).
-- **3. Obsidian** → `reset_obsidian.py rotate --snapshot --new-vault-path <path>` (snapshot forzado siempre).
+- **3. Obsidian** → `reset_obsidian.py rotate --snapshot` (ruta derivada por defecto) o `--new-vault-path <path>` como override.
 - **Abort en cadena**: si la fase N falla, no se ejecuta N+1. Summary final lista lo que sí se hizo y los comandos de restore.
-- **Obsidian se skipea por seguridad** si no pasas `--obsidian-new-vault-path`. Evita crear vaults sorpresa cerca del actual.
+- **Obsidian ya no se skipea por falta de path**: deriva por defecto la ruta destino como sibling del vault actual con formato `ABGD-yymmdd`. Usa `--obsidian-new-vault-path` solo si quieres override.
 - **Snapshot obligatorio** en Notion y Obsidian (no hay forma de deshabilitar desde el orquestador): auditoría completa por defecto.
 - `--dry-run` se propaga a las tres fases.
 - Sin `--yes`, pide confirmación `y/N` tras mostrar el plan. Con `--yes`, ejecuta inmediatamente tras imprimirlo.
@@ -394,7 +394,7 @@ python tools/reset_all.py --dry-run --mar-limit 10 --notion-limit 5
 - Por fase: `--skip-mar`, `--skip-notion`, `--skip-obsidian`.
 - MAR: `--mar-limit N`.
 - Notion: `--notion-limit N` (aplica por cada target PTN).
-- Obsidian: `--obsidian-new-vault-path PATH`, `--obsidian-depth N` (default 3 en el CLI), `--obsidian-force`.
+- Obsidian: `--obsidian-new-vault-path PATH` (override opcional), `--obsidian-depth N` (default 3 en el CLI), `--obsidian-force`.
 
 **Output:**
 1. Plan resumen en caja antes de cualquier ejecución (ves exactamente qué pasaría).
@@ -403,7 +403,7 @@ python tools/reset_all.py --dry-run --mar-limit 10 --notion-limit 5
 
 **Recomendación de uso:**
 1. `python tools/reset_all.py --dry-run` — primer vistazo sin Obsidian.
-2. Si te gusta el plan: `python tools/reset_all.py --dry-run --obsidian-new-vault-path <ruta>` — incluye la rotación del vault en simulación.
+2. Si quieres override explícito: `python tools/reset_all.py --dry-run --obsidian-new-vault-path <ruta>`.
 3. Quitar `--dry-run`, responder `y` al prompt. Si todo OK, editar `.env` con la línea que imprime la fase 3.
 
 ### Reset Obsidian — rotar vault (Fase 3 del sistema de reseteo)
@@ -412,7 +412,7 @@ Cirugía mayor: construir un vault completamente nuevo como sibling, dejar el vi
 
 **Estrategia implementada: C (vault nuevo sibling, viejo intacto).**
 - El vault viejo **no se mueve, no se renombra, no se toca**. Sus paths físicos y los `obsidian:<path>` del INX siguen siendo válidos en disco.
-- El vault nuevo nace en la ruta que tú elijas con `--new-vault-path` (obligatorio). Contiene la estructura canónica replicada hasta `--depth N` (default 3 = Area → Bloque → Contexto) y una copia íntegra de `.obsidian/` para preservar plugins, hotkeys, temas y snippets.
+- El vault nuevo nace por defecto como sibling del vault actual con la regla `ABGD-yymmdd` bajo la misma raíz. Ejemplo: si el actual está en `.../ABGD`, el nuevo será `.../ABGD-260419`. `--new-vault-path` queda como override explícito. Contiene la estructura canónica replicada hasta `--depth N` (default 3 = Area → Bloque → Contexto) y una copia íntegra de `.obsidian/` para preservar plugins, hotkeys, temas y snippets.
 - **El CLI NO edita `.env`**. Al terminar imprime la línea `OBSIDIAN_ABGD_ROOT=<nueva ruta>` que debes pegar manualmente.
 
 ```bash
@@ -421,12 +421,11 @@ python tools/reset_obsidian.py status
 
 # Dry-run antes de comprometer (recomendado)
 python tools/reset_obsidian.py rotate \
-    --new-vault-path /ruta/al/nuevo/vault \
     --dry-run --snapshot
 
 # Ejecutar rotación real
 python tools/reset_obsidian.py rotate \
-    --new-vault-path /ruta/al/nuevo/vault --snapshot
+    --snapshot
 
 # Consultar filas INX archivadas
 python tools/reset_obsidian.py list-archived
@@ -443,11 +442,11 @@ python tools/reset_obsidian.py restore --from /ruta/al/vault/viejo
 5. Imprime el cambio a aplicar en `.env`.
 
 **Protección:**
-- Si `--new-vault-path` ya existe y no está vacía, aborta (pasa `--force` para sobrescribir conscientemente).
+- Si la ruta derivada o la pasada por `--new-vault-path` ya existe y no está vacía, aborta (pasa `--force` para sobrescribir conscientemente).
 - `--dry-run` no crea directorios ni modifica Notion.
 - `--no-inx` omite la propagación INX (solo toca filesystem).
 
-**Flags:** `--new-vault-path` (obligatorio), `--depth N` (default 3, `-1` = todo el árbol), `--dry-run`, `--snapshot`, `--no-inx`, `--force`.
+**Flags:** `--new-vault-path` (override opcional), `--depth N` (default 3, `-1` = todo el árbol), `--dry-run`, `--snapshot`, `--no-inx`, `--force`.
 
 **Restauración (`restore --from <old-vault-path>`):**
 - Flip `Archivo=false` en filas INX `obsidian:*` (una llamada API por fila).

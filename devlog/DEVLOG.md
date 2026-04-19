@@ -361,3 +361,28 @@ Estado: DONE
 Chat: chats/chat_2026-04-19.md
 Refs: CERRADO #24
 Resumen: Se extendio promote_bib_to_obsidian.py con filtros --author, --journal y --estado para el batch BIB→Obsidian, manteniendo los filtros previos --query, --year y --limit. Wrapper y documentacion actualizados. Revalidacion real OK con --all-pending --dry-run --author Candido --limit 10, que detecta 1 candidato existente y lo clasifica como skip.
+
+## 2026-04-19T19:06Z — Codex — [MAR] Reset Todoist ejecutado en real
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: Se ejecutó tools/reset_mar.py reset-all sobre Todoist. El comando de escritura agotó el timeout local, pero la verificación posterior confirmó 0 tareas candidatas restantes en dry-run y tareas archivadas en Z-INBOX con marcador reversible, por lo que el reset quedó aplicado.
+
+## 2026-04-19T19:19Z — Codex — [PTN] Reset Notion ejecutado en real
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: Se ejecutó tools/reset_notion.py reset-ptn-all --snapshot sobre el workspace PTN. Resultado: 9 proyectos, 1 tarea y 6 notas archivadas con Archivo=true, con propagación completa a INX y snapshots reversibles en artifacts/resets/2026-04-19/.
+
+## 2026-04-19T19:24Z — Codex — [ABGD] Reset Obsidian deriva ruta ABGD-yymmdd por defecto
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: tools/reset_obsidian.py deja de requerir --new-vault-path y deriva por defecto un sibling bajo la misma raiz del vault actual con formato ABGD-yymmdd. tools/reset_all.py, docs/pipeline-atlas.md, docs/casos-de-uso/14-reset-sistema.md y apps/pipeline_gui.py se actualizaron a la nueva regla. Validacion real OK en dry-run: C:\\GDrive\\dalarconrub\\ABGD\\ABGD-25.09.05 -> C:\\GDrive\\dalarconrub\\ABGD\\ABGD-260419; reset_all --dry-run ya incluye Obsidian con ruta derivada.
+
+## 2026-04-19T19:32Z — Codex — [ABGD] Reset Obsidian ejecutado en real
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: Se ejecutó tools/reset_obsidian.py rotate --snapshot con la ruta derivada por defecto. Se creó C:\\GDrive\\dalarconrub\\ABGD\\ABGD-260419, se replicaron 35 directorios, se copió .obsidian y se marcó Archivo=true en 36 filas obsidian:* de INX sin errores. Verificación posterior OK en disco e INX; queda solo el cambio manual de OBSIDIAN_ABGD_ROOT en .env y abrir el vault nuevo en Obsidian desktop.
+
+## 2026-04-19T19:38Z — Codex — [ABGD] Entorno Obsidian apuntando al vault nuevo
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: Se actualizó .env para que OBSIDIAN_ABGD_ROOT y OBSIDIAN_ALPHA_PATH apunten a C:/GDrive/dalarconrub/ABGD/ABGD-260419 tras la rotación real del vault.

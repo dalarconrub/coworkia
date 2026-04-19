@@ -514,13 +514,14 @@ def _build_atlas() -> list[AtlasNode]:
             category="coordinacion",
             summary="Orquestador que ejecuta las 3 fases en orden (MAR -> Notion -> Obsidian). "
                     "Subprocess chain, abortable, con confirmacion interactiva y plan previo. "
-                    "Obsidian skipea salvo que pases --obsidian-new-vault-path.",
+                    "Obsidian deriva por defecto la ruta sibling `ABGD-yymmdd`; "
+                    "--obsidian-new-vault-path queda como override.",
             flow_text=(
                 "Plan (print) → Confirmacion [y/N] → Ejecucion:\n"
                 "  1. Fase 1 MAR: python tools/reset_mar.py reset-all [--dry-run] [--limit N]\n"
                 "  2. Fase 2 Notion: python tools/reset_notion.py reset-ptn-all --snapshot\n"
                 "  3. Fase 3 Obsidian: python tools/reset_obsidian.py rotate \\\n"
-                "                      --new-vault-path <path> --snapshot\n"
+                "                      --snapshot   # default: sibling ABGD-yymmdd\n"
                 "         v\n"
                 "Politica de fallo: si Fase N falla, ABORT (no avanza a N+1).\n"
                 "Imprime comandos de restore para recuperar lo ejecutado.\n"
@@ -528,7 +529,7 @@ def _build_atlas() -> list[AtlasNode]:
                 "--dry-run: propaga a las 3 fases, nada se escribe.\n"
                 "--yes    : sin confirmacion (scripteable).\n"
                 "--skip-*: saltar una fase individual.\n"
-                "Obsidian skipea automaticamente sin --obsidian-new-vault-path (seguridad)."
+                "Obsidian usa por defecto la ruta derivada ABGD-yymmdd bajo la misma raiz del vault actual."
             ),
             scripts=[
                 ("Tool", "tools/reset_all.py"),
@@ -557,18 +558,20 @@ def _build_atlas() -> list[AtlasNode]:
             category="coordinacion",
             summary="Crea un vault nuevo como sibling con la estructura canonica replicada "
                     "(depth default 3) y `.obsidian/` copiada. El vault viejo queda intacto. "
+                    "Si no pasas ruta, deriva automaticamente `ABGD-yymmdd` bajo la misma raiz. "
                     "Propaga Archivo=true a todas las filas INX obsidian:*. Requiere editar "
                     "OBSIDIAN_ABGD_ROOT manualmente al terminar.",
             flow_text=(
                 "Prerrequisito: propiedad 'Archivo: Checkbox' en NOTION_DB_INX.\n"
                 "               python tools/ensure_archivo_field.py\n"
                 "         v\n"
-                "Rotate --new-vault-path <path> [--depth N] [--dry-run] [--snapshot]:\n"
+                "Rotate [--new-vault-path <path>] [--depth N] [--dry-run] [--snapshot]:\n"
                 "  1. Replica estructura de carpetas del viejo al nuevo hasta depth N\n"
                 "     (default 3 = Area -> Bloque -> Contexto). Sin ficheros .md.\n"
                 "  2. Copia .obsidian/ completa (plugins, hotkeys, themes, snippets).\n"
                 "  3. Flip Archivo=true en toda fila INX con Clave 'obsidian:...'.\n"
-                "  4. Imprime la linea que debes poner en .env: OBSIDIAN_ABGD_ROOT=<nuevo>.\n"
+                "  4. Si no pasas ruta, usa el sibling derivado `ABGD-yymmdd`.\n"
+                "  5. Imprime la linea que debes poner en .env: OBSIDIAN_ABGD_ROOT=<nuevo>.\n"
                 "         v\n"
                 "status            muestra vault actual + top-level + Archivo en INX\n"
                 "list-archived     lista filas INX obsidian:* con Archivo=true\n"
@@ -580,7 +583,7 @@ def _build_atlas() -> list[AtlasNode]:
                 ("App",  "apps/reset_obsidian.bat"),
             ],
             artifacts=[
-                "Nuevo vault en --new-vault-path con estructura vacia + .obsidian/",
+                "Nuevo vault derivado como sibling ABGD-yymmdd, o en --new-vault-path si haces override, con estructura vacia + .obsidian/",
                 "Filas INX obsidian:* marcadas Archivo=true (reversible)",
                 "Snapshot opcional artifacts/resets/YYYY-MM-DD/obsidian-rotate-<ts>.json",
             ],

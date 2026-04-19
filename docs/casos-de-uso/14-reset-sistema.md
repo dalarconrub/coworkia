@@ -67,8 +67,8 @@ Marcas: **A**uto = cubierto por `validate_case_14.py`; **M**anual = requiere int
 | # | Test | Tipo | Expectativa |
 | --- | --- | --- | --- |
 | 3.1 | `reset_obsidian.py status` | A | muestra path + top-level + `Archivo` presente en INX |
-| 3.2 | `rotate --dry-run --snapshot --new-vault-path <tmp>` | A | plan sin escrituras; snapshot JSON escrito |
-| 3.3 | `rotate` sin `--new-vault-path` | A | argparse error, exit 2 |
+| 3.2 | `rotate --dry-run --snapshot` | A | plan sin escrituras; usa ruta derivada `ABGD-yymmdd`; snapshot JSON escrito |
+| 3.3 | `rotate --dry-run --new-vault-path <tmp>` | A | override explícito aceptado |
 | 3.4 | `rotate --new-vault-path <misma ruta que OBSIDIAN_ABGD_ROOT>` | A | exit !=0, mensaje "no puede coincidir" |
 | 3.5 | `rotate --new-vault-path <existente no vacía>` sin `--force` | A | exit !=0, mensaje "ya existe y no esta vacia" |
 | 3.6 | `list-archived` | A | lista filas `obsidian:*` con `Archivo=true` |
@@ -81,8 +81,8 @@ Marcas: **A**uto = cubierto por `validate_case_14.py`; **M**anual = requiere int
 | # | Test | Tipo | Expectativa |
 | --- | --- | --- | --- |
 | 4.1 | `reset_all.py --help` exit 0 | A | usage visible |
-| 4.2 | `reset_all --dry-run --mar-limit 1 --notion-limit 1` sin Obsidian path | A | `[OK] MAR`, `[OK] Notion`, `[skip] Obsidian` |
-| 4.3 | `reset_all --dry-run ... --obsidian-new-vault-path <tmp>` | A | las 3 fases `[OK]` |
+| 4.2 | `reset_all --dry-run --mar-limit 1 --notion-limit 1` | A | `[OK] MAR`, `[OK] Notion`, `[OK] Obsidian` con ruta derivada |
+| 4.3 | `reset_all --dry-run ... --obsidian-new-vault-path <tmp>` | A | las 3 fases `[OK]` usando override explícito |
 | 4.4 | `reset_all --dry-run --skip-mar --skip-obsidian --notion-limit 1` | A | solo Notion corre |
 | 4.5 | Límites se propagan correctamente | A | output de cada fase refleja el limit |
 | 4.6 | Sin `--yes` y sin `--dry-run` → pide confirmación interactiva | M | difícil de automatizar |

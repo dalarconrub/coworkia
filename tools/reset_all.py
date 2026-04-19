@@ -4,7 +4,7 @@ Reset general (Fase 4) — encadena las 3 fases en orden seguro.
 Orden:
   1. MAR       → tools/reset_mar.py reset-all
   2. Notion    → tools/reset_notion.py reset-ptn-all --snapshot
-  3. Obsidian  → tools/reset_obsidian.py rotate --new-vault-path ... --snapshot
+  3. Obsidian  → tools/reset_obsidian.py rotate [--new-vault-path ...] --snapshot
 
 Politica:
   - Subprocess chain (no imports): cada sub-CLI corre como proceso propio.
@@ -15,12 +15,12 @@ Politica:
     marker reversible en description como su mecanismo equivalente.
   - `--dry-run` se propaga a las tres fases (nada se escribe).
   - Sin `--yes`, pregunta confirmacion interactiva antes de ejecutar en real.
-  - Obsidian se SKIPEA automaticamente si falta `--obsidian-new-vault-path`
-    (aviso claro). En dry-run tambien se salta si falta, para no tener que
-    inventar rutas.
+  - Obsidian deriva por defecto la ruta destino bajo la misma raiz del vault
+    actual con la convención `ABGD-yymmdd`. `--obsidian-new-vault-path` queda
+    como override explicito.
 
 Uso:
-    python tools/reset_all.py --dry-run                             # plan completo MAR+Notion (Obsidian skip)
+    python tools/reset_all.py --dry-run                             # plan completo con ruta Obsidian derivada
     python tools/reset_all.py --dry-run --obsidian-new-vault-path C:/tmp/new-vault
     python tools/reset_all.py --yes --obsidian-new-vault-path C:/GDrive/...
     python tools/reset_all.py --yes --skip-obsidian                 # solo MAR + Notion
@@ -102,16 +102,12 @@ def _notion_phase(args) -> PhaseResult:
 def _obsidian_phase(args) -> PhaseResult:
     if args.skip_obsidian:
         return PhaseResult(name="Obsidian", status="SKIP", detail="--skip-obsidian")
-    if not args.obsidian_new_vault_path:
-        return PhaseResult(
-            name="Obsidian", status="SKIP",
-            detail="sin --obsidian-new-vault-path (Obsidian no se rota por seguridad)",
-        )
     cmd = [
         sys.executable, str(TOOLS / "reset_obsidian.py"), "rotate",
-        "--new-vault-path", args.obsidian_new_vault_path,
         "--snapshot",
     ]
+    if args.obsidian_new_vault_path:
+        cmd += ["--new-vault-path", args.obsidian_new_vault_path]
     if args.dry_run:
         cmd.append("--dry-run")
     if args.obsidian_depth is not None:
@@ -133,10 +129,12 @@ def _print_plan(args) -> None:
     print(f"Notion   : {'SKIP' if args.skip_notion else 'ejecutar reset-ptn-all --snapshot' + (f' --limit {args.notion_limit}' if args.notion_limit else '')}")
     if args.skip_obsidian:
         obs_plan = "SKIP (--skip-obsidian)"
-    elif not args.obsidian_new_vault_path:
-        obs_plan = "SKIP (sin --obsidian-new-vault-path)"
     else:
-        obs_plan = f"rotate --new-vault-path {args.obsidian_new_vault_path} --snapshot"
+        obs_plan = "rotate --snapshot"
+        if args.obsidian_new_vault_path:
+            obs_plan += f" --new-vault-path {args.obsidian_new_vault_path}"
+        else:
+            obs_plan += " [ruta derivada ABGD-yymmdd]"
         if args.obsidian_depth is not None:
             obs_plan += f" --depth {args.obsidian_depth}"
         if args.obsidian_force:
@@ -202,7 +200,7 @@ def main() -> int:
     # Obsidian
     parser.add_argument("--skip-obsidian", action="store_true")
     parser.add_argument("--obsidian-new-vault-path",
-                        help="Ruta destino para rotate (sin esto, Obsidian se skipea)")
+                        help="Ruta destino para rotate (opcional; default = sibling ABGD-yymmdd)")
     parser.add_argument("--obsidian-depth", type=int, default=None,
                         help="Override --depth de reset_obsidian (default 3 en el CLI)")
     parser.add_argument("--obsidian-force", action="store_true")
