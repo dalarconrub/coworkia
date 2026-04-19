@@ -1,8 +1,9 @@
 """
-Reset MAR — archivar tareas Todoist a Z-INBOX sin cerrarlas (reversible).
+Reset MAR — archivar tareas Todoist a Z-BACK-yymmdd sin cerrarlas (reversible).
 
-Fase 1 del sistema de reseteo. Mueve tareas pendientes/programadas al proyecto
-Z-INBOX, preservando el proyecto de origen en la descripcion para que el
+Fase 1 del sistema de reseteo. Mueve tareas pendientes/programadas a un
+proyecto diario derivado `Z-BACK-yymmdd`, preservando el proyecto de origen
+en la descripcion para que el
 comando `restore` pueda devolverlas a su sitio. No cierra ni borra tareas.
 
 Reglas de seguridad:
@@ -10,6 +11,8 @@ Reglas de seguridad:
   - Solo toca tareas abiertas (Todoist no devuelve completadas en /tasks por
     defecto, pero igualmente no se escriben close/delete).
   - Idempotente: si una tarea ya lleva marker [ARCHIVED: ...], no se re-archiva.
+    Si detecta un estado parcial (marker presente pero tarea aun fuera de Z-*),
+    repara el movimiento pendiente hacia el backup diario.
   - Marker en descripcion: `[ARCHIVED: YYYY-MM-DD | orig-project: <id>]`
     anadido al final, separado por linea en blanco. `restore` lo elimina.
 
@@ -20,7 +23,7 @@ Subcomandos:
   reset-by-label LABEL        Por label (sin @).
   reset-overdue [--days N]    Tareas con due.date anterior a hoy - N dias (N>=0).
 
-  list-archived               Lista tareas actualmente en Z-INBOX con marker.
+  list-archived               Lista tareas actualmente en el backup diario con marker.
   restore TASK_ID             Devuelve la tarea a su proyecto original.
   restore-all [--from YYYY-MM-DD]
                               Restaura todas las archivadas (opcional desde fecha).
@@ -28,7 +31,8 @@ Subcomandos:
 Flags transversales:
   --dry-run                   Imprime lo que haria sin llamar a la API.
   --limit N                   Corta en N tareas (0 = sin limite).
-  --zinbox-id ID              Override del proyecto Z-INBOX (default 6Mv5F76GQq3p699F).
+  --backup-project-id ID      Override del proyecto destino. Si no se pasa,
+                              se deriva/crea `Z-BACK-yymmdd`.
 
 Ejemplos:
   python tools/reset_mar.py reset-all --dry-run
@@ -63,6 +67,7 @@ load_project_env(_ROOT / ".env")
 from tools.todoist_tools import (  # noqa: E402
     Z_PROJECTS,
     classify_mar_type,
+    create_project,
     get_projects,
     get_tasks,
     move_task,
@@ -119,10 +124,66 @@ def _is_in_z_project(task: dict) -> bool:
     return task.get("project_id") in Z_PROJECTS
 
 
+def _backup_project_name(day: Date | None = None) -> str:
+    day = day or Date.today()
+    return f"Z-BACK-{day.strftime('%y%m%d')}"
+
+
+def _project_map() -> dict[str, dict]:
+    return {p["id"]: p for p in get_projects()}
+
+
+def _resolve_backup_project_id(
+    explicit_project_id: str | None,
+    dry_run: bool,
+    day: Date | None = None,
+) -> tuple[str, str, bool]:
+    if explicit_project_id:
+        projects = _project_map()
+        match = projects.get(explicit_project_id)
+        if not match:
+            raise SystemExit(f"Proyecto backup no encontrado: {explicit_project_id}")
+        return explicit_project_id, match.get("name", explicit_project_id), False
+
+    target_name = _backup_project_name(day)
+    projects = get_projects()
+    match = next((p for p in projects if str(p.get("name", "")).strip() == target_name), None)
+    if match:
+        return match["id"], target_name, False
+    if dry_run:
+        return f"<create:{target_name}>", target_name, True
+    created = create_project(target_name)
+    return created["id"], target_name, True
+
+
+def _z_project_ids_by_name() -> set[str]:
+    ids = set(Z_PROJECTS.keys())
+    try:
+        for p in get_projects():
+            name = str(p.get("name", "")).strip()
+            if name.startswith("Z-"):
+                ids.add(p["id"])
+    except Exception:
+        pass
+    return ids
+
+
 def _task_candidates_from_all() -> list[dict]:
-    """Tareas abiertas, excluyendo los proyectos Z-*."""
-    tasks = get_tasks(include_excluded=False)
-    return [t for t in tasks if not _is_in_z_project(t) and not _has_marker(t.get("description"))]
+    """Tareas abiertas, excluyendo las ya archivadas consistentemente en Z-*.
+
+    Incluye estados parciales (marker presente pero tarea fuera de Z-*), porque
+    son reparables y no deben quedar invisibles al rerun.
+    """
+    tasks = get_tasks(include_excluded=True)
+    z_ids = _z_project_ids_by_name()
+    out: list[dict] = []
+    for t in tasks:
+        if t.get("project_id") in z_ids:
+            # Todo lo que ya este en proyectos Z-* queda fuera del flujo normal.
+            continue
+        # Fuera de Z-* entran tanto tareas normales como parciales reparables.
+        out.append(t)
+    return out
 
 
 def _task_candidates_by_type(mar_type: str) -> list[dict]:
@@ -141,7 +202,7 @@ def _task_candidates_by_project(name: str) -> list[dict]:
     if not matches:
         raise SystemExit(f"Proyecto no encontrado (match exacto o contains): {name!r}")
     target_ids = {p["id"] for p in matches}
-    if target_ids & set(Z_PROJECTS):
+    if target_ids & _z_project_ids_by_name():
         raise SystemExit(
             f"Rechazado: el proyecto indicado es Z-* (cuarentena). Eso no se archiva."
         )
@@ -180,6 +241,7 @@ def _task_candidates_overdue(days: int = 0) -> list[dict]:
 @dataclass
 class ResetReport:
     archived: list[dict]
+    repaired: list[dict]
     skipped: list[tuple[dict, str]]
     errors: list[tuple[dict, str]]
 
@@ -190,35 +252,54 @@ def _apply_limit(tasks: list[dict], limit: int) -> list[dict]:
     return tasks[:limit]
 
 
-def _archive_tasks(tasks: list[dict], zinbox_id: str, dry_run: bool) -> ResetReport:
-    report = ResetReport(archived=[], skipped=[], errors=[])
+def _archive_tasks(tasks: list[dict], backup_project_id: str, dry_run: bool, backup_project_name: str) -> ResetReport:
+    report = ResetReport(archived=[], repaired=[], skipped=[], errors=[])
     today = Date.today().isoformat()
+    z_ids = _z_project_ids_by_name()
 
     for task in tasks:
         tid = task.get("id")
         content = task.get("content") or "(sin titulo)"
         orig = task.get("project_id")
+        desc = task.get("description")
+        parsed = _parse_marker(desc)
+        has_marker = parsed is not None
 
-        if orig == zinbox_id:
-            report.skipped.append((task, "ya en Z-INBOX"))
+        if orig == backup_project_id:
+            report.skipped.append((task, f"ya en {backup_project_name}"))
             continue
-        if orig in Z_PROJECTS:
+        if orig in z_ids:
             report.skipped.append((task, f"ya en proyecto Z-* ({Z_PROJECTS[orig]})"))
             continue
-        if _has_marker(task.get("description")):
-            report.skipped.append((task, "ya marcada como archived"))
+        if has_marker:
+            # Estado parcial: ya se escribió el marker pero la tarea sigue fuera
+            # de Z-*. Reparamos solo el movimiento pendiente.
+            marker_orig = parsed[1] if parsed else (orig or "")
+            print(f"{'[dry]' if dry_run else '[run]'} REPAIR  {tid[:10]}... {content[:60]!r:<62} -> {backup_project_name}")
+            if dry_run:
+                report.repaired.append(task)
+                continue
+            try:
+                move_task(tid, project_id=backup_project_id)
+                report.repaired.append(task)
+            except Exception as exc:
+                report.errors.append((task, str(exc)))
+                print(f"      ERROR: {exc}")
             continue
 
         marker = _make_marker(orig or "", today)
-        new_desc = _append_marker(task.get("description"), marker)
+        new_desc = _append_marker(desc, marker)
 
-        print(f"{'[dry]' if dry_run else '[run]'} ARCHIVE {tid[:10]}... {content[:60]!r:<62} -> Z-INBOX")
+        print(f"{'[dry]' if dry_run else '[run]'} ARCHIVE {tid[:10]}... {content[:60]!r:<62} -> {backup_project_name}")
         if dry_run:
             report.archived.append(task)
             continue
         try:
+            # Primero persistimos el marker para mantener el proyecto origen, y
+            # los reruns ahora reparan automaticamente cualquier corte entre
+            # update y move.
             update_task(tid, description=new_desc)
-            move_task(tid, project_id=zinbox_id)
+            move_task(tid, project_id=backup_project_id)
             report.archived.append(task)
         except Exception as exc:
             report.errors.append((task, str(exc)))
@@ -264,6 +345,7 @@ def _print_report(report: ResetReport, label: str, project_names: dict[str, str]
     print()
     print(f"Resumen {label}:")
     print(f"  archivadas : {len(report.archived)}")
+    print(f"  reparadas  : {len(report.repaired)}")
     print(f"  saltadas   : {len(report.skipped)}")
     print(f"  errores    : {len(report.errors)}")
     if report.skipped:
@@ -289,7 +371,9 @@ def cmd_reset_all(args):
         print("(sin tareas candidatas)")
         return 0
     project_names = _resolve_project_map()
-    report = _archive_tasks(tasks, args.zinbox_id, args.dry_run)
+    backup_id, backup_name, created = _resolve_backup_project_id(args.backup_project_id, args.dry_run)
+    print(f"Proyecto backup: {backup_name} ({backup_id}){' [nuevo]' if created else ''}")
+    report = _archive_tasks(tasks, backup_id, args.dry_run, backup_name)
     _print_report(report, "reset-all", project_names)
     return 0
 
@@ -300,7 +384,9 @@ def cmd_reset_by_type(args):
         print(f"(sin tareas tipo MAR {args.tipo})")
         return 0
     project_names = _resolve_project_map()
-    report = _archive_tasks(tasks, args.zinbox_id, args.dry_run)
+    backup_id, backup_name, created = _resolve_backup_project_id(args.backup_project_id, args.dry_run)
+    print(f"Proyecto backup: {backup_name} ({backup_id}){' [nuevo]' if created else ''}")
+    report = _archive_tasks(tasks, backup_id, args.dry_run, backup_name)
     _print_report(report, f"reset-by-type {args.tipo}", project_names)
     return 0
 
@@ -311,7 +397,9 @@ def cmd_reset_by_project(args):
         print(f"(sin tareas en proyecto que coincida con {args.proyecto!r})")
         return 0
     project_names = _resolve_project_map()
-    report = _archive_tasks(tasks, args.zinbox_id, args.dry_run)
+    backup_id, backup_name, created = _resolve_backup_project_id(args.backup_project_id, args.dry_run)
+    print(f"Proyecto backup: {backup_name} ({backup_id}){' [nuevo]' if created else ''}")
+    report = _archive_tasks(tasks, backup_id, args.dry_run, backup_name)
     _print_report(report, f"reset-by-project {args.proyecto}", project_names)
     return 0
 
@@ -322,7 +410,9 @@ def cmd_reset_by_label(args):
         print(f"(sin tareas con label {args.label!r})")
         return 0
     project_names = _resolve_project_map()
-    report = _archive_tasks(tasks, args.zinbox_id, args.dry_run)
+    backup_id, backup_name, created = _resolve_backup_project_id(args.backup_project_id, args.dry_run)
+    print(f"Proyecto backup: {backup_name} ({backup_id}){' [nuevo]' if created else ''}")
+    report = _archive_tasks(tasks, backup_id, args.dry_run, backup_name)
     _print_report(report, f"reset-by-label {args.label}", project_names)
     return 0
 
@@ -333,19 +423,23 @@ def cmd_reset_overdue(args):
         print(f"(sin tareas vencidas hace >= {args.days} dias)")
         return 0
     project_names = _resolve_project_map()
-    report = _archive_tasks(tasks, args.zinbox_id, args.dry_run)
+    backup_id, backup_name, created = _resolve_backup_project_id(args.backup_project_id, args.dry_run)
+    print(f"Proyecto backup: {backup_name} ({backup_id}){' [nuevo]' if created else ''}")
+    report = _archive_tasks(tasks, backup_id, args.dry_run, backup_name)
     _print_report(report, f"reset-overdue --days {args.days}", project_names)
     return 0
 
 
 def cmd_list_archived(args):
-    tasks = get_tasks(project_id=args.zinbox_id, include_excluded=True)
+    day = Date.fromisoformat(args.from_date) if args.from_date else Date.today()
+    backup_id, backup_name, created = _resolve_backup_project_id(args.backup_project_id, args.dry_run, day)
+    tasks = [] if (args.dry_run and created) else get_tasks(project_id=backup_id, include_excluded=True)
     archived = [t for t in tasks if _has_marker(t.get("description"))]
     if not archived:
-        print("(ninguna tarea archivada en Z-INBOX)")
+        print(f"(ninguna tarea archivada en {backup_name})")
         return 0
     project_names = _resolve_project_map()
-    print(f"Archivadas en Z-INBOX ({len(archived)}):")
+    print(f"Archivadas en {backup_name} ({len(archived)}):")
     for t in archived:
         parsed = _parse_marker(t.get("description"))
         if not parsed:
@@ -359,11 +453,12 @@ def cmd_list_archived(args):
 
 
 def cmd_restore(args):
-    # Requerimos buscar la tarea por id; usamos get_tasks dentro del Z-INBOX.
-    tasks = get_tasks(project_id=args.zinbox_id, include_excluded=True)
+    day = Date.fromisoformat(args.from_date) if args.from_date else Date.today()
+    backup_id, backup_name, _ = _resolve_backup_project_id(args.backup_project_id, args.dry_run, day)
+    tasks = get_tasks(project_id=backup_id, include_excluded=True)
     task = next((t for t in tasks if str(t.get("id")) == str(args.task_id)), None)
     if task is None:
-        raise SystemExit(f"Tarea {args.task_id} no encontrada en Z-INBOX.")
+        raise SystemExit(f"Tarea {args.task_id} no encontrada en {backup_name}.")
     err = _restore_task(task, args.dry_run)
     if err:
         raise SystemExit(f"Fallo al restaurar: {err}")
@@ -372,25 +467,13 @@ def cmd_restore(args):
 
 
 def cmd_restore_all(args):
-    tasks = get_tasks(project_id=args.zinbox_id, include_excluded=True)
+    day = Date.fromisoformat(args.from_date) if args.from_date else Date.today()
+    backup_id, backup_name, _ = _resolve_backup_project_id(args.backup_project_id, args.dry_run, day)
+    tasks = get_tasks(project_id=backup_id, include_excluded=True)
     archived = [t for t in tasks if _has_marker(t.get("description"))]
-    if args.from_date:
-        try:
-            from_d = Date.fromisoformat(args.from_date)
-        except ValueError:
-            raise SystemExit(f"--from debe ser YYYY-MM-DD, no {args.from_date!r}")
-        kept: list[dict] = []
-        for t in archived:
-            parsed = _parse_marker(t.get("description"))
-            if not parsed:
-                continue
-            d = Date.fromisoformat(parsed[0])
-            if d >= from_d:
-                kept.append(t)
-        archived = kept
     archived = _apply_limit(archived, args.limit)
     if not archived:
-        print("(ninguna tarea a restaurar con el filtro indicado)")
+        print(f"(ninguna tarea a restaurar en {backup_name} con el filtro indicado)")
         return 0
     ok = 0
     errs = 0
@@ -420,7 +503,8 @@ def main() -> int:
         p.add_argument("--dry-run", action="store_true", help="Imprime acciones sin llamar a la API")
         if include_limit:
             p.add_argument("--limit", type=int, default=0, help="Corta en N tareas (0 = sin limite)")
-        p.add_argument("--zinbox-id", default=DEFAULT_Z_INBOX_ID, help=f"Override del proyecto Z-INBOX (default {DEFAULT_Z_INBOX_ID})")
+        p.add_argument("--backup-project-id", default=None,
+                       help="Override del proyecto destino backup (default = derivar/crear Z-BACK-yymmdd)")
 
     p_all = sub.add_parser("reset-all", help="Archivar todas las tareas abiertas (excluye Z-*)")
     _add_common(p_all)
@@ -446,13 +530,16 @@ def main() -> int:
     _add_common(p_over)
     p_over.set_defaults(func=cmd_reset_overdue)
 
-    p_list = sub.add_parser("list-archived", help="Listar tareas archivadas en Z-INBOX")
-    p_list.add_argument("--zinbox-id", default=DEFAULT_Z_INBOX_ID)
+    p_list = sub.add_parser("list-archived", help="Listar tareas archivadas en el backup diario")
+    p_list.add_argument("--backup-project-id", default=None)
+    p_list.add_argument("--from", dest="from_date", default=None, help="Fecha YYYY-MM-DD del backup a consultar (default = hoy)")
+    p_list.add_argument("--dry-run", action="store_true", help="No crea el proyecto derivado si aun no existe")
     p_list.set_defaults(func=cmd_list_archived)
 
     p_rest = sub.add_parser("restore", help="Restaurar una tarea concreta a su proyecto origen")
     p_rest.add_argument("task_id")
     _add_common(p_rest, include_limit=False)
+    p_rest.add_argument("--from", dest="from_date", default=None, help="Fecha YYYY-MM-DD del backup a restaurar (default = hoy)")
     p_rest.set_defaults(func=cmd_restore)
 
     p_ra = sub.add_parser("restore-all", help="Restaurar todas las archivadas (opcional desde fecha)")

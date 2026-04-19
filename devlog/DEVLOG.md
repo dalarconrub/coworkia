@@ -386,3 +386,8 @@ Resumen: Se ejecutó tools/reset_obsidian.py rotate --snapshot con la ruta deriv
 Estado: DONE
 Chat: chats/chat_2026-04-19.md
 Resumen: Se actualizó .env para que OBSIDIAN_ABGD_ROOT y OBSIDIAN_ALPHA_PATH apunten a C:/GDrive/dalarconrub/ABGD/ABGD-260419 tras la rotación real del vault.
+
+## 2026-04-19T20:07Z — Codex — [MAR] Reset MAR migra a Z-BACK-yymmdd y repara parciales
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: Se cambió tools/reset_mar.py para derivar/crear automáticamente un proyecto diario Z-BACK-yymmdd como destino del archivado Todoist, en lugar de usar Z-INBOX. Se añadió create_project en tools/todoist_tools.py y move_task se corrigió al endpoint oficial /api/v1/sync item_move. Ejecución real hoy: creación de Z-BACK-260419 (6gQW2Cqr8WFXCRmm) y reparación de 82 tareas marcadas-pero-no-movidas, ahora archivadas correctamente en el backup diario. Validación final: reset-all --dry-run sin candidatas y list-archived --from 2026-04-19 con 82 tareas.

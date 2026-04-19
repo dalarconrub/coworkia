@@ -3,10 +3,12 @@ Wrappers para la API REST v2 de Todoist.
 Documentación: https://developer.todoist.com/rest/v2/
 """
 
+import json
 import os
 import requests
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
 from tools.env_utils import load_project_env
 
@@ -14,6 +16,7 @@ load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 TODOIST_API_KEY = os.getenv("TODOIST_API_KEY")
 BASE_URL = "https://api.todoist.com/api/v1"
+SYNC_URL = "https://api.todoist.com/api/v1/sync"
 
 Z_PROJECTS: dict[str, str] = {
     "6Mv5F76GQq3p699F": "Z-INBOX",
@@ -148,7 +151,12 @@ def move_task(
     section_id: str = None,
     parent_id: str = None,
 ) -> dict:
-    """Mueve una tarea a otro proyecto, sección o tarea padre."""
+    """Mueve una tarea a otro proyecto, sección o tarea padre.
+
+    Todoist documenta el movimiento de items en la Sync API (`item_move`), no
+    como mutación REST sobre `/tasks/{id}/move`. Usamos Sync API para evitar los
+    403 observados con el endpoint antiguo.
+    """
     targets = {
         "project_id": project_id,
         "section_id": section_id,
@@ -157,10 +165,27 @@ def move_task(
     data = {key: value for key, value in targets.items() if value}
     if len(data) != 1:
         raise ValueError("Debe indicar exactamente uno de: project_id, section_id o parent_id")
-
-    resp = requests.post(f"{BASE_URL}/tasks/{task_id}/move", headers=_headers(), json=data)
+    cmd_uuid = str(uuid4())
+    command = {
+        "type": "item_move",
+        "uuid": cmd_uuid,
+        "args": {
+            "id": task_id,
+            **data,
+        },
+    }
+    resp = requests.post(
+        SYNC_URL,
+        headers=_headers(),
+        data={"commands": json.dumps([command])},
+    )
     resp.raise_for_status()
-    return resp.json()
+    payload = resp.json()
+    sync_status = payload.get("sync_status", {}) if isinstance(payload, dict) else {}
+    status = sync_status.get(cmd_uuid)
+    if status != "ok":
+        raise requests.HTTPError(f"Todoist item_move fallo: {status!r}", response=resp)
+    return payload
 
 
 def delete_task(task_id: str) -> bool:
@@ -185,6 +210,16 @@ def get_projects() -> list[dict]:
 def get_project(project_id: str) -> dict:
     """Obtiene un proyecto por ID."""
     resp = requests.get(f"{BASE_URL}/projects/{project_id}", headers=_headers())
+    resp.raise_for_status()
+    return resp.json()
+
+
+def create_project(name: str, parent_id: str = None) -> dict:
+    """Crea un proyecto Todoist en raíz o bajo un padre dado."""
+    payload = {"name": name}
+    if parent_id:
+        payload["parent_id"] = parent_id
+    resp = requests.post(f"{BASE_URL}/projects", headers=_headers(), json=payload)
     resp.raise_for_status()
     return resp.json()
 
