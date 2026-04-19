@@ -72,6 +72,7 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 
 | Recurso                                                           | Qué contiene                                |
 | ----------------------------------------------------------------- | ------------------------------------------- |
+| [docs/pipeline-atlas.md](../docs/pipeline-atlas.md)               | **Mapa completo del pipeline** (Mermaid por capa, links a casos) |
 | [docs/guia-rapida.md](../docs/guia-rapida.md)                     | Quick start de todos los sistemas           |
 | [docs/multiagent-system.md](../docs/multiagent-system.md)         | Arquitectura Scrum interna                  |
 | [docs/abc-taxonomy.md](../docs/abc-taxonomy.md)                   | Taxonomía ABC de referencia                 |

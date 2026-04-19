@@ -133,15 +133,41 @@ def get_database_info(database_id: str, object_type: str = "database") -> dict:
 
 
 def get_data_source_schema(data_source_id: str) -> dict:
-    """Obtiene el schema de un data source específico."""
-    resp = requests.get(f"{BASE_URL}/data_sources/{data_source_id}", headers=_headers())
-    resp.raise_for_status()
-    ds = resp.json()
-    return {
-        "id": ds["id"],
-        "title": _extract_title(ds),
-        "properties": list(ds.get("properties", {}).keys()),
-    }
+    """Obtiene el schema de un data source o database legacy.
+
+    Prueba primero el endpoint `/data_sources/{id}` y, si Notion responde 400/404
+    (ID de database legacy), cae a `/databases/{id}`. Devuelve el mismo shape
+    en ambos casos: {id, title, properties: list[str], property_types: dict[str,str]}.
+    """
+    last_error = None
+    for url in (
+        f"{BASE_URL}/data_sources/{data_source_id}",
+        f"{BASE_URL}/databases/{data_source_id}",
+    ):
+        try:
+            resp = requests.get(url, headers=_headers())
+            resp.raise_for_status()
+            ds = resp.json()
+            raw_props = ds.get("properties", {}) if isinstance(ds.get("properties", {}), dict) else {}
+            property_types = {
+                name: meta["type"]
+                for name, meta in raw_props.items()
+                if isinstance(meta, dict) and isinstance(meta.get("type"), str)
+            }
+            return {
+                "id": ds.get("id", data_source_id),
+                "title": _extract_title(ds),
+                "properties": list(raw_props.keys()),
+                "property_types": property_types,
+            }
+        except requests.HTTPError as exc:
+            last_error = exc
+            status = exc.response.status_code if exc.response is not None else None
+            if status not in (400, 404):
+                raise
+    if last_error:
+        raise last_error
+    raise RuntimeError(f"No se pudo recuperar schema de {data_source_id}")
 
 
 def query_database(database_id: str, filter_obj: dict = None, sorts: list = None) -> list[dict]:

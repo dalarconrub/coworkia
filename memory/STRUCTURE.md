@@ -110,7 +110,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -154,20 +154,20 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
   - mar_doctor.py
   - notion_doctor.bat
   - notion_doctor.py
+  - pipeline_gui.bat
+  - pipeline_gui.py
   - project_hub_gui.bat
   - project_hub_gui.py
   - promote_bib_to_obsidian.bat
   - promote_notas_checkboxes_to_todoist.bat
   - promote_obsidian_to_ptn.bat
+  - reset_all.bat
+  - reset_mar.bat
+  - reset_notion.bat
+  - reset_obsidian.bat
   - setup_venv.bat
   - sync_todoist_to_notion.bat
-  - validate_case_02.bat
-  - validate_case_03.bat
-  - validate_case_07.bat
-  - validate_case_08.bat
-  - validate_case_09.bat
-  - validate_case_10.bat
-  - ... (3 mas)
+  - ... (10 mas)
 - artifacts/
   - daily/
     - 2026-04-17.md
@@ -181,6 +181,8 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
     - conversation_records.jsonl
     - decision_log.json
     - memory_records.json
+  - resets/
+    - 2026-04-19/
   - sprints/
     - sprint-multiagent-1.md
     - sprint-multiagent-runtime.json
@@ -192,6 +194,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
 - chats/
   - chat_2026-04-17.md
   - chat_2026-04-18.md
+  - chat_2026-04-19.md
   - chat_archive_2026-04-17.md
 - devlog/
   - DEVLOG.md
@@ -211,6 +214,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
     - 11-journal-diario-en-timeline.md
     - 12-backfill-inx-historico.md
     - 13-wikilinks-cross-system.md
+    - 14-reset-sistema.md
     - index.md
   - abc-taxonomy.md
   - bib-agent.md
@@ -221,6 +225,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
   - notion-kit-agent.md
   - notion-ptn-agent.md
   - obsidian-agent.md
+  - pipeline-atlas.md
   - todoist-agent.md
 - memory/
   - INDEX.md
@@ -292,6 +297,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
   - dedupe_abc_taxonomy.py
   - devlog.py
   - enable_ptn_relations.py
+  - ensure_archivo_field.py
   - ensure_todoist_tasks_schema.py
   - find_notion_page.py
   - fix_chat_mojibake.py
@@ -314,18 +320,17 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-18T15:11Z. No editar 
   - promote_notas_checkboxes_to_todoist.py
   - promote_obsidian_to_ptn.py
   - prune_abc_taxonomy.py
+  - reset_all.py
+  - reset_mar.py
+  - reset_notion.py
+  - reset_obsidian.py
   - set_ptn_project_area_select.py
   - set_ptn_project_block_context_select.py
   - snapshot_structure.py
   - sync_inx_links.py
   - sync_todoist_to_notion.py
   - timeline.py
-  - todoist_create_c_sections.py
-  - todoist_tools.py
-  - validate_case_02.py
-  - validate_case_03.py
-  - validate_case_07.py
-  - ... (6 mas)
+  - ... (12 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

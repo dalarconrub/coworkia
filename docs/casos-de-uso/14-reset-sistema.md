@@ -1,0 +1,142 @@
+# Caso de uso 14: Sistema de reseteo (Fases 1-4) — validación
+
+## Objetivo
+
+Validar que el sistema de reseteo — MAR Todoist / Notion PTN / Obsidian vault / orquestador general — funciona como especificado, no destruye datos, es idempotente y reversible. Deja una batería ejecutable (`tools/validate_case_14.py`) que comprueba el comportamiento sin tocar datos reales.
+
+## Actores
+
+- **Usuario**: David
+- **Sistema(s)**: Todoist (MAR), Notion (PTN + INX), Obsidian (vault)
+
+## Trigger
+
+- Quieres vaciar el esqueleto operativo conservando todo para consulta (saturación, cambio de ciclo, reset de proyecto).
+- Antes de invertir en una rotación real, quieres garantía de que los scripts hacen lo que dicen.
+
+## Precondiciones
+
+- `.env` con `TODOIST_API_KEY`, `NOTION_TOKEN`, los cuatro `NOTION_DS_*`, `NOTION_DB_INX`, `OBSIDIAN_ABGD_ROOT`.
+- Propiedad `Archivo: Checkbox` ya creada en los 4 data sources (ejecuta `tools/ensure_archivo_field.py` una vez si no).
+- `OBSIDIAN_ABGD_ROOT` apunta a un vault existente.
+
+## Contrato (superficie bajo test)
+
+| Script | Responsabilidad | Mutaciones |
+| --- | --- | --- |
+| `tools/reset_mar.py` | archivar tareas Todoist a `Z-INBOX` con marker reversible | `update_task`, `move_task` |
+| `tools/ensure_archivo_field.py` | garantiza `Archivo: Checkbox` en 4 DS Notion | `PATCH /data_sources/{id}` |
+| `tools/reset_notion.py` | flip `Archivo=true` en PTN + propagación INX | `PATCH /pages/{id}` |
+| `tools/reset_obsidian.py` | rotar vault (estrategia C) + flip INX `obsidian:*` | `mkdir`, `copytree`, `PATCH /pages/{id}` |
+| `tools/reset_all.py` | orquestar las 3 fases con abort-on-fail | subprocess chain |
+
+## Matriz de tests
+
+Marcas: **A**uto = cubierto por `validate_case_14.py`; **M**anual = requiere interacción o mutación real.
+
+### Fase 1 — MAR
+
+| # | Test | Tipo | Expectativa |
+| --- | --- | --- | --- |
+| 1.1 | `reset_mar.py --help` exit 0 | A | usage visible |
+| 1.2 | `reset-all --dry-run --limit 2` | A | lista ≤2 candidatas, 0 escrituras, 0 errores |
+| 1.3 | `reset-by-type idea --dry-run --limit 2` | A | todas clasificadas como Idea |
+| 1.4 | `reset-overdue --days 3650 --dry-run` | A | sin candidatas (10 años = imposible en workspace limpio) o finito |
+| 1.5 | `reset-by-project "__NO_EXISTE__" --dry-run` | A | exit !=0 con mensaje "Proyecto no encontrado" |
+| 1.6 | `list-archived` | A | salida coherente (0 o N) |
+| 1.7 | `restore NO_EXISTE` | A | exit !=0, mensaje "no encontrada en Z-INBOX" |
+| 1.8 | Idempotencia: reset real → repetir reset → 2º run skip | M | verificable tras ejecución real |
+
+### Fase 2 — Notion
+
+| # | Test | Tipo | Expectativa |
+| --- | --- | --- | --- |
+| 2.1 | `ensure_archivo_field.py --dry-run` | A | 4 DS accesibles |
+| 2.2 | `ensure_archivo_field.py` (real, idempotente) | A | `ya_existian=4` (si ya bootstrap) |
+| 2.3 | `reset_notion.py --help` exit 0 | A | usage visible |
+| 2.4 | `reset-ptn-proyectos --dry-run --limit 2` | A | plan sin escrituras + INX propagación reportada |
+| 2.5 | `reset-ptn-tareas --dry-run --limit 2` | A | idem |
+| 2.6 | `reset-ptn-notas --dry-run --limit 2` | A | idem |
+| 2.7 | `list-archived --target all` | A | salida coherente |
+| 2.8 | `reset-ptn-proyectos --dry-run --snapshot --limit 1` | A | JSON snapshot escrito y parseable |
+| 2.9 | `restore <uuid-inventado>` | A | exit !=0 con mensaje "no encontrada" |
+| 2.10 | INX propagación 100% (0 missing en dry-run) | A | `inx_missing=0` en el report |
+
+### Fase 3 — Obsidian
+
+| # | Test | Tipo | Expectativa |
+| --- | --- | --- | --- |
+| 3.1 | `reset_obsidian.py status` | A | muestra path + top-level + `Archivo` presente en INX |
+| 3.2 | `rotate --dry-run --snapshot --new-vault-path <tmp>` | A | plan sin escrituras; snapshot JSON escrito |
+| 3.3 | `rotate` sin `--new-vault-path` | A | argparse error, exit 2 |
+| 3.4 | `rotate --new-vault-path <misma ruta que OBSIDIAN_ABGD_ROOT>` | A | exit !=0, mensaje "no puede coincidir" |
+| 3.5 | `rotate --new-vault-path <existente no vacía>` sin `--force` | A | exit !=0, mensaje "ya existe y no esta vacia" |
+| 3.6 | `list-archived` | A | lista filas `obsidian:*` con `Archivo=true` |
+| 3.7 | `restore --from NO_EXISTE` | A | exit !=0, mensaje "no existe" |
+| 3.8 | `rotate --depth 1 --dry-run` | A | ≤5 dirs replicadas (solo top-level áreas) |
+| 3.9 | `rotate --depth 3 --dry-run` (default) | A | 30-100 dirs replicadas (orden de magnitud correcto) |
+
+### Fase 4 — reset_all (orquestador)
+
+| # | Test | Tipo | Expectativa |
+| --- | --- | --- | --- |
+| 4.1 | `reset_all.py --help` exit 0 | A | usage visible |
+| 4.2 | `reset_all --dry-run --mar-limit 1 --notion-limit 1` sin Obsidian path | A | `[OK] MAR`, `[OK] Notion`, `[skip] Obsidian` |
+| 4.3 | `reset_all --dry-run ... --obsidian-new-vault-path <tmp>` | A | las 3 fases `[OK]` |
+| 4.4 | `reset_all --dry-run --skip-mar --skip-obsidian --notion-limit 1` | A | solo Notion corre |
+| 4.5 | Límites se propagan correctamente | A | output de cada fase refleja el limit |
+| 4.6 | Sin `--yes` y sin `--dry-run` → pide confirmación interactiva | M | difícil de automatizar |
+| 4.7 | Política abort: si fase N falla, N+1 no corre | M | requiere simular fallo |
+
+### Cross-phase
+
+| # | Test | Tipo | Expectativa |
+| --- | --- | --- | --- |
+| C.1 | Sintaxis de los 5 scripts (py_compile) | A | 0 errores |
+| C.2 | `memory_check.py` OK antes y después de la batería | A | exit 0 |
+| C.3 | Conteo de filas INX invariante (dry-run no muta) | A | counts iguales antes/después |
+| C.4 | Nodos del atlas presentes en `pipeline_gui.py _build_atlas()` | A | 4 nodos reset_* localizados |
+
+## Flujo principal (uso del validador)
+
+```bash
+python tools/validate_case_14.py
+```
+
+- Ejecuta la batería **A** completa (~20 tests) contra tu `.env`.
+- Usa siempre `--dry-run` para las operaciones mutativas; `ensure_archivo_field` sí se ejecuta en real porque es idempotente.
+- Exit 0 si todos pasan, 1 si alguno falla.
+- Output: tabla `[PASS]/[FAIL]` por test + `[SKIP]` para los manuales no automatizables.
+
+### Wrapper Windows
+
+```
+apps\validate_case_14.bat
+```
+
+## Postcondiciones
+
+- Ningún fichero de datos modificado.
+- INX no muta (dry-run en todo lo mutativo excepto `ensure_archivo_field` que es idempotente).
+- Snapshots dry-run sí se crean en `artifacts/resets/YYYY-MM-DD/` (son auto-limpiables por convención; no afectan producción).
+- Vaults / Todoist / Notion quedan **idénticos al estado pre-test**.
+
+## Definition of Done
+
+- [ ] Todos los tests **A** pasan (`validate_case_14.py` exit 0).
+- [ ] Los tests **M** ejecutados manualmente al menos una vez con resultado documentado.
+- [ ] Los 4 nodos reset en `apps/pipeline_gui.py _build_atlas()` siguen presentes.
+- [ ] `memory_check.py` OK al terminar.
+- [ ] Si aparece un `[FAIL]` y es un bug del sistema de reseteo, se corrige en el mismo turno antes de cerrar el caso (entrada `[TOOLING]` en devlog).
+
+## Gaps conocidos
+
+- **Gap 1**: los tests 1.8, 4.6, 4.7 no son auto-ejecutables. 1.8 requiere ejecución real. 4.6 requiere stdin interactivo. 4.7 requiere simular un fallo en `reset_mar.py` (vía mock o env inválida).
+- **Gap 2**: el validador no comprueba que `restore` funcione end-to-end tras un reset real. Eso requiere ciclo ejecutivo completo (reset → restore → verificar). Planteado para iteración futura.
+- **Gap 3**: los snapshots dry-run se acumulan en `artifacts/resets/YYYY-MM-DD/` — no hay limpieza automática. Si quieres ordenar, borra la carpeta del día tras validar.
+
+## Mejoras propuestas
+
+- **Mejora 1**: automatizar 4.7 simulando una `TODOIST_API_KEY` vacía en un entorno hijo y verificando que `reset_all.py` aborta tras `[FAIL] MAR` sin correr Notion/Obsidian.
+- **Mejora 2**: `validate_case_14.py --cleanup` para borrar snapshots de la fecha tras validación.
+- **Mejora 3**: cycle-test (reset real → restore) sobre un workspace de test dedicado, no producción.

@@ -183,6 +183,7 @@ python agents/obsidian_agent.py estado
 
 | Comando | Qué hace |
 |---------|----------|
+| `python apps/pipeline_gui.py` | **Pipeline Atlas** — navega el proyecto completo por dominios con estado vivo |
 | `python apps/dashboard.py` | Dashboard diario MAR (pendientes + hoy + inbox) |
 | `python apps/github_gui.py` | GUI del catálogo de repositorios |
 | `python apps/bib_gui.py` | GUI del catálogo bibliográfico |

@@ -25,3 +25,4 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 - `11-journal-diario-en-timeline.md` — notas `N<YYMMDD>-*.md` de `A0-GTD/B0C-PLA/C0C9-Notas/` integradas automáticamente como sección del timeline diario
 - `12-backfill-inx-historico.md` — garantiza cobertura 100% vault→OBSIDIAN_DB→INX para notas históricas que `log_obsidian_changes` (mtime-based) no detecta
 - `13-wikilinks-cross-system.md` — sintaxis `[[<prefix>:<id>]]` en notas para referenciar entidades de PTN/KIT/Paperpile/Todoist/GitHub, auditadas contra INX por `tools/obsidian_wikilinks.py audit`
+- `14-reset-sistema.md` — validación del sistema de reseteo (Fases 1-4: MAR, Notion, Obsidian, orquestador general), con batería auto-ejecutable `tools/validate_case_14.py` que comprueba happy path, edge cases, idempotencia y propagación INX sin mutar datos
