@@ -22,7 +22,7 @@ echo === 3) Sync INX desde Paperpile (cruce paperpile:^<citekey^>) ===
 if errorlevel 1 goto :end
 echo.
 echo === 4) Informe validacion caso 9 ===
-"%VENV_PYTHON%" tools\validate_case_09.py
+"%VENV_PYTHON%" tools\validate_case_09.py --scope all
 set "ERR=%errorlevel%"
 :end
 echo.

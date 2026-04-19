@@ -4,11 +4,13 @@ Crea la base puente INX-ENLACES en B0A-INX.
 
 import os
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
-load_dotenv()
+from tools.env_utils import load_project_env
+
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.notion_tools import create_database
 
@@ -35,6 +37,7 @@ def _schema() -> dict:
         ]}},
         "Estado": {"select": {"options": [
             {"name": "Activo", "color": "yellow"},
+            {"name": "Completada", "color": "pink"},
             {"name": "Verificado", "color": "green"},
             {"name": "Roto", "color": "red"},
             {"name": "Archivado", "color": "gray"},
@@ -44,6 +47,8 @@ def _schema() -> dict:
         "PTN Tarea": {"relation": {"database_id": PTN_TAR, "type": "single_property", "single_property": {}}},
         "PTN Nota": {"relation": {"database_id": PTN_NOT, "type": "single_property", "single_property": {}}},
         "Obsidian Ruta": {"rich_text": {}},
+        "KIT IDs": {"rich_text": {}},
+        "Paperpile Citekey": {"rich_text": {}},
         "Area": {"relation": {"database_id": ABC_AREAS, "type": "single_property", "single_property": {}}},
         "Bloque": {"relation": {"database_id": ABC_BLOQUES, "type": "single_property", "single_property": {}}},
         "Contexto": {"relation": {"database_id": ABC_CONTEXTOS, "type": "single_property", "single_property": {}}},

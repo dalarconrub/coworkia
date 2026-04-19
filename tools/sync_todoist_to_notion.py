@@ -6,11 +6,13 @@ import os
 import requests
 import sys
 from datetime import datetime
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
-load_dotenv()
+from tools.env_utils import load_project_env
+
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.todoist_tools import get_tasks, get_projects, classify_mar_type, _headers, BASE_URL
 from tools.notion_tools import (

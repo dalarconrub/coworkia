@@ -110,7 +110,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -134,6 +134,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar 
   - bib_gui.py
   - catalogar_repos.py
   - cerrar_sesion.bat
+  - close_obsidian_checkboxes_to_todoist.bat
   - config_doctor.bat
   - config_doctor.py
   - dashboard.bat
@@ -166,12 +167,12 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar 
   - reset_notion.bat
   - reset_obsidian.bat
   - setup_venv.bat
-  - sync_todoist_to_notion.bat
-  - ... (10 mas)
+  - ... (12 mas)
 - artifacts/
   - daily/
     - 2026-04-17.md
     - 2026-04-18.md
+    - 2026-04-19.md
   - inx/
     - inx-daily-20260417-072710.md
   - multiagent/
@@ -185,6 +186,8 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar 
     - 2026-04-19/
   - sprints/
     - sprint-multiagent-1.md
+    - sprint-multiagent-2.json
+    - sprint-multiagent-2.md
     - sprint-multiagent-runtime.json
     - sprint-multiagent-runtime.md
     - sprint-multiagent-sync.json
@@ -292,13 +295,18 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar 
 - tools/
   - backfill_obsidian_to_inx.py
   - cleanup_notas_legacy_props.py
+  - close_obsidian_checkboxes_to_todoist.py
   - create_abc_taxonomy_dbs.py
   - create_inx_links_db.py
   - dedupe_abc_taxonomy.py
   - devlog.py
   - enable_ptn_relations.py
   - ensure_archivo_field.py
+  - ensure_inx_completed_status.py
+  - ensure_inx_paperpile_citekey_field.py
+  - ensure_kit_cross_fields.py
   - ensure_todoist_tasks_schema.py
+  - env_utils.py
   - find_notion_page.py
   - fix_chat_mojibake.py
   - github_tools.py
@@ -325,12 +333,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T13:11Z. No editar 
   - reset_notion.py
   - reset_obsidian.py
   - set_ptn_project_area_select.py
-  - set_ptn_project_block_context_select.py
-  - snapshot_structure.py
-  - sync_inx_links.py
-  - sync_todoist_to_notion.py
-  - timeline.py
-  - ... (12 mas)
+  - ... (18 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

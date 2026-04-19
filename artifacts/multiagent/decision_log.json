@@ -1,107 +1,206 @@
 [
   {
-    "number": 1,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 3,
-    "participants": [
-      "Claude",
-      "Codex",
-      "Copilot"
-    ],
-    "summary": "✅ CERRADO #1: DevLog global feature-level creado en devlog/DEVLOG.md, helper tools/devlog.py (append + view), obligatoriedad integrada en .claude/multiagent.md y propagada a CLAUDE.md, AGENTS.md y .github/copilot-instructions.md. MEMORIA: todo agente lee devlog al arrancar (python tools/devlog.py view --limit 20) y añade entrada en el mismo turno en que cierra decisión, marca MEMORIA operativa, completa feature, abre/cierra BLOQUEO o hace REVERT. SIGUIENTE: @Copilot y @Codex al reactivarse, incorporar la lectura del devlog al arranque y usar el helper en todas las escrituras."
-  },
-  {
-    "number": 2,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 5,
-    "participants": [
-      "Claude",
-      "Codex",
-      "Copilot"
-    ],
-    "summary": "✅ CERRADO #2: memory/ creada. Tres MDs: - memory/PURPOSE.md — proposito y funcionalidades canonicas (curado). - memory/STRUCTURE.md — mapa de carpetas + bloque TREE auto-generado. - memory/INDEX.md — meta-indice de recursos con orden de lectura. Nuevo helper tools/snapshot_structure.py regenera el TREE (con --check para CI). Protocolo actualizado: todo agente carga memory/INDEX.md -> PURPOSE.md -> STRUCTURE.md como PASO 1 al arrancar, antes de leer su archivo de identidad y el chat del dia. MEMORIA: el punto de entrada canonico para cualquier agente es memory/INDEX.md. Si memory/*.md desalinean con el repo real, los agentes corrigen en el mismo turno y dejan entrada [DOCS] en el devlog. SIGUIENTE: @Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level."
-  },
-  {
-    "number": 3,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 7,
-    "participants": [
-      "Claude",
-      "Codex",
-      "Copilot"
-    ],
-    "summary": "✅ CERRADO #3: capa memory/ integrada en runtime. 1. tools/init_chat.py imprime briefing al arrancar: estado de memory/INDEX|PURPOSE|STRUCTURE|SNAPSHOT + ultimas 3 entradas del devlog + recordatorio de reglas. Flags --quiet y --no-briefing preservados para scripts. 2. tools/memory_check.py valida PURPOSE/STRUCTURE/INDEX presentes, enlaces rotos en INDEX.md y frescura del TREE; exit 1 en fallo. Apto para pre-commit/CI. 3. orchestrator sync-chat-memory ahora emite memory/SNAPSHOT.md con MEMORIA/BLOQUEO/SIGUIENTE agregados y deduplicados de toda la historia de chats/. Nuevas funciones en multiagents/chat_memory.py (build_project_memory_entries, render_project_memory_markdown, write_project_memory_snapshot). MEMORIA: memory/SNAPSHOT.md es auto-generado, no editar a mano. Se regenera con python agents/orchestrator_agent.py sync-chat-memory. Para garantia de salud se corre python tools/memory_check.py. SIGUIENTE: @Copilot considera cablear memory_check en pre-commit o en CI. @Codex si cambia el parser de markers, regenera SNAPSHOT.md y valida dedup."
-  },
-  {
-    "number": 4,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 9,
-    "participants": [
-      "Claude",
-      "Codex",
-      "Copilot"
-    ],
-    "summary": "✅ CERRADO #4: vista temporal cross-capa implementada. - tools/timeline.py agrega chat + devlog + INX + sprints por fecha o rango a artifacts/daily/YYYY-MM-DD.md. Flags: --date, --from/--to, --days N, --stdout. Read-only sobre las fuentes canonicas. - tools/devlog.py estrena --sprint: persiste linea `Sprint: <nombre>` en la entrada; el parser lo lee; timeline muestra `sprint=<nombre>` en la vista diaria. - memory/INDEX.md enlaza artifacts/daily/; .claude/multiagent.md documenta timeline y el campo Sprint. - Verificacion: 2026-04-18 agrega 7 mensajes, 3 decisiones cerradas, 4 entradas devlog (una con sprint=sprint-multiagent-1), 0 INX runs, 2 sprints activos (Sprint Multiagent Runtime y Sync, ambos 04-17..04-30). 2026-04-17 detecta correctamente inx-daily-20260417-072710.md. MEMORIA: granularidad por capa = chat diario, devlog monolitico + archivo mensual, memory curada monolitica, sprint por fichero, INX por run con timestamp. timeline.py es la vista temporal unificada; regenerable y read-only. SIGUIENTE: @Copilot o @Codex, considerad automatizar la regeneracion diaria del timeline de hoy (cron / hook / cierre de sesion)."
-  },
-  {
-    "number": 5,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 11,
-    "participants": [
-      "Claude"
-    ],
-    "summary": "✅ CERRADO #5: docs/ auditado y actualizado donde hacia falta. - docs/guia-rapida.md: nueva seccion \"Coordinacion multiagente\" (memory/, chat del dia, devlog, timeline, sync-chat-memory) y rutinas \"al empezar sesion\" / \"al cerrar hito\". - docs/multiagent-system.md: reescrito al modelo de 4 capas (memory curada / chat / devlog / Scrum). Nuevo orden de lectura al arrancar. CLI ampliado con init_chat, devlog, snapshot_structure, memory_check, timeline. Seccion \"Memoria del chat y del proyecto\" cubre SNAPSHOT.md y artifacts/daily/. \"Estado actual\" y \"Siguientes iteraciones\" puestos al dia. - docs/extract-portable-toolkit.md: inventario actualizado. devlog.py, snapshot_structure.py, memory_check.py clasificados como Nucleo. timeline.py como Hibrido (parseo INX y sprints es domain-specific). memory/ y devlog/ incorporados al cubo correspondiente. - Agent guides por dominio (todoist, notion-ptn, notion-kit, github, bib, obsidian) y casos-de-uso/ verificados: correctos, no requieren cambios. MEMORIA: la revision de docs tras cada cambio estructural es responsabilidad del agente que haya completado el cambio; debe dejar entrada [DOCS] en el devlog en el mismo turno. SIGUIENTE: @David si cambias un agent guide o los casos-de-uso, avisame y los incluyo en el proximo paso."
-  },
-  {
-    "number": 6,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 13,
-    "participants": [
-      "Claude"
-    ],
-    "summary": "✅ CERRADO #6: tool-kit/ portable extraido. Estructura: - tool-kit/tools/ — init_chat, devlog, sync_chat_memory (CLI autonomo, no depende de orchestrator), timeline (stripped de INX/sprints con punto de extension marcado), snapshot_structure, memory_check, fix_chat_mojibake. - tool-kit/multiagents/ — chat_memory.py intacto (incluye funciones de project memory) + chat_template.md generalizado a Director + agentes intercambiables. - tool-kit/memory/ — PURPOSE.md, STRUCTURE.md, INDEX.md como plantillas con placeholders TODO y marcadores TREE listos; SNAPSHOT.md como stub sustituible. - tool-kit/devlog/DEVLOG.md — cabecera limpia sin entradas. - tool-kit/.claude/multiagent.md, tool-kit/CLAUDE.md, tool-kit/AGENTS.md, tool-kit/.github/copilot-instructions.md — protocolo generalizado (David -> \"director\", sin referencias a Coworkia, VALID_AREAS reducido a nucleo: MULTIAGENT/TOOLING/DOCS/INFRA/GENERAL). - tool-kit/README.md — que resuelve, estructura, instalacion (bash + PowerShell), uso diario (3 comandos), reglas operativas, personalizacion minima (5 puntos), extensibilidad, smoke-test, tabla de diseno de granularidades por capa. - chats/, artifacts/multiagent/, artifacts/daily/ con .gitkeep (vacios para distribucion). Smoke-test end-to-end dentro de tool-kit/ pasa: init_chat crea chat del dia, snapshot_structure rellena TREE, memory_check OK, sync_chat_memory genera los 6 artifacts multiagent + SNAPSHOT, devlog append/view funciona, timeline genera artifacts/daily/YYYY-MM-DD.md. Kit ship clean: test artifacts removidos tras validar. MEMORIA: tool-kit/ es la version portable del sistema comunicacion+devlog+memoria. Para instalar: copiar tool-kit/* a proyecto destino, rellenar TODOs en memory/*.md y CLAUDE.md/AGENTS.md, ajustar VALID_AREAS en tools/devlog.py. SIGUIENTE: @David prueba el kit copiandolo a un proyecto destino para smoke-test virgen real; si detecta algun path hard-coded al proyecto origen, lo arreglo aqui y tambien en Coworkia."
-  },
-  {
-    "number": 7,
-    "mode": "CERRADO",
-    "opened_by": "Claude",
-    "status": "closed",
-    "closed_by": "Claude",
-    "last_message_index": 15,
-    "participants": [
-      "Claude"
-    ],
-    "summary": "✅ CERRADO #7: sistema de sprints extraido e integrado al tool-kit. Ficheros nuevos/modificados en tool-kit/: - multiagents/models.py, multiagents/artifacts.py: copiados intactos (genericos). - multiagents/registry.py: SCRUM_ROLES intactos; DOMAIN_AGENTS vacio con ejemplo comentado; OPERATION_AGENTS minimos (intake + reporting, requeridos por planner); COORDINATION_AGENTS con un orquestador generico cuyo cli_entrypoint apunta a tools/sprint.py. - multiagents/planner.py: SYSTEM_KEYWORDS vacio con ejemplo en comentario; fallback de infer_systems agrega systems declarados por DOMAIN_AGENTS; _build_task_commands() stub con docstring de ejemplo; plan_sprint tolerante a squads minimos. - tools/sprint.py: CLI autonomo con subcomandos plan/list/status. plan \"...\" --save persiste a artifacts/sprints/<slug>.{md,json}. - tools/timeline.py: recupera parseo de sprints activos (start<=dia<=end) de artifacts/sprints/*.json; anade seccion \"Sprints activos\" al daily; docstring/render actualizados. Integracion cross-capa (documentada): - Devlog: --sprint <slug> enlaza hitos al ciclo vigente. Ya existia; ahora con significado claro. - Chat: objetivos y CERRADO del sprint se discuten en el hilo; tras cada hito, entrada devlog con --sprint. - Timeline: cruza chat (mensajes + CERRADO) + devlog (con campo Sprint:) + sprints activos por fecha. Docs: README.md, memory/STRUCTURE.md, memory/INDEX.md, .claude/multiagent.md al dia. Smoke test end-to-end dentro de tool-kit/ pasa (plan --save, list, status, timeline detecta sprint activo). Kit queda ship-clean. MEMORIA: tool-kit ya cubre las cuatro capas: chat multiagente + devlog feature-level + memoria curada + sprints Scrum. Integraciones cableadas por convencion (campo Sprint: en devlog, scan de artifacts/sprints en timeline), no por acoplamiento de codigo. SIGUIENTE: @David si lo pruebas en un proyecto destino, avisa si el stub _build_task_commands() resulta poco claro; podemos reemplazarlo por un registry externo (YAML/TOML) si la curva de personalizacion se vuelve friccionante."
-  },
-  {
     "number": 8,
     "mode": "CERRADO",
     "opened_by": "Claude",
     "status": "closed",
     "closed_by": "Claude",
-    "last_message_index": 31,
+    "last_message_index": 2,
     "participants": [
-      "Claude",
-      "Codex/ABGD"
+      "Claude"
     ],
-    "summary": "CERRADO #8: migracion Tarea -> Ruta Obsidian aplicada. - Nuevo tools/migrate_notas_ruta_obsidian.py: idempotente, --dry-run, crea la propiedad rich_text 'Ruta Obsidian' en NOTION_DS_NOTAS si falta, y copia Tarea->Ruta Obsidian solo para filas cuyo valor termine en .md y donde Ruta Obsidian este vacia. No limpia Tarea; el usuario decide cuando repurposarla (p.ej. a relation contra PTN-Tareas para la Mejora 2 del caso 07). - tools/promote_obsidian_to_ptn.py ya escribe 'Ruta Obsidian' en lugar de 'Tarea'. Era el unico script que escribia Tarea=<ruta> en PTN-Notas; el resto de usos de 'Tarea' en el codebase es semantica distinta (task ID, task reference, otras DBs) y no se toca. - docs/casos-de-uso/07 actualizado en 5 puntos: verificacion manual, observabilidad, Gap 4 (ahora documentado como resuelto tras migracion), spec de Mejora 1 (valida Ruta Obsidian), y DoD. Aplicacion por @David: primero `python tools/migrate_notas_ruta_obsidian.py --dry-run` para previsualizar; si el scan tiene sentido, sin flag. Es seguro re-ejecutable. MEMORIA: en NOTION_DS_NOTAS la ruta Obsidian vive en la propiedad 'Ruta Obsidian' (rich_text), no en 'Tarea'. 'Tarea' queda libre para su semantica original (relacion a tarea PTN, pendiente Mejora 2 del caso 07). Migracion idempotente en tools/migrate_notas_ruta_obsidian.py. SIGUIENTE: @Codex/ABGD retoma la implementacion de validate_case_07.py con la spec original pero leyendo 'Ruta Obsidian' en lugar de 'Tarea'. Eliminada la deuda tecnica. El reto abierto sobre sobrecarga queda resuelto por la migracion."
+    "summary": "✅ CERRADO #8: Pipeline Atlas desplegado en dos formatos complementarios. Doc maestra: docs/pipeline-atlas.md con Mermaid por capa. Arquitectura global + un grafo por dominio (MAR, PTN, KIT, REP, BIB, ABGD) + INX como glue + coordinacion (chat/devlog/memory/timeline/sprints/subagentes) + tabla de 13 casos con dominios implicados + pipeline de apertura/cierre de sesion + resumen de env vars. Links a docs/casos-de-uso y docs/<agent>.md. GUI: apps/pipeline_gui.py (Tkinter, coherente con project_hub_gui.py). 13 nodos en sidebar (7 datos + 6 coordinacion). Por nodo: resumen, flow ASCII, scripts con Copiar+Abrir, artifacts, env vars con marca OK/MISSING en vivo, casos aplicables, CLI de ejemplo copiable. Barra superior con estado vivo (fecha, chat del dia, salud memory, sprints activos, ultimas 5 devlog) auto-refrescante cada 60s. apps/pipeline_gui.bat wrapper Windows. Diseno read-only: para ejecutar, copia el comando al portapapeles y pegalo en terminal (o usa los .bat existentes). Asi el panel es util para entender y no arriesga runs no autorizados. Smoke test headless: 13 nodos construidos, 3 nodos renderizados en secuencia sin error, parser devlog maneja subagentes Root/Sub. memory/INDEX.md destaca pipeline-atlas como entrada principal de docs. docs/guia-rapida.md lista pipeline_gui en apps. MEMORIA: cualquier cambio estructural del pipeline (nuevo dominio, nuevo caso, nuevo tool transversal) actualiza docs/pipeline-atlas.md y apps/pipeline_gui.py (_build_atlas), y regenera memory/STRUCTURE.md TREE. Deja entrada [DOCS] en devlog. SIGUIENTE: @David cuando lo abras (apps\\pipeline_gui.bat), si detectas que algun nodo pierde contexto o un script queda sin listar, lo corrijo."
+  },
+  {
+    "number": 9,
+    "mode": "CERRADO",
+    "opened_by": "Claude",
+    "status": "closed",
+    "closed_by": "Claude",
+    "last_message_index": 4,
+    "participants": [
+      "Claude"
+    ],
+    "summary": "✅ CERRADO #9: boton Ejecutar anadido + documentado. Implementacion: apps/pipeline_gui.py._execute_script lanza terminal nueva sin bloquear la GUI. Windows usa cmd /k persistente, macOS genera .command tempfile y lo abre con open (Terminal.app), Linux tantea x-terminal-emulator/gnome-terminal/konsole/xfce4-terminal/xterm. Respeta sys.executable (venv) y cwd en raiz del proyecto. Paths con espacios manejados via shlex.quote. Scripts .bat solo en Windows; en otros SO muestra aviso. Fix colateral aplicado antes: recursion en <<TreeviewSelect>> eliminada via guard current_key y _render_node separado de _select_node. Doc: docs/pipeline-atlas.md 'Ver el atlas en vivo' ampliada con layout, tabla Copiar/Abrir/Ejecutar, tabla de comportamiento por SO, seguridad operativa y checklist para anadir/modificar nodos. MEMORIA: botones de la GUI por nivel de impacto: Copiar (no toca nada), Abrir (lectura), Ejecutar (lanza en terminal nueva). Para args (--sync, --dry-run, --limit, etc.) usar Copiar y editar en terminal; Ejecutar corre sin argumentos. SIGUIENTE: @David avisa si en macOS el .command no abre Terminal (quiza porque el SO bloquea tempfiles no firmados) — si pasa, cambio a AppleScript osascript directo."
+  },
+  {
+    "number": 10,
+    "mode": "CERRADO",
+    "opened_by": "Claude",
+    "status": "closed",
+    "closed_by": "Claude",
+    "last_message_index": 6,
+    "participants": [
+      "Claude"
+    ],
+    "summary": "✅ CERRADO #10: Fase 1 desplegada y validada en dry-run. CLI: tools/reset_mar.py con subcomandos reset-all / reset-by-type / reset-by-project / reset-by-label / reset-overdue / list-archived / restore / restore-all. Flags --dry-run, --limit, --zinbox-id. Mecanica: append '[ARCHIVED: YYYY-MM-DD | orig-project: <id>]' al final de description, luego move_task al Z-INBOX (6Mv5F76GQq3p699F). Reusa todoist_tools.move_task/update_task/get_tasks/classify_mar_type/Z_PROJECTS. Idempotente (skip si marker presente) y reversible (restore parsea marker y devuelve al origen). Seguridad: nunca toca proyectos Z-*. Dry-run no llama a endpoints de escritura. Wrapper apps/reset_mar.bat. Nodo 'Reset MAR' anadido al Pipeline Atlas GUI (flow + sample CLI + boton Ejecutar). docs/pipeline-atlas.md nueva subseccion con ejemplos y mecanica. Smoke test dry-run: reset-all detecta 5 tareas fuera de Z-*; reset-by-type idea detecta 3 sin due/deadline; list-archived vacio (nunca ejecutado real); reset-overdue --days 90 sin candidatos. memory_check OK. MEMORIA: sistema de reseteo por fases. Fase 1 = Todoist (hecha). Fase 2 = Notion (schema Estado Activo/Archivado/Finalizado por decidir: field nuevo vs reusar Estado existente). Fase 3 = Obsidian (rotar vault, politica INX obsidian:* por decidir). Fase 4 = orquestador general que ejecuta las tres en orden con snapshot previo. SIGUIENTE: @David prueba 'python tools/reset_mar.py reset-all --dry-run' o 'reset-by-type idea --dry-run' sin --limit para ver volumen real y decidir umbral. Cuando quieras arrancar Fase 2 (Notion), necesito decision sobre schema Estado."
+  },
+  {
+    "number": 11,
+    "mode": "CERRADO",
+    "opened_by": "Claude",
+    "status": "closed",
+    "closed_by": "Claude",
+    "last_message_index": 8,
+    "participants": [
+      "Claude"
+    ],
+    "summary": "✅ CERRADO #11: Fase 2 desplegada sobre PTN con propagacion a INX, lista para bootstrap + dry-run. Entregables: - tools/ensure_archivo_field.py: idempotente, anade Checkbox Archivo a PTN Proyectos/Tareas/Notas y NOTION_DB_INX. Verificado dry-run contra tu Notion: los 4 DS accesibles, ninguno tiene Archivo aun. - tools/reset_notion.py: subcomandos reset-ptn-{proyectos,tareas,notas,all}, list-archived, restore, restore-all. Flags --dry-run, --limit, --snapshot, --no-inx. - Propagacion INX: para cada page PTN, busca fila con Clave 'ptn:<page_id>' probando con y sin guiones; si existe, replica el flag Archivo; si no, reporta missing sin bloquear. - Snapshot opcional a artifacts/resets/YYYY-MM-DD/ptn-<target>-<ts>.json con id/title/Estado previo (auditoria). - apps/reset_notion.bat wrapper y nodo 'Reset Notion' en Pipeline Atlas GUI + subseccion en pipeline-atlas.md. - Fix colateral a notion_tools.get_data_source_schema: fallback a /databases/{id} (el endpoint /data_sources/{id} devolvia 400 para los IDs legacy del repo; ahora probaron ambos). MEMORIA: el campo Archivo es Checkbox PARALELO al Estado existente, nunca lo sobrescribe. Para filtrar vistas operativas hay que anadir manualmente en Notion el filtro 'Archivo != true' a cada vista canonica (no lo hace el script). BLOQUEO: ensure_archivo_field.py necesita autorizacion explicita para modificar schemas en Notion. Hasta que lo ejecutes en real, reset_notion.py aborta con mensaje claro pidiendo bootstrap. SIGUIENTE: @David (a) ejecutas 'python tools/ensure_archivo_field.py' para crear la propiedad en los 4 DS, (b) luego 'python tools/reset_notion.py reset-ptn-proyectos --dry-run --snapshot --limit 5' para ver comportamiento sin escribir, (c) cuando te convenza, quitas --dry-run. Fases 3 (Obsidian vault) y 4 (orquestador general) siguen en cola."
+  },
+  {
+    "number": 12,
+    "mode": "CERRADO",
+    "opened_by": "Claude",
+    "status": "closed",
+    "closed_by": "Claude",
+    "last_message_index": 12,
+    "participants": [
+      "Claude"
+    ],
+    "summary": "✅ CERRADO #12: Fase 3 desplegada. Entregables: - tools/reset_obsidian.py: subcomandos status, rotate (requiere --new-vault-path), list-archived, restore --from. Estrategia C pura: vault viejo intacto, vault nuevo como sibling. - rotate replica estructura canonica hasta --depth N (default 3 = Area/Bloque/Contexto) + copia .obsidian integra + flip Archivo=true en filas INX obsidian:*. Imprime la linea de .env a editar (no la escribe automaticamente). - restore flipea Archivo=false en INX y lista notas .md creadas en el vault nuevo para migracion manual antes de cambiar .env — evita perdida por mezcla automatica. - apps/reset_obsidian.bat wrapper, nodo 'Reset Obsidian' en Pipeline Atlas GUI, subseccion en pipeline-atlas.md con mecanica y proteccion. Smoke tests contra vault real: status → 5 areas top-level (1.ALPHA..5.EPSILON), .obsidian presente, Archivo en INX presente. rotate --dry-run --snapshot a path fake → replicaria 35 dirs (depth 3), saltaria 33 profundas, copiaria .obsidian (6.8 MB), flipearia 30 filas INX obsidian:*. Snapshot escrito. 0 errores, 0 escrituras reales. MEMORIA: Reset Obsidian (Fase 3) usa estrategia C fija: vault viejo nunca se renombra ni mueve; el nuevo nace donde David decida via --new-vault-path obligatorio. El cambio de OBSIDIAN_ABGD_ROOT en .env es manual siempre (el CLI lo imprime, David lo pega). Esto protege el control del usuario sobre rutas y credenciales. SIGUIENTE: @David cuando quieras rotar el vault, (a) decide ruta destino (ej. C:/GDrive/dalarconrub/ABGD/ABGD-26.04.19); (b) corre 'python tools/reset_obsidian.py rotate --new-vault-path <ruta> --dry-run --snapshot' para confirmar; (c) quita --dry-run cuando te convenza; (d) edita .env con la linea que el CLI imprime; (e) abre el vault nuevo en Obsidian desktop. Queda Fase 4: orquestador general que ejecuta las 3 en orden con snapshot completo previo. ¿Arrancamos ya o pausamos?"
+  },
+  {
+    "number": 13,
+    "mode": "CERRADO",
+    "opened_by": "Claude",
+    "status": "closed",
+    "closed_by": "Claude",
+    "last_message_index": 14,
+    "participants": [
+      "Claude"
+    ],
+    "summary": "✅ CERRADO #13: orquestador Fase 4 desplegado. Entregables: - tools/reset_all.py: encadena MAR -> Notion -> Obsidian via subprocess. Abort si una fase falla (no avanza a la siguiente). Imprime comandos de restore para lo ya ejecutado. - Snapshot forzado en Notion y Obsidian (no deshabilitable desde el orquestador); MAR usa marker en description. - Obsidian se skipea automaticamente sin --obsidian-new-vault-path (seguridad). - Flags: --dry-run, --yes, --skip-mar, --skip-notion, --skip-obsidian, --mar-limit, --notion-limit, --obsidian-new-vault-path, --obsidian-depth, --obsidian-force. - apps/reset_all.bat wrapper. Nodo 'Reset General' en Pipeline Atlas GUI. Subseccion nueva en pipeline-atlas.md con orden/politica/flags/uso recomendado progresivo. Smoke tests: - dry-run MAR+Notion (Obsidian skip): 3 tareas MAR dry + PTN Proyectos/Tareas/Notas dry con 5/5 INX propagacion + 3 snapshots ptn-*.json escritos -> [OK] [OK] [skip]. - dry-run con --obsidian-new-vault-path: 3 fases encadenadas -> [OK] [OK] [OK]. - Syntax + memory_check verdes. MEMORIA: sistema de reseteo completo en 4 fases. Fase 1 (MAR, marker reversible), Fase 2 (Notion Checkbox Archivo + propagacion INX), Fase 3 (Obsidian rotar vault estrategia C), Fase 4 (reset_all.py orquesta las 3). Reset general skipea Obsidian por defecto por seguridad; para incluirlo pasa --obsidian-new-vault-path explicito. SIGUIENTE: @David (a) si quieres ver plan completo: 'python tools/reset_all.py --dry-run --obsidian-new-vault-path <ruta_destino>'; (b) si te convence: '--yes --obsidian-new-vault-path <ruta>' para ejecutar. Sistema de reseteo queda cerrado. ¿Siguiente objetivo o hacemos commit y cerramos la sesion?"
+  },
+  {
+    "number": 14,
+    "mode": "CERRADO",
+    "opened_by": "Claude",
+    "status": "closed",
+    "closed_by": "Claude",
+    "last_message_index": 16,
+    "participants": [
+      "Claude"
+    ],
+    "summary": "✅ CERRADO #14: bateria de validacion Fase 1-4 desplegada y corrida. Entregables: - docs/casos-de-uso/14-reset-sistema.md con matriz de 37 tests: 9 Fase 1, 10 Fase 2, 9 Fase 3, 7 Fase 4, 4 cross-phase. Marcas A/M y DoD. - tools/validate_case_14.py ejecuta la subset A (34 tests) usando solo --dry-run y operaciones idempotentes — no muta datos. - apps/validate_case_14.bat wrapper. docs/casos-de-uso/index.md incluye el caso. Resultado del run completo contra tu entorno real: Total: 37 PASS: 34 FAIL: 0 SKIP: 3 - Todos los tests A pasan: arranque CLIs, dry-run con limit, argumentos invalidos bloqueados, mensajes de error claros, INX propagacion 0 missing (en los 3 targets PTN), snapshot JSON parseable, rotate con depth 1=5 dirs y depth 3 default=35 dirs, abort policy, skip automatico de Obsidian, propagacion de --limit. - 3 SKIP (todos manuales y documentados en Gaps del caso): 1.8 idempotencia post-reset real, 4.6 prompt interactivo y/N, 4.7 simulacion de fallo de fase. - Incidencia detectada y resuelta en el mismo turno: primera corrida dio 1 FAIL en C.2 memory_check por TREE desfasado tras anadir los ficheros nuevos. Regenere snapshot_structure y re-run: OK. MEMORIA: bateria validate_case_14.py es la referencia oficial para probar el sistema de reseteo. Correrla siempre tras tocar cualquier tools/reset_*.py o apps/reset_*.bat. Si aparece un FAIL nuevo, lo arreglamos en el mismo turno (no cerrar la ficha con fallos vivos) salvo que sea manual documentado en Gaps. SIGUIENTE: @David sistema de reseteo completo, documentado y validado. ¿commit y cerramos sesion, o siguiente objetivo?"
+  },
+  {
+    "number": 15,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 18,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "✅ CERRADO #15: abrimos Sprint 2 post-reseteo como sprint activo de coordinación operativa. Alcance inicial: (1) automatizar higiene de sesión y regeneración de artefactos derivados, (2) convertir los 3 checks manuales pendientes del caso 14 en backlog explícito, (3) dejar priorizado el siguiente frente funcional tras el bloque de reseteo. MEMORIA: tras cerrar un bloque transversal grande, el siguiente sprint debe nacer ya persistido en `artifacts/sprints/` y no quedarse solo en el chat. SIGUIENTE: @David revisa el Sprint 2 persistido; si compras el alcance, el siguiente paso es ejecutar su primera tarea o reajustar backlog."
+  },
+  {
+    "number": 16,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 19,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "✅ CERRADO #16: ranking del siguiente frente funcional post-reseteo. Ranking: (1) **Caso 08 alcance C — cruce automático Obsidian↔KIT**, porque KIT ya existe en INX pero sigue sin engancharse a notas vivas del vault; es el hueco estructural más importante del grafo de conocimiento. (2) **Caso 10 round-trip Obsidian↔Todoist**, empezando por close-sync de checkboxes marcados y opcionalmente `--project`, porque mejora el loop diario de ejecución. (3) **Caso 09 loop bidireccional BIB↔Obsidian**, empezando por sincronizar `estado-lectura` desde frontmatter o promover papers pendientes en batch. MEMORIA: tras el bloque de reseteo, la prioridad funcional recomendada es cerrar la unión entre conocimiento curado (KIT) y notas vivas (ABGD) antes de añadir más automatismos periféricos. SIGUIENTE: @David si no cambias prioridad, el siguiente trabajo técnico debería abrir un caso 08c/alcance C."
+  },
+  {
+    "number": 17,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 20,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "? CERRADO #17: implementado el alcance C del caso 08 para cruce autom?tico Obsidian ? KIT. Entregables: `tools/ensure_kit_cross_fields.py` asegura `KIT IDs` en `OBSIDIAN_DB` e `INX-ENLACES`; `tools/log_obsidian_changes.py` y `tools/backfill_obsidian_to_inx.py` extraen wikilinks `[[kit:<page_id>]]` y los persisten en `OBSIDIAN_DB`; `tools/sync_inx_links.py --source obsidian` propaga `KIT IDs` a la fila `obsidian:<ruta>` en INX; `tools/validate_case_08.py --scope c` valida la preservaci?n. Validaci?n real OK: schema creado en vivo, sync `obsidian=31`, alcance B 1/1 KIT en INX, alcance C sin mismatches. MEMORIA: el contrato de 08C es textual (`KIT IDs` como rich_text), no relation; ahora mismo el vault no contiene notas con `[[kit:...]]`, por eso el validador C reporta 0 filas con `KIT IDs` pero pasa. SIGUIENTE: @David si quieres prueba visible, crea o edita una nota del vault con `[[kit:340622cf-315b-814b-bf50-e20378365646]]` y relanza `python tools/backfill_obsidian_to_inx.py --sync` + `python tools/validate_case_08.py --scope c`."
+  },
+  {
+    "number": 18,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 23,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "? CERRADO #18: ampliado el caso 10 a round-trip real Obsidian ? Todoist con cierre de tareas. Entregables: `tools/close_obsidian_checkboxes_to_todoist.py` cierra tareas detectando `- [x] ... <!-- todoist:id -->`; `tools/ensure_inx_completed_status.py` asegura `Estado=Completada` en INX; `tools/sync_inx_links.py` ya propaga `Completada` desde `TODOIST-TAREAS`; `tools/validate_case_10.py --scope all` valida captura + cierre; `apps/validate_case_10.bat` pasa a validar alcance completo; nuevo wrapper `apps/close_obsidian_checkboxes_to_todoist.bat`. Validaci?n real OK con fixture temporal: captura, cierre, `TODOIST_DB_TAREAS=Completada`, `INX=Completada`, y cleanup completo del fixture (nota, filas Notion y tarea Todoist eliminadas). MEMORIA: el caso 10 ya cubre ida y vuelta b?sica por checkbox (`[ ]` crea, `[x]` cierra); el siguiente gap claro es batch/`--all` o asignaci?n autom?tica a proyecto Todoist. SIGUIENTE: @David si seguimos el ranking post-08C, el siguiente frente natural pasa a caso 09 o a profundizar el caso 10 con batch/`--project`."
+  },
+  {
+    "number": 19,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 24,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "? CERRADO #19: ampliado el caso 09 a loop bidireccional m?nimo BIB ? Obsidian mediante sincronizaci?n de `estado-lectura`. Entregables: `tools/sync_bib_reading_state.py` lee fichas bajo `A1-INV/B13-PUB/*`, normaliza `estado-lectura` del frontmatter y actualiza `BIB.Estado`; `tools/validate_case_09.py --scope all` valida tanto el cruce doble `obsidian:*` + `paperpile:*` como la alineaci?n del estado de lectura; nuevo wrapper `apps/sync_bib_reading_state.bat`; `apps/validate_case_09.bat` pasa a validar alcance completo. Validaci?n real OK con `Candido2026y`: smoke temporal `Por leer -> En proceso -> Por leer` sincronizado y revertido, con validaci?n final en verde y sin dejar alterado el estado operativo del paper. MEMORIA: el caso 09 ya no es solo promoci?n BIB?Obsidian; el frontmatter `estado-lectura` se convierte en la fuente editable que puede reconciliar BIB. SIGUIENTE: @David si seguimos profundizando 09, los siguientes gaps naturales son `Paperpile Citekey` expl?cito en INX obsidian:* o promoci?n masiva `--all-pending`."
+  },
+  {
+    "number": 20,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 25,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "? CERRADO #20: `Paperpile Citekey` queda expl?cito en las filas `obsidian:*` de INX. Entregables: `tools/ensure_inx_paperpile_citekey_field.py` crea el campo en `INX-ENLACES`; `tools/sync_inx_links.py --source obsidian` ahora lee `citekey` del frontmatter real de la nota y lo vuelca en `Paperpile Citekey`; `tools/validate_case_09.py --scope all` exige ese v?nculo expl?cito adem?s del cruce doble cl?sico; documentaci?n del caso 09 actualizada. Validaci?n real OK: schema creado en vivo, resync `obsidian=31`, y `Candido2026y` reporta `Paperpile Citekey expl?cito en obsidian:*: 1/1`. MEMORIA: el cruce BIB?Obsidian ya no depende solo de coexistir como `paperpile:<citekey>` y `obsidian:<ruta>`; la fila `obsidian:*` expone el citekey del paper de forma directa. SIGUIENTE: @David el siguiente paso natural en 09 ser?a `--all-pending` para promoci?n masiva o sync inverso BIB -> frontmatter si quieres cerrar el loop en ambas direcciones."
+  },
+  {
+    "number": 21,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 26,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "? CERRADO #21: a?adido `--all-pending` al caso 09 para promoci?n masiva desde BIB. Entregables: `tools/promote_bib_to_obsidian.py` ahora soporta `--all-pending` sobre papers con `Estado=Por leer`, m?s `--dry-run` y `--limit` como salvaguardas operativas; `apps/promote_bib_to_obsidian.bat` y la documentaci?n del caso 09 actualizados. Smoke seguro OK con cat?logo real: `--all-pending --dry-run --limit 10` revisa 10 candidatos y reporta 10 creaciones potenciales sin tocar el vault. MEMORIA: el batch masivo de BIB debe arrancarse primero en `--dry-run` y con `--limit` peque?o; con el cat?logo actual (472 papers en `Por leer`) no conviene ejecutar el modo real sin acotar scope/contexto. SIGUIENTE: @David si quieres usarlo ya, el siguiente paso razonable es correr `python tools/promote_bib_to_obsidian.py --all-pending --dry-run --limit 25 --contexto C137-ART` y decidir luego el batch real."
+  },
+  {
+    "number": 22,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 28,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "? CERRADO #22: refinado `--all-pending` del caso 09 con filtros finos y bugfix. Entregables: `tools/promote_bib_to_obsidian.py` ahora soporta `--query` y `--year` para batch selectivo sobre papers `Por leer`, adem?s de `--limit`; `apps/promote_bib_to_obsidian.bat` y la doc del caso 09 actualizados. Incidencia resuelta en el mismo turno: el filtro batch ten?a `out.append()` mal indentado y devolv?a 0 candidatos; corregido y verificado en vivo con `--all-pending --dry-run --query Abad2021c --limit 10`, que encuentra 1 candidato y lo marca correctamente como `skip` por ficha ya existente. MEMORIA: el batch BIB ya no solo se acota por tama?o; ahora puede recortarse por texto y a?o, lo que lo hace operativo sobre cat?logos grandes sin lanzar lotes ciegos. SIGUIENTE: @David si quieres seguir con BIB, ya se puede lanzar un batch real m?s expresivo, p.ej. `--all-pending --query <tema> --limit 10 --sync`."
+  },
+  {
+    "number": 23,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 29,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "✅ CERRADO #23: endurecido --sync en la promoción masiva BIB→Obsidian para evitar INX parcial. Ajuste: ools/promote_bib_to_obsidian.py deja de encadenar sync_inx_links --source obsidian/paperpile --limit 200 y pasa a lanzar ambos sync completos cuando se usa --sync, porque el recorte fijo ya había dejado fuera citekeys recién promovidos en el batch real. Revalidación OK con --all-pending --dry-run --query Abad2021c --limit 10: 1 candidato detectado y clasificado como skip, sin regresión del filtro fino. MEMORIA: en el caso 09, --sync prioriza corrección sobre velocidad; para lotes reales, el coste mayor del resync completo es intencional y evita cerrar el batch con cruce INX inconsistente. SIGUIENTE: @David si sigues ampliando BIB, el siguiente paso natural es añadir filtros estructurales extra (--journal, --author, --estado) o abrir otro batch real ya con esta ruta endurecida."
+  },
+  {
+    "number": 24,
+    "mode": "CERRADO",
+    "opened_by": "Codex",
+    "status": "closed",
+    "closed_by": "Codex",
+    "last_message_index": 30,
+    "participants": [
+      "Codex"
+    ],
+    "summary": "✅ CERRADO #24: añadidos filtros estructurales al batch --all-pending del caso 09. Entregables: ools/promote_bib_to_obsidian.py ahora soporta --author, --journal y --estado, además de --query, --year y --limit; pps/promote_bib_to_obsidian.bat y la documentación del caso 09 quedan actualizados. Revalidación real OK con --all-pending --dry-run --author Candido --limit 10: 1 candidato detectado (Candido2026y) y clasificado como skip por ficha ya existente. MEMORIA: el batch BIB ya puede recortarse por metadatos estructurados del catálogo, no solo por texto libre; el default operativo sigue siendo Estado=Por leer salvo que se pase --estado. SIGUIENTE: @David si quieres seguir con BIB, el siguiente salto útil sería añadir --tipo o --contexto-auto, o ejecutar un batch real filtrado ya con esta combinatoria nueva."
   }
 ]

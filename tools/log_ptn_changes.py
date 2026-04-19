@@ -6,11 +6,13 @@ import json
 import os
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
-load_dotenv()
+from tools.env_utils import load_project_env
+
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.notion_tools import query_data_source, create_page, extract_property_value
 

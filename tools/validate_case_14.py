@@ -39,11 +39,9 @@ except Exception:
 _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
 
-try:
-    from dotenv import load_dotenv
-    load_dotenv(_ROOT / ".env")
-except Exception:
-    pass
+from tools.env_utils import load_project_env
+
+load_project_env(_ROOT / ".env")
 
 PY = sys.executable
 TOOLS = _ROOT / "tools"

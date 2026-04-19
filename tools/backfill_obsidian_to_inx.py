@@ -27,15 +27,17 @@ import os
 import subprocess
 import sys
 from datetime import datetime
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
+from tools.env_utils import load_project_env
 
-load_dotenv()
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.notion_tools import create_page, extract_property_value, query_data_source
-from tools.obsidian_tools import get_todas_notas
+from tools.obsidian_tools import get_todas_notas, read_nota
+from tools.obsidian_wikilinks import extract_kit_ids
 
 
 ABC_AREAS = "340622cf-315b-8116-a1bd-f21b04bc0ac1"
@@ -58,6 +60,10 @@ def _run_sync_obsidian() -> bool:
     print(f"[sync] {' '.join(cmd[1:])}")
     result = subprocess.run(cmd, cwd=repo_root)
     return result.returncode == 0
+
+
+def _rich_text(value: str) -> dict:
+    return {"rich_text": [{"text": {"content": value[:2000]}}]}
 
 
 def main() -> int:
@@ -126,15 +132,18 @@ def main() -> int:
             mtime = None
         fecha = (datetime.fromtimestamp(mtime).date().isoformat()
                  if mtime else datetime.now().date().isoformat())
+        kit_ids = extract_kit_ids(read_nota(path))
 
         props = {
             "Evento": {"title": [{"text": {"content": nota.get("nombre", "Nota")}}]},
             "Fecha": {"date": {"start": fecha}},
-            "Archivo": {"rich_text": [{"text": {"content": nota.get("nombre", "")}}]},
-            "Ruta": {"rich_text": [{"text": {"content": rel}}]},
+            "Archivo": _rich_text(nota.get("nombre", "")),
+            "Ruta": _rich_text(rel),
             "Tipo": {"select": {"name": "Nota"}},
-            "Detalle": {"rich_text": [{"text": {"content": path}}]},
+            "Detalle": _rich_text(path),
         }
+        if kit_ids:
+            props["KIT IDs"] = _rich_text(", ".join(kit_ids))
         if area in area_map:
             props["Area"] = {"relation": [{"id": area_map[area]}]}
         if bloque in bloque_map:

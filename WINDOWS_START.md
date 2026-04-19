@@ -22,6 +22,12 @@ O desde `apps/` con:
 
 [project_hub_gui.bat](/c:/Users/David/Desktop/MSI-20260321/03-GAMA/coworkia/apps/project_hub_gui.bat)
 
+La apertura recomendada ya corre `apps\abrir_sesion.bat` antes del GUI:
+
+- resuelve o crea el chat del día
+- imprime briefing con memoria + devlog reciente
+- valida `memory/`
+
 ## 3. Si algo falla
 
 - revisa que Python 3 este instalado
@@ -30,6 +36,18 @@ O desde `apps/` con:
 - ejecuta `apps\config_doctor.bat` para ver exactamente que variable o ruta falta
 - ejecuta `apps\notion_doctor.bat` si el problema es Notion y necesitas localizar IDs o permisos
   - Si tarda demasiado, usa modo rápido: `set NOTION_DOCTOR_FAST=1` antes de ejecutar
+
+## 4. Cerrar sesión correctamente
+
+Al terminar, ejecuta:
+
+`apps\cerrar_sesion.bat`
+
+Esto deja tres capas al día:
+
+- `artifacts/multiagent/*` y `memory/SNAPSHOT.md` vía `sync-chat-memory`
+- `artifacts/daily/YYYY-MM-DD.md` vía `tools/timeline.py`
+- validación final de `memory/`
 
 ## Accesos principales
 

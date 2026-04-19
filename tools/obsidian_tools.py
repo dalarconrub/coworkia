@@ -17,9 +17,9 @@ import os
 import re
 from pathlib import Path
 from datetime import datetime
-from dotenv import load_dotenv
+from tools.env_utils import load_project_env
 
-load_dotenv()
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 ALPHA_PATH = Path(os.getenv("OBSIDIAN_ALPHA_PATH", "G:/Mi unidad/ABGD/ABGD-25.09.05/1.ALPHA"))
 ABGD_ROOT  = Path(os.getenv("OBSIDIAN_ABGD_ROOT",  "G:/Mi unidad/ABGD/ABGD-25.09.05"))
@@ -170,6 +170,16 @@ def get_frontmatter(path: str) -> dict:
                     key, _, val = line.partition(":")
                     fm[key.strip()] = val.strip()
     return fm
+
+
+def get_frontmatter_by_relative_path(rel_path: str) -> dict:
+    """Extrae frontmatter de una nota resolviendo una ruta relativa al vault."""
+    if not rel_path:
+        return {}
+    path = ALPHA_PATH / rel_path
+    if not path.exists():
+        return {}
+    return get_frontmatter(str(path))
 
 
 # ─── BÚSQUEDA ─────────────────────────────────────────────────────────────────

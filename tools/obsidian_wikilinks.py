@@ -35,13 +35,11 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from tools.notion_tools import extract_property_value, query_data_source
 from tools.obsidian_tools import ALPHA_PATH
+from tools.env_utils import load_project_env
 
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 PREFIXES = ("ptn", "kit", "paperpile", "todoist", "github")
 WIKILINK_RE = re.compile(
@@ -66,6 +64,40 @@ def _normalize(value: str) -> str:
     return value.replace("-", "").lower().strip()
 
 
+def extract_wikilinks(content: str, prefixes: tuple[str, ...] | None = None) -> list[dict]:
+    """Extrae wikilinks cross-system desde un markdown ya cargado."""
+    allowed = prefixes or PREFIXES
+    hits: list[dict] = []
+    for line_num, line in enumerate(content.splitlines(), 1):
+        for m in WIKILINK_RE.finditer(line):
+            prefix = m.group(1)
+            if prefix not in allowed:
+                continue
+            hits.append({
+                "line": line_num,
+                "prefix": prefix,
+                "id": m.group(2).strip(),
+            })
+    return hits
+
+
+def extract_ids_by_prefix(content: str, prefix: str) -> list[str]:
+    """Devuelve IDs unicos, en orden, para un prefijo concreto."""
+    seen: set[str] = set()
+    ids: list[str] = []
+    for hit in extract_wikilinks(content, prefixes=(prefix,)):
+        value = hit["id"]
+        if value in seen:
+            continue
+        seen.add(value)
+        ids.append(value)
+    return ids
+
+
+def extract_kit_ids(content: str) -> list[str]:
+    return extract_ids_by_prefix(content, "kit")
+
+
 def _load_inx_keys(db_inx: str) -> dict[str, set[str]]:
     keys: dict[str, set[str]] = {p: set() for p in PREFIXES}
     for r in _dedupe_rows(query_data_source(db_inx)):
@@ -87,14 +119,8 @@ def scan_vault() -> list[dict]:
         except OSError:
             continue
         rel = str(md.relative_to(ALPHA_PATH))
-        for line_num, line in enumerate(content.splitlines(), 1):
-            for m in WIKILINK_RE.finditer(line):
-                hits.append({
-                    "ruta": rel,
-                    "line": line_num,
-                    "prefix": m.group(1),
-                    "id": m.group(2).strip(),
-                })
+        for hit in extract_wikilinks(content):
+            hits.append({"ruta": rel, **hit})
     return hits
 
 

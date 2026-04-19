@@ -61,6 +61,8 @@ def _run_command(script_rel_path: str, args: list[str] | None = None) -> subproc
         cwd=root,
         text=True,
         capture_output=True,
+        encoding="utf-8",
+        errors="replace",
     )
 
 
@@ -152,7 +154,7 @@ def _refresh_plan_status(run: SprintRun) -> None:
     elif all(status in {"completed", "skipped"} for status in statuses):
         run.plan = run.plan.__class__(**{**run.plan.__dict__, "status": "completed"})
     else:
-        run.plan = run.plan.__class__(**{**run.plan.__dict__, "status": "planned"})
+        run.plan = run.plan.__class__(**{**run.plan.__dict__, "status": "active"})
 
 
 def _write_run(run: SprintRun) -> None:

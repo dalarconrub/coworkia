@@ -135,6 +135,24 @@ apps\validate_case_14.bat
 - **Gap 2**: el validador no comprueba que `restore` funcione end-to-end tras un reset real. Eso requiere ciclo ejecutivo completo (reset → restore → verificar). Planteado para iteración futura.
 - **Gap 3**: los snapshots dry-run se acumulan en `artifacts/resets/YYYY-MM-DD/` — no hay limpieza automática. Si quieres ordenar, borra la carpeta del día tras validar.
 
+## Checklist manual pendiente — Sprint 2 / ST-203
+
+Estos son los tres checks manuales que siguen abiertos tras la batería automática. La idea no es ejecutarlos siempre, sino dejar un protocolo claro para cuando David decida cerrar la validación manual del sistema de reseteo.
+
+| Test | Owner | Cuándo ejecutarlo | Comando / acción | Evidencia a guardar | Criterio de cierre |
+| --- | --- | --- | --- | --- | --- |
+| 1.8 Idempotencia MAR | David | Cuando haya un subconjunto pequeño y seguro de tareas reales que pueda moverse a `Z-INBOX` sin riesgo operativo | 1. `python tools/reset_mar.py reset-all --limit 1` 2. repetir el mismo comando 3. `python tools/reset_mar.py list-archived` | salida de ambos runs + listado final en chat/devlog | el segundo run no vuelve a archivar la misma tarea; reporta skip/idempotencia y `restore` sigue siendo viable |
+| 4.6 Prompt interactivo de `reset_all.py` | David | Antes de una primera ejecución real de `reset_all.py` sin `--yes` | lanzar `python tools/reset_all.py --mar-limit 1 --notion-limit 1` sin `--dry-run` ni `--yes`, responder `n` en el prompt | transcript o captura del prompt en terminal | el orquestador pide confirmación explícita y aborta limpio al responder `n`, sin ejecutar fases posteriores |
+| 4.7 Abort-on-fail entre fases | Codex + David | Cuando se quiera demostrar la política de abort sin tocar producción; idealmente en entorno controlado o con credencial inválida temporal en shell hija | ejecutar `reset_all.py` en una shell hija con una credencial inválida solo para la fase 1 o 2 y comprobar que no arranca la siguiente | salida completa del comando + nota en devlog | el summary marca `[FAIL]` en la fase forzada a fallar, no ejecuta la siguiente, e imprime comandos de restore consistentes |
+
+### Protocolo de documentación manual
+
+Cuando cualquiera de estos tres checks se ejecute:
+
+1. Añade el resultado al chat del día con `MEMORIA:` si cambia la operativa.
+2. Registra entrada en `devlog/DEVLOG.md` con área `MULTIAGENT` o `TOOLING`.
+3. Si el resultado permite cerrar el gap, marca la fila correspondiente en este documento y ajusta la sección `Definition of Done`.
+
 ## Mejoras propuestas
 
 - **Mejora 1**: automatizar 4.7 simulando una `TODOIST_API_KEY` vacía en un entorno hijo y verificando que `reset_all.py` aborta tras `[FAIL] MAR` sin correr Notion/Obsidian.

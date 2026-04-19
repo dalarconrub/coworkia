@@ -1,58 +1,101 @@
-# Caso de uso: KIT como ciudadano de primera en INX (alcance B)
+# Caso de uso: KIT como ciudadano de primera en INX (alcances B/C)
 
 ## Objetivo
 
-Que cada entrada del catálogo **KIT** (`NOTION_DB_KIT`) aparezca en `INX-ENLACES` con clave canónica `kit:<page_id>`, homologándola al resto de sistemas (PTN, Obsidian, GitHub, Paperpile, Todoist). Tras este caso, KIT deja de ser el único sistema operativo fuera del puente INX.
+Que cada entrada del catálogo **KIT** (`NOTION_DB_KIT`) aparezca en `INX-ENLACES` con clave canónica `kit:<page_id>`, homologándola al resto de sistemas (PTN, Obsidian, GitHub, Paperpile, Todoist).
 
-Alcance **B** (elegido explícitamente): KIT primera clase en INX. **No** implementa cruce automático Obsidian↔KIT ni migración del `Usada en` (rich_text) a `relation` — eso queda como alcance C en un caso futuro.
+Además, en alcance **C**, que las notas del vault Obsidian puedan declarar referencias a KIT con wikilinks `[[kit:<page_id>]]` y que esa relación quede persistida de forma estable en `OBSIDIAN_DB` e `INX-ENLACES`.
+
+## Alcance
+
+- **Alcance B**: KIT primera clase en INX.
+- **Alcance C**: persistencia textual de referencias `[[kit:<page_id>]]` desde Obsidian a `OBSIDIAN_DB.KIT IDs` y `INX-ENLACES.KIT IDs`.
+- **Fuera de alcance**: migrar `Usada en` de KIT a `relation` o crear una relation real Obsidian ↔ KIT en Notion.
 
 ## Actores
 
 - **Usuario**: David
-- **Sistema(s)**: Notion (KIT, INX-ENLACES)
+- **Sistema(s)**: Notion (KIT, OBSIDIAN_DB, INX-ENLACES), Obsidian
 
 ## Trigger
 
-El catálogo KIT crece y se requiere poder referenciar entradas desde otros sistemas usando la misma notación (`kit:<id>`) que ya usan el resto.
+El catálogo KIT crece y se requiere poder:
+
+1. Referenciar entradas desde otros sistemas usando la notación `kit:<id>`.
+2. Registrar automáticamente cuándo una nota Obsidian cita una entrada KIT.
 
 ## Precondiciones
 
 - `.env` con:
   - `NOTION_DB_KIT`
   - `NOTION_DB_INX`
+  - `OBSIDIAN_DB`
+  - `OBSIDIAN_ALPHA_PATH`
 
-## Fuente de verdad (autoridad)
+## Fuente de verdad
 
-- **Contenido del catálogo**: Notion (`NOTION_DB_KIT`).
-- **Trazabilidad**: `INX-ENLACES`.
+- **Contenido del catálogo**: `NOTION_DB_KIT`
+- **Registro de notas del vault**: `OBSIDIAN_DB`
+- **Trazabilidad cruzada**: `INX-ENLACES`
 
-## Contrato INX (clave canónica)
+## Contrato INX alcance B
 
-- **`kit:<page_id>`** (page_id con guiones, tal y como devuelve la API Notion).
-- La fila INX lleva: `Elemento = Titulo`, `Fuente = Notion`, `Estado = Activo`, `URL = Enlace` (si existe), `Detalle = Tipo | Subtipo` (si existen).
+- Clave canónica: **`kit:<page_id>`**
+- La fila INX lleva:
+  - `Elemento = Titulo`
+  - `Fuente = Notion`
+  - `Estado = Activo`
+  - `URL = Enlace` si existe
+  - `Detalle = Tipo | Subtipo` si existen
 
-No hay relation a KIT en el schema de INX-ENLACES. Mantenemos el patrón de "clave canónica como texto" igual que `github:<repo>` y `paperpile:<citekey>`.
+No hay relation a KIT en el schema de INX. Se mantiene el patrón de clave canónica textual, igual que `github:<repo>` y `paperpile:<citekey>`.
 
-## Flujo principal (happy path)
+## Contrato Obsidian ↔ KIT alcance C
 
-1. El catálogo KIT se edita normalmente desde Notion o con `python agents/kit_agent.py nueva-knowledge/information/tool ...`.
-2. Ejecutar sync:
-   ```bat
-   python tools/sync_inx_links.py --source kit --limit 200
-   ```
-3. Verificar en `INX-ENLACES`: una fila con `Clave = kit:<page_id>` por cada entrada KIT con título.
+- Una nota puede citar entradas KIT con `[[kit:<page_id>]]`.
+- `log_obsidian_changes.py` y `backfill_obsidian_to_inx.py` extraen esos IDs y los guardan en `OBSIDIAN_DB.KIT IDs`.
+- `sync_inx_links.py --source obsidian` propaga ese mismo valor a `INX-ENLACES.KIT IDs` para la fila `obsidian:<ruta>`.
+- El formato actual es texto rico con IDs separados por comas. Es intencionalmente simple e idempotente.
+
+## Flujo principal
+
+1. El catálogo KIT se edita normalmente desde Notion o con `python agents/kit_agent.py ...`.
+2. Ejecutar sync de KIT:
+
+```bat
+python tools/sync_inx_links.py --source kit --limit 200
+```
+
+3. Preparar schema para alcance C:
+
+```bat
+python tools/ensure_kit_cross_fields.py
+```
+
+4. Registrar o backfillear notas Obsidian:
+
+```bat
+python tools/backfill_obsidian_to_inx.py --sync
+```
+
+5. Validar alcance B o C:
+
+```bat
+python tools/validate_case_08.py
+python tools/validate_case_08.py --scope c
+```
 
 ## Checklist ejecutable
 
 ### Paso 1 — Sync KIT → INX
 
 ```bat
-.\.venv\Scripts\python.exe tools\sync_inx_links.py --source kit --limit 200
+python tools/sync_inx_links.py --source kit --limit 200
 ```
 
-- [ ] Output: `INX enlaces sincronizados: kit=N`.
+- [ ] Output: `INX enlaces sincronizados: kit=N`
 
-### Paso 2 — Validación
+### Paso 2 — Validación alcance B
 
 ```bat
 apps\validate_case_08.bat --no-pause
@@ -60,55 +103,93 @@ apps\validate_case_08.bat --no-pause
 
 - [ ] Output: `OK: todas las entradas KIT estan reflejadas en INX-ENLACES.`
 
-## Postcondiciones / Resultado verificable
+### Paso 3 — Preparar schema alcance C
 
-- Por cada fila con `Titulo` no vacío en `NOTION_DB_KIT`, existe exactamente una fila en `INX-ENLACES` con `Clave = kit:<page_id>`.
-- La fila INX es idempotente: re-ejecutar `sync_inx_links --source kit` no crea duplicados (el `_upsert` detecta por `Clave`).
+```bat
+python tools/ensure_kit_cross_fields.py
+```
 
-## Criterios de aceptación (Definition of Done)
+- [ ] `OBSIDIAN_DB`: propiedad `KIT IDs` creada o ya existente
+- [ ] `NOTION_DB_INX`: propiedad `KIT IDs` creada o ya existente
 
-- [x] `sync_inx_links.py` soporta `--source kit` y la opción aparece en `--help`.
-- [x] Cada entrada KIT con título produce una fila `kit:<page_id>` en INX-ENLACES.
-- [x] `tools/validate_case_08.py` + `apps/validate_case_08.bat` implementados.
-- [x] `orchestrator_agent.py inx-sync` incluye `kit` automáticamente (via `--source all`).
-- [ ] Cruce automático `obsidian:<ruta>` ↔ `kit:<id>` (fuera de alcance B, queda para alcance C).
+### Paso 4 — Persistir metadata de notas Obsidian
+
+```bat
+python tools/backfill_obsidian_to_inx.py --sync
+```
+
+- [ ] Las filas nuevas de `OBSIDIAN_DB` pueden incluir `KIT IDs`
+- [ ] El sync de Obsidian copia `KIT IDs` a `INX-ENLACES`
+
+### Paso 5 — Validación alcance C
+
+```bat
+python tools/validate_case_08.py --scope c
+```
+
+- [ ] Output: `OK: las referencias KIT detectadas en OBSIDIAN_DB se preservan en INX.`
+
+## Postcondiciones
+
+- Por cada fila con `Titulo` no vacío en `NOTION_DB_KIT`, existe una fila en `INX-ENLACES` con `Clave = kit:<page_id>`.
+- Si una nota Obsidian contiene `[[kit:<page_id>]]`, ese dato queda persistido en `OBSIDIAN_DB.KIT IDs`.
+- Tras `sync_inx_links --source obsidian`, la fila `obsidian:<ruta>` correspondiente refleja el mismo valor en `INX-ENLACES.KIT IDs`.
+
+## Criterios de aceptación
+
+- [x] `sync_inx_links.py` soporta `--source kit`.
+- [x] Cada entrada KIT con título produce una fila `kit:<page_id>` en INX.
+- [x] `tools/validate_case_08.py` cubre el alcance B.
+- [x] `tools/ensure_kit_cross_fields.py` asegura el schema de alcance C.
+- [x] `log_obsidian_changes.py` y `backfill_obsidian_to_inx.py` persisten `KIT IDs`.
+- [x] `sync_inx_links.py --source obsidian` propaga `KIT IDs` a INX.
+- [ ] Relation real Obsidian ↔ KIT materializada en Notion.
+- [ ] Migración de `Usada en` a `relation` en KIT.
 
 ## Automatización actual
 
 | Acción | Comando |
 | --- | --- |
 | Sync KIT → INX | `python tools/sync_inx_links.py --source kit --limit 200` |
-| Pipeline de validación | `apps\validate_case_08.bat --no-pause` |
-| Cadena INX completa (incluye KIT vía `--source all`) | `python agents/orchestrator_agent.py inx-sync` |
+| Cadena INX completa | `python agents/orchestrator_agent.py inx-sync` |
+| Asegurar schema C | `python tools/ensure_kit_cross_fields.py` |
+| Backfill Obsidian con sync | `python tools/backfill_obsidian_to_inx.py --sync` |
+| Validar caso 08 alcance B | `python tools/validate_case_08.py` |
+| Validar caso 08 alcance C | `python tools/validate_case_08.py --scope c` |
 
 ## Observabilidad
 
-- `NOTION_DB_KIT` — catálogo fuente.
-- `INX-ENLACES` — filas con prefijo `kit:`.
-- No hay log intermedio específico de KIT (a diferencia de PTN con `NOTION_DB` o Obsidian con `OBSIDIAN_DB`): `_sync_kit` lee directo de `NOTION_DB_KIT`.
+- `NOTION_DB_KIT`: catálogo fuente
+- `OBSIDIAN_DB`: log del vault con columna `KIT IDs`
+- `INX-ENLACES`: filas `kit:*` y filas `obsidian:*` con `KIT IDs`
 
-## Gaps (pendientes)
+## Gaps pendientes
 
-- **Gap 1 — Cruce automático Obsidian↔KIT**: hoy no hay forma canónica de registrar que una nota `.md` del vault referencia una entrada KIT. Opciones futuras: (a) wikilinks `[[KIT:<titulo>]]` con parser; (b) columna `KIT` (relation) en `OBSIDIAN_DB`; (c) columna `Usada en Notas` (relation) en `NOTION_DB_KIT`. Ver alcance C.
-- **Gap 2 — `Usada en` en KIT es rich_text**: mismo anti-patrón que tenía `Proyecto` en PTN-Notas antes del caso 07. Migrar a relation contra `NOTION_DS_NOTAS` cuando se implemente alcance C.
-- **Gap 3 — Fuente `KIT` en el select**: `INX-ENLACES.Fuente` tiene opciones `Todoist | Notion | Obsidian | GitHub | Paperpile | Manual`. KIT se registra como `Notion` (porque vive en Notion), pero perdemos distinción. Opcional: añadir opción `KIT` al select.
+- **Gap 1 — relation real**: el alcance C persiste IDs como texto, no como `relation`.
+- **Gap 2 — `Usada en` en KIT sigue siendo rich_text**.
+- **Gap 3 — `Fuente=KIT` sigue sin existir en el select de INX**; de momento KIT se registra como `Notion`.
 
 ## Mejoras propuestas
 
-- **Mejora 1 — Alcance C**: caso 08b o nuevo caso que migre `Usada en` a relation en KIT, añada columna `KIT` (relation) a `OBSIDIAN_DB` (o a INX), y extienda `log_obsidian_changes` / `promote_obsidian_to_ptn` para popularla.
-- **Mejora 2 — Opción `KIT` en `Fuente`**: script de migración de schema INX para añadir la opción sin perder filas existentes.
+- **Mejora 1 — relation dedicada**: sustituir `KIT IDs` textual por una relation materializada o una tabla puente.
+- **Mejora 2 — migrar `Usada en`**: conectar KIT contra `NOTION_DS_NOTAS`.
+- **Mejora 3 — distinguir `Fuente=KIT`**: ampliar el select de INX si la separación semántica aporta valor operativo.
 
 ## Fallos típicos
 
-- **`kit=0` tras sync**: `NOTION_DB_KIT` vacío o propiedad `Titulo` con nombre distinto. El sync acepta tanto `Titulo` como `Título`.
-- **Duplicados kit:***: no deberían ocurrir — `_upsert` matchea por `Clave`. Si aparecen, limpieza manual en Notion.
+- `kit=0` tras sync: `NOTION_DB_KIT` vacío o propiedad `Titulo` no accesible.
+- `KIT IDs` ausente: falta ejecutar `python tools/ensure_kit_cross_fields.py`.
+- Mismatch entre `OBSIDIAN_DB` e `INX`: falta ejecutar `python tools/sync_inx_links.py --source obsidian --limit 200`.
 
 ## Validación práctica
 
 ```bat
-apps\validate_case_08.bat --no-pause
+python tools/validate_case_08.py
+python tools/validate_case_08.py --scope c
 ```
 
-El caso 08 queda **validado** cuando el informe muestra:
-- `KIT entries presentes en INX: N/N` con N > 0.
+El caso 08 queda validado cuando:
+
+- `KIT entries presentes en INX: N/N` con `N > 0`
 - `OK: todas las entradas KIT estan reflejadas en INX-ENLACES.`
+- `OK: las referencias KIT detectadas en OBSIDIAN_DB se preservan en INX.`

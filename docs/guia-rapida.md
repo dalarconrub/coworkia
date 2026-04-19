@@ -320,6 +320,14 @@ python tools/devlog.py append ...                    # registrar hito feature-le
 python agents/orchestrator_agent.py sync-chat-memory # propagar MEMORIA del chat a memory/SNAPSHOT.md
 ```
 
+En Windows, el cierre operativo recomendado ya encadena todo:
+
+```bash
+apps\cerrar_sesion.bat
+```
+
+Incluye `sync-chat-memory`, regeneración de `artifacts/daily/YYYY-MM-DD.md` y `memory_check`.
+
 ### Semanal
 ```bash
 python agents/github_agent.py sincronizar   # Actualizar repos

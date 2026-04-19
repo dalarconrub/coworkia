@@ -31,9 +31,9 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
+from tools.env_utils import load_project_env
 
-load_dotenv()
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.obsidian_tools import ALPHA_PATH, get_todas_notas
 from tools.todoist_tools import create_task

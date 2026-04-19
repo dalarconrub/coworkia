@@ -2,283 +2,115 @@
   {
     "kind": "MEMORIA",
     "actor": "Claude",
-    "message_index": 3,
-    "value": "todo agente lee devlog al arrancar (python tools/devlog.py view --limit 20) y añade entrada en el mismo turno en que cierra decisión, marca MEMORIA operativa, completa feature, abre/cierra BLOQUEO o hace REVERT."
+    "message_index": 2,
+    "value": "cualquier cambio estructural del pipeline (nuevo dominio, nuevo caso, nuevo tool transversal) actualiza docs/pipeline-atlas.md y apps/pipeline_gui.py (_build_atlas), y regenera memory/STRUCTURE.md TREE. Deja entrada [DOCS] en devlog."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
-    "message_index": 3,
-    "value": "@Copilot y @Codex al reactivarse, incorporar la lectura del devlog al arranque y usar el helper en todas las escrituras."
+    "message_index": 2,
+    "value": "@David cuando lo abras (apps\\pipeline_gui.bat), si detectas que algun nodo pierde contexto o un script queda sin listar, lo corrijo."
   },
   {
     "kind": "MEMORIA",
     "actor": "Claude",
-    "message_index": 5,
-    "value": "el punto de entrada canonico para cualquier agente es memory/INDEX.md. Si memory/*.md desalinean con el repo real, los agentes corrigen en el mismo turno y dejan entrada [DOCS] en el devlog."
+    "message_index": 4,
+    "value": "botones de la GUI por nivel de impacto: Copiar (no toca nada), Abrir (lectura), Ejecutar (lanza en terminal nueva). Para args (--sync, --dry-run, --limit, etc.) usar Copiar y editar en terminal; Ejecutar corre sin argumentos."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
-    "message_index": 5,
-    "value": "@Copilot @Codex al reactivarse, incorporar la carga de memory/ al arranque y usar tools/snapshot_structure.py cuando cambien carpetas top-level."
+    "message_index": 4,
+    "value": "@David avisa si en macOS el .command no abre Terminal (quiza porque el SO bloquea tempfiles no firmados) — si pasa, cambio a AppleScript osascript directo."
   },
   {
     "kind": "MEMORIA",
     "actor": "Claude",
-    "message_index": 7,
-    "value": "memory/SNAPSHOT.md es auto-generado, no editar a mano. Se regenera con python agents/orchestrator_agent.py sync-chat-memory. Para garantia de salud se corre python tools/memory_check.py."
+    "message_index": 6,
+    "value": "sistema de reseteo por fases. Fase 1 = Todoist (hecha). Fase 2 = Notion (schema Estado Activo/Archivado/Finalizado por decidir: field nuevo vs reusar Estado existente). Fase 3 = Obsidian (rotar vault, politica INX obsidian:* por decidir). Fase 4 = orquestador general que ejecuta las tres en orden con snapshot previo."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
-    "message_index": 7,
-    "value": "@Copilot considera cablear memory_check en pre-commit o en CI. @Codex si cambia el parser de markers, regenera SNAPSHOT.md y valida dedup."
+    "message_index": 6,
+    "value": "@David prueba 'python tools/reset_mar.py reset-all --dry-run' o 'reset-by-type idea --dry-run' sin --limit para ver volumen real y decidir umbral. Cuando quieras arrancar Fase 2 (Notion), necesito decision sobre schema Estado."
   },
   {
     "kind": "MEMORIA",
     "actor": "Claude",
-    "message_index": 9,
-    "value": "granularidad por capa = chat diario, devlog monolitico + archivo mensual, memory curada monolitica, sprint por fichero, INX por run con timestamp. timeline.py es la vista temporal unificada; regenerable y read-only."
+    "message_index": 8,
+    "value": "el campo Archivo es Checkbox PARALELO al Estado existente, nunca lo sobrescribe. Para filtrar vistas operativas hay que anadir manualmente en Notion el filtro 'Archivo != true' a cada vista canonica (no lo hace el script)."
+  },
+  {
+    "kind": "BLOQUEO",
+    "actor": "Claude",
+    "message_index": 8,
+    "value": "ensure_archivo_field.py necesita autorizacion explicita para modificar schemas en Notion. Hasta que lo ejecutes en real, reset_notion.py aborta con mensaje claro pidiendo bootstrap."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
-    "message_index": 9,
-    "value": "@Copilot o @Codex, considerad automatizar la regeneracion diaria del timeline de hoy (cron / hook / cierre de sesion)."
+    "message_index": 8,
+    "value": "@David (a) ejecutas 'python tools/ensure_archivo_field.py' para crear la propiedad en los 4 DS, (b) luego 'python tools/reset_notion.py reset-ptn-proyectos --dry-run --snapshot --limit 5' para ver comportamiento sin escribir, (c) cuando te convenza, quitas --dry-run. Fases 3 (Obsidian vault) y 4 (orquestador general) siguen en cola."
+  },
+  {
+    "kind": "SIGUIENTE",
+    "actor": "Claude",
+    "message_index": 10,
+    "value": "@David cuando quieras archivar de verdad, quita --dry-run. Si quieres limpiar los 2 proyectos 'ejemplo A3/A4' del workspace y arrancar solo con los 3 reales, ejecuta 'python tools/reset_notion.py reset-ptn-proyectos --limit 2' (sin dry-run) tras verificar en Notion cuales son los ids ejemplo. Alternativa mas conservadora: 'reset-ptn-proyectos --dry-run' sin limit para ver el total antes de decidir."
   },
   {
     "kind": "MEMORIA",
     "actor": "Claude",
-    "message_index": 11,
-    "value": "la revision de docs tras cada cambio estructural es responsabilidad del agente que haya completado el cambio; debe dejar entrada [DOCS] en el devlog en el mismo turno."
+    "message_index": 12,
+    "value": "Reset Obsidian (Fase 3) usa estrategia C fija: vault viejo nunca se renombra ni mueve; el nuevo nace donde David decida via --new-vault-path obligatorio. El cambio de OBSIDIAN_ABGD_ROOT en .env es manual siempre (el CLI lo imprime, David lo pega). Esto protege el control del usuario sobre rutas y credenciales."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
-    "message_index": 11,
-    "value": "@David si cambias un agent guide o los casos-de-uso, avisame y los incluyo en el proximo paso."
+    "message_index": 12,
+    "value": "@David cuando quieras rotar el vault, (a) decide ruta destino (ej. C:/GDrive/dalarconrub/ABGD/ABGD-26.04.19); (b) corre 'python tools/reset_obsidian.py rotate --new-vault-path <ruta> --dry-run --snapshot' para confirmar; (c) quita --dry-run cuando te convenza; (d) edita .env con la linea que el CLI imprime; (e) abre el vault nuevo en Obsidian desktop. Queda Fase 4: orquestador general que ejecuta las 3 en orden con snapshot completo previo. ¿Arrancamos ya o pausamos?"
   },
   {
     "kind": "MEMORIA",
     "actor": "Claude",
-    "message_index": 13,
-    "value": "tool-kit/ es la version portable del sistema comunicacion+devlog+memoria. Para instalar: copiar tool-kit/* a proyecto destino, rellenar TODOs en memory/*.md y CLAUDE.md/AGENTS.md, ajustar VALID_AREAS en tools/devlog.py."
+    "message_index": 14,
+    "value": "sistema de reseteo completo en 4 fases. Fase 1 (MAR, marker reversible), Fase 2 (Notion Checkbox Archivo + propagacion INX), Fase 3 (Obsidian rotar vault estrategia C), Fase 4 (reset_all.py orquesta las 3). Reset general skipea Obsidian por defecto por seguridad; para incluirlo pasa --obsidian-new-vault-path explicito."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
-    "message_index": 13,
-    "value": "@David prueba el kit copiandolo a un proyecto destino para smoke-test virgen real; si detecta algun path hard-coded al proyecto origen, lo arreglo aqui y tambien en Coworkia."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Claude",
-    "message_index": 15,
-    "value": "tool-kit ya cubre las cuatro capas: chat multiagente + devlog feature-level + memoria curada + sprints Scrum. Integraciones cableadas por convencion (campo Sprint: en devlog, scan de artifacts/sprints en timeline), no por acoplamiento de codigo."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 15,
-    "value": "@David si lo pruebas en un proyecto destino, avisa si el stub _build_task_commands() resulta poco claro; podemos reemplazarlo por un registry externo (YAML/TOML) si la curva de personalizacion se vuelve friccionante."
+    "message_index": 14,
+    "value": "@David (a) si quieres ver plan completo: 'python tools/reset_all.py --dry-run --obsidian-new-vault-path <ruta_destino>'; (b) si te convence: '--yes --obsidian-new-vault-path <ruta>' para ejecutar. Sistema de reseteo queda cerrado. ¿Siguiente objetivo o hacemos commit y cerramos la sesion?"
   },
   {
     "kind": "MEMORIA",
     "actor": "Claude",
     "message_index": 16,
-    "value": "notacion canonica de subagente es Root/Sub (Root in Claude/Copilot/Codex; Sub en [A-Za-z0-9_-]). Identidad de primera clase en chat, chat_memory, devlog y roster. memory/ROSTER.md es el directorio vigente de subagentes activos, curado a mano."
+    "value": "bateria validate_case_14.py es la referencia oficial para probar el sistema de reseteo. Correrla siempre tras tocar cualquier tools/reset_*.py o apps/reset_*.bat. Si aparece un FAIL nuevo, lo arreglamos en el mismo turno (no cerrar la ficha con fallos vivos) salvo que sea manual documentado en Gaps."
   },
   {
     "kind": "SIGUIENTE",
     "actor": "Claude",
     "message_index": 16,
-    "value": "@David cuando actives un subagente concreto, lo anoto en memory/ROSTER.md con su foco y chat de activacion, y dejo entrada [DOCS]."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 17,
-    "value": "@David decide si (a) extendemos INICIAR_COWORKIA.bat con el pipeline correcto sync -> init -> check, o (b) primero acordamos con @Codex mover sync-chat-memory a hook de cierre y dejar el arranque solo con init_chat + memory_check."
+    "value": "@David sistema de reseteo completo, documentado y validado. ¿commit y cerramos sesion, o siguiente objetivo?"
   },
   {
     "kind": "MEMORIA",
-    "actor": "Claude",
-    "message_index": 19,
-    "value": "el pipeline canonico es apertura = init_chat + memory_check; cierre = sync-chat-memory + memory_check. INICIAR_COWORKIA.bat encadena apertura -> GUI. sync-chat-memory NO corre al abrir."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 19,
-    "value": "@David al terminar el trabajo del dia, cierra con apps\\cerrar_sesion.bat para dejar memory/SNAPSHOT.md al dia."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 20,
-    "value": "@Codex valida desde tu lado (1) que no hay ningun path de configuracion Codex que me este perdiendo, (2) que la regla de precedencia es operable (puedes purgar /memories cuando detectes conflicto), y (3) si compras la redaccion propuesta o prefieres otra."
+    "actor": "Codex",
+    "message_index": 21,
+    "value": "prueba end-to-end real de 08C completada con la nota `A0-GTD\\B0A-INX\\N260419-Test-08C-kit-link.md`, que contiene `[[kit:340622cf-315b-814b-bf50-e20378365646]]`. Backfill cre? 1 fila nueva en `OBSIDIAN_DB`, `sync_inx_links --source obsidian` dej? `obsidian=32`, y `validate_case_08.py --scope c` termin? OK con `Filas OBSIDIAN_DB con KIT IDs: 1` y `mismatch: 0`. SIGUIENTE: @David decide si dejamos esta nota como fixture manual del vault o si prefieres borrarla tras la validaci?n."
   },
   {
     "kind": "MEMORIA",
-    "actor": "Claude",
+    "actor": "Codex",
     "message_index": 22,
-    "value": "las memorias locales del harness (Codex ~/.codex/memories/, Claude profile memory, etc.) son capa de recall, no fuente de verdad. Orden de autoridad ante conflicto: AGENTS/CLAUDE/copilot-instructions -> memory/*.md -> chat del dia -> devlog. Purgar /memories locales si se detectan recuerdos obsoletos."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 22,
-    "value": "@David si quieres, cerramos sesion con apps\\cerrar_sesion.bat para dejar memory/SNAPSHOT.md al dia."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude/ABGD",
-    "message_index": 28,
-    "value": "@Codex/ABGD redactar tools/validate_case_07.py analogo a tools/validate_case_03.py. Spec:"
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 29,
-    "value": "@David decide (a) migrar ahora antes del validador, (b) no migrar pero exigir a @Codex/ABGD parametrizar el nombre de la propiedad, o (c) aceptar la deuda y que @Codex/ABGD siga con la spec original."
+    "value": "la nota fixture `A0-GTD\\B0A-INX\\N260419-Test-08C-kit-link.md` se elimin? tras la validaci?n y tambi?n se archivaron sus filas derivadas en `OBSIDIAN_DB` e `INX-ENLACES`, as? que el caso 08C queda validado sin basura operativa persistente. SIGUIENTE: @David si quieres cerrar este frente, el siguiente objetivo natural sigue siendo caso 10 o caso 09 seg?n el ranking fijado en #16."
   },
   {
     "kind": "MEMORIA",
-    "actor": "Claude",
-    "message_index": 31,
-    "value": "en NOTION_DS_NOTAS la ruta Obsidian vive en la propiedad 'Ruta Obsidian' (rich_text), no en 'Tarea'. 'Tarea' queda libre para su semantica original (relacion a tarea PTN, pendiente Mejora 2 del caso 07). Migracion idempotente en tools/migrate_notas_ruta_obsidian.py."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude",
-    "message_index": 31,
-    "value": "@Codex/ABGD retoma la implementacion de validate_case_07.py con la spec original pero leyendo 'Ruta Obsidian' en lugar de 'Tarea'. Eliminada la deuda tecnica. El reto abierto sobre sobrecarga queda resuelto por la migracion."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Claude/ABGD",
-    "message_index": 32,
-    "value": "@David ejecutar `python tools/migrate_notas_ruta_obsidian.py --dry-run` y reportar el scan. Una vez aplicada, @Codex/ABGD tiene via libre para validate_case_07.py + el ajuste defensivo del promote (opcion c)."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 34,
-    "value": "el validador del caso 07 detecta por si mismo si PTN-Notas sigue con schema viejo y no migrado, y le dice a David que ejecute el migrate. No hay falso negativo posible. Lo mismo el promote: falla rapido con mensaje claro en vez de dejar que la API de Notion devuelva un error opaco."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 34,
-    "value": "@David cuando corras `python tools/migrate_notas_ruta_obsidian.py --dry-run` y luego sin flag, promociona una nota de prueba con `python tools/promote_obsidian_to_ptn.py \"<nota>\" [--proyecto \"<x>\"]` y lanza `apps\\validate_case_07.bat --no-pause`. El informe deberia mostrar promociones > 0, match OBSIDIAN_DB y match INX obsidian:* al 100%. El match ptn:* probablemente quede incompleto (Gap 3) hasta que cablemos el sync ptn:<id> automatico."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 35,
-    "value": "el cruce doble `obsidian:<ruta>` <-> `ptn:<id>` en INX requiere que la fila PTN-Notas recien creada pase por `log_ptn_changes.py` antes de `sync_inx_links --source notion`. Sin ese log intermedio, `--source notion` no ve la fila. El bat del caso 07 ya lo encadena; `orchestrator inx-sync` tambien (cadena completa)."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 35,
-    "value": "@David Gap 1 y Gap 4 abiertos como backlog. Si quieres cerrar Mejora 3 (sync inline en promote_obsidian_to_ptn.py) delega handoff; evita los 4 pasos del bat a costa de acoplar el promote con sync_inx_links."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 37,
-    "value": "flag --sync en promote_obsidian_to_ptn.py equivale al pipeline completo del caso 07 en un comando. Propiedades relation Proyecto PTN / Tarea PTN son la forma canonica de enlazar PTN-Notas con proyectos/tareas; 'Proyecto' y 'Tarea' rich_text quedan como legacy tras migrate_notas_ptn_relations.py y pueden limpiarse cuando se quiera. El promote detecta dinamicamente cual usar, asi que funciona antes y despues de la migracion."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 37,
-    "value": "@David caso 07 cerrado. Proximos candidatos logicos: caso 08 (anclar notas a KIT) o caso 10 (tareas MAR nacidas dentro de notas). Dime cual activamos."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 39,
-    "value": "el flujo canonico de promocion Obsidian->PTN-Notas post-2026-04-18 es un solo comando: `apps\\promote_obsidian_to_ptn.bat \"<nota>\" [--proyecto \"<ref>\"] [--tarea \"<ref>\"] --sync`. No hace falta ejecutar el .bat de validacion salvo para auditoria posterior. Cleanup de legacy es opcional y puede correrse tras migrate_notas_ptn_relations."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 39,
-    "value": "@David caso 07 definitivamente cerrado. Los siguientes casos del plan son: 08 (KIT), 09 (BIB->Obsidian), 10 (MAR desde nota), 11 (journal diario), 12 (backfill INX historico), 13 (busqueda cross-system). Dime cual activamos o si queremos cerrar sesion con apps\\cerrar_sesion.bat."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 43,
-    "value": "KIT ya es ciudadano de primera en INX. Clave canonica kit:<page_id>. No hay log intermedio (a diferencia de PTN/Obsidian): _sync_kit lee directo de NOTION_DB_KIT. Cruce Obsidian<->KIT sigue sin logica automatica; queda como Gap 1 del caso 08 para el futuro alcance C."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 43,
-    "value": "@David caso 08 cerrado en alcance B. Candidatos que siguen: 09 (BIB->Obsidian), 10 (MAR desde notas), 11 (journal), 12 (backfill INX historico), 13 (busqueda cross-system), o subir a alcance C del caso 08 (Usada en relation + cruce automatico). Dime."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 45,
-    "value": "el flujo BIB->ficha Obsidian es `promote_bib_to_obsidian.py <citekey> --sync`. Crea .md bajo A1-INV/B13-PUB/<contexto> con frontmatter citekey/bib-id/doi, y cierra cruce INX obsidian:<ruta> + paperpile:<citekey> en un comando. Dedup por nombre (no sobreescribe salvo --force)."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 45,
-    "value": "@David si quieres validar end-to-end el caso 09, carga BIB con `python agents/bib_agent.py importar`. Proximos casos: 10 (tareas MAR desde notas), 11 (journal diario), 12 (backfill INX historico), 13 (busqueda cross-system)."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 47,
-    "value": "captura obsidian->todoist via marker inline `<!-- todoist:<id> -->` es idempotente y visible en el .md original. Re-ejecutar el promote sobre la misma nota no duplica tareas. Para batch o close-on-check ver Gaps 1-2."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 47,
-    "value": "@David casos candidatos restantes: 11 (journal diario cruzado con timeline), 12 (backfill INX historico), 13 (busqueda cross-system). Dime cual sigue o si paramos aqui para cerrar sesion."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 49,
-    "value": "timeline.py reconoce el journal diario del vault por convencion N<YYMMDD>-*.md bajo A0-GTD/B0C-PLA/C0C9-Notas/. Es el primer consumidor del vault desde el lado operativo (chat/devlog) y requiere OBSIDIAN_ALPHA_PATH cargado. Sin la variable, la seccion del timeline queda \"Sin journal\" pero no falla."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 49,
-    "value": "@David quedan casos 12 (backfill INX historico) y 13 (busqueda cross-system). Tambien podemos cerrar sesion aqui con apps\\cerrar_sesion.bat."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 51,
-    "value": "backfill_obsidian_to_inx.py complementa a log_obsidian_changes.py. log_obsidian es diff por mtime para cambios continuos; backfill es full-scan idempotente para historico o tras corrupcion de obsidian_log_state.json. Juntos garantizan cobertura completa."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 51,
-    "value": "@David solo queda caso 13 (busqueda cross-system) o cierre con apps\\cerrar_sesion.bat."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex/ABGD",
-    "message_index": 53,
-    "value": "sintaxis cross-system `[[<prefix>:<id>]]` con prefix en {ptn, kit, paperpile, todoist, github}. UUIDs de ptn y kit se normalizan (ignora guiones). Auditable con `tools/obsidian_wikilinks.py audit`. Busqueda inversa con `find <prefix>:<id>`. INX-ENLACES es el resolver; requiere sync reciente para que la auditoria sea fiable."
-  },
-  {
-    "kind": "SIGUIENTE",
-    "actor": "Codex/ABGD",
-    "message_index": 53,
-    "value": "@David casos 07-13 todos implementados. Notas de prueba locales (2) en A0-GTD/B0C-PLA/C0C9-Notas/ del vault por si quieres borrarlas. Cerramos sesion con apps\\cerrar_sesion.bat para regenerar SNAPSHOT.md?"
+    "actor": "Codex",
+    "message_index": 27,
+    "value": "ejecutado batch real `--all-pending --limit 5 --contexto C137-ART --sync` del caso 09. Se crearon 5 fichas nuevas (`Abad2021c`, `Abedishargh2021d`, `Abril2024i`, `Agras2021q`, `Ahmed2018t`). El primer intento fall? por dependencia vieja de `python-dotenv` en `tools/log_ptn_changes.py`; se corrigi? en el mismo turno y se relanz? la sincronizaci?n. Para que la validaci?n cerrara 6/6 hizo falta ampliar `sync_inx_links --source paperpile` al cat?logo completo: ahora `INX-ENLACES` contiene `paperpile:* = 472` y el caso 09 queda verde con cruce doble y `Paperpile Citekey` expl?cito. SIGUIENTE: @David si quieres seguir expandiendo BIB, el siguiente paso natural es otro batch acotado (por ejemplo 10 o 25 papers) o a?adir filtros m?s finos a `--all-pending`."
   }
 ]

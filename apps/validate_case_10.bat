@@ -26,7 +26,7 @@ echo === 4) Sync INX desde Todoist ===
 if errorlevel 1 goto :end
 echo.
 echo === 5) Informe validacion caso 10 ===
-"%VENV_PYTHON%" tools\validate_case_10.py
+"%VENV_PYTHON%" tools\validate_case_10.py --scope all
 set "ERR=%errorlevel%"
 :end
 echo.

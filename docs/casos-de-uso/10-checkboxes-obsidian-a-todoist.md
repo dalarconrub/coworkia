@@ -1,158 +1,206 @@
-# Caso de uso: Checkboxes de nota Obsidian → tareas Todoist (con cruce INX)
+# Caso de uso: Checkboxes de nota Obsidian ↔ tareas Todoist (con cruce INX)
 
 ## Objetivo
 
-Convertir **checkboxes sueltos** (`- [ ] ...`) dentro de una nota Obsidian en **tareas Todoist** reales, dejando la línea original marcada con el `id` devuelto para que no se duplique en re-ejecuciones. Cada captura produce cruce INX `obsidian:<ruta>` + `todoist:<id>`.
+Convertir checkboxes sueltos dentro de una nota Obsidian en tareas Todoist reales y, después, reflejar también el camino inverso cuando esos checkboxes pasan a `- [x]`.
 
-Caso inverso a los habituales (MAR ya sincroniza hacia Notion). Aquí el pensamiento vivo de la nota — "hay que hacer X" — se ejecuta como tarea formal sin copiarla manualmente a Todoist.
+El caso queda así en dos direcciones:
+
+- **Captura**: `- [ ]` en Obsidian → tarea activa en Todoist
+- **Cierre**: `- [x]` con marker → tarea completada en Todoist
+
+En ambos casos, la trazabilidad cruza por `INX-ENLACES`.
 
 ## Actores
 
 - **Usuario**: David
-- **Sistema(s)**: Obsidian (vault), Todoist (API), Notion (INX-ENLACES)
+- **Sistema(s)**: Obsidian (vault), Todoist (API), Notion (`TODOIST-TAREAS`, `INX-ENLACES`)
 
 ## Trigger
 
-Mientras escribes una nota (reunión, análisis, diario), surgen pendientes concretos como:
-```markdown
+Mientras escribes una nota aparecen pendientes ejecutables:
+
+```md
 - [ ] Pedir dataset a Fran
 - [ ] Revisar R-script del análisis GLM
 ```
-Pasarlos a Todoist rompe el flujo. Este caso lo automatiza: guardas la nota → corres un comando → las líneas quedan marcadas con el `id` de cada tarea creada.
+
+Más tarde, alguno se completa en la propia nota:
+
+```md
+- [x] Pedir dataset a Fran <!-- todoist:<id> -->
+```
+
+El caso 10 automatiza ambas transiciones sin copiar/pegar manual entre Obsidian y Todoist.
 
 ## Precondiciones
 
 - `.env` con:
-  - `TODOIST_API_TOKEN`
+  - `TODOIST_API_KEY` o equivalente operativo del proyecto
   - `OBSIDIAN_ALPHA_PATH`
-  - `NOTION_DB_INX`, `TODOIST_DB_TAREAS` (para el `--sync`)
-- Nota ya guardada en el vault (con `mtime` reciente).
+  - `TODOIST_DB_TAREAS`
+  - `NOTION_DB_INX`
+- La nota existe ya en el vault.
 
-## Fuente de verdad (autoridad)
+## Fuente de verdad
 
-- **Captura y redacción original**: Obsidian (la nota).
-- **Ejecución y estado de la tarea**: Todoist.
-- **Trazabilidad cruzada**: `INX-ENLACES`.
+- **Redacción y contexto original**: Obsidian
+- **Estado operativo de la tarea**: Todoist
+- **Espejo / reporting**: `TODOIST-TAREAS`
+- **Trazabilidad cross-system**: `INX-ENLACES`
 
 ## Contrato
 
-- **Marker inline**: cada checkbox capturado queda re-escrito como
-  ```
-  - [ ] Descripcion <!-- todoist:<task_id> -->
-  ```
-  Este comentario HTML es invisible en Obsidian render y sirve como ancla idempotente.
-- **Clave INX Todoist**: `todoist:<id>` (ya la genera `sync_inx_links --source todoist`).
-- **Clave INX Obsidian**: `obsidian:<ruta>` (ya la genera `sync_inx_links --source obsidian`).
-- **Cruce**: por dos filas INX separadas que comparten contexto (sin columna dedicada hoy).
+- Cada checkbox promovido queda anclado con marker inline:
 
-## Flujo principal (happy path)
+```md
+- [ ] Descripcion <!-- todoist:<task_id> -->
+```
 
-1. Escribe tu nota normalmente; deja los pendientes como `- [ ] ...` sin marker.
-2. Guarda la nota en el vault.
-3. Promueve:
-   ```bat
-   python tools/promote_notas_checkboxes_to_todoist.py "<nombre-nota>" --sync
-   ```
-   (o `apps\promote_notas_checkboxes_to_todoist.bat "<nombre>" --sync` desde Windows).
-4. El script:
-   - Crea una tarea Todoist por línea `- [ ]` sin marker.
-   - Re-escribe la nota añadiendo `<!-- todoist:<id> -->` al final de cada línea capturada.
-   - Con `--sync`: dispara `log_obsidian_changes` + `sync_todoist_to_notion` + `sync_inx_links obsidian` + `sync_inx_links todoist`. El paso `sync_todoist_to_notion` es **imprescindible** porque `_sync_todoist` lee de `TODOIST_DB_TAREAS` (espejo Notion), no de la API Todoist directa; sin él, las tareas recién creadas no aparecen en INX.
-5. Verifica con:
-   ```bat
-   apps\validate_case_10.bat --no-pause
-   ```
+- Si luego se marca como completado:
 
-## Variantes
+```md
+- [x] Descripcion <!-- todoist:<task_id> -->
+```
 
-- **A. Re-ejecución segura**: si corres el promote dos veces sobre la misma nota, el regex ignora las líneas que ya tienen marker. Solo procesa checkboxes nuevos.
-- **B. Sin sync**: omite `--sync` si vas a sincronizar INX más tarde por separado.
-- **C. Varias notas**: el script procesa una nota por invocación. Para batch: bucle externo o futuro flag `--all`.
+- La fila de espejo en Notion usa `Todoist ID = <task_id>`.
+- La fila de INX usa `Clave = todoist:<task_id>`.
+
+## Flujo principal
+
+### Fase A — Captura
+
+1. Escribes una nota con líneas `- [ ]` sin marker.
+2. Ejecutas:
+
+```bat
+python tools/promote_notas_checkboxes_to_todoist.py "<nombre-nota>" --sync
+```
+
+3. El script:
+   - crea una tarea Todoist por cada línea pendiente sin marker
+   - reescribe la nota añadiendo `<!-- todoist:<id> -->`
+   - con `--sync`, refresca `OBSIDIAN_DB`, `TODOIST-TAREAS` e `INX`
+
+### Fase B — Cierre round-trip
+
+1. En la nota, cambias una línea promovida a `- [x]`.
+2. Ejecutas:
+
+```bat
+python tools/close_obsidian_checkboxes_to_todoist.py "<nombre-nota>" --sync
+```
+
+3. El script:
+   - cierra la tarea en Todoist
+   - marca `Estado=Completada` en `TODOIST-TAREAS`
+   - marca `Estado=Completada` en `INX-ENLACES`
+   - con `--sync`, reconcilia los espejos para que un sync posterior no reviva la fila como `Activo`
 
 ## Checklist ejecutable
 
-### Paso 1 — Promover checkboxes
+### Paso 1 — Promover checkboxes pendientes
 
 ```bat
-.\.venv\Scripts\python.exe tools\promote_notas_checkboxes_to_todoist.py "<nombre-nota>" --sync
+python tools/promote_notas_checkboxes_to_todoist.py "<nota>" --sync
 ```
 
 Output esperado:
-```
+
+```text
 [created] L<n> todoist:<id> | <descripcion>
-...
 Resumen: N tarea(s) creada(s) desde <ruta>
-[sync] tools/log_obsidian_changes.py
-[sync] tools/sync_inx_links.py --source obsidian --limit 200
-[sync] tools/sync_inx_links.py --source todoist --limit 200
 ```
 
-### Paso 2 — Validar
+### Paso 2 — Cerrar checkboxes ya hechos
+
+```bat
+python tools/close_obsidian_checkboxes_to_todoist.py "<nota>" --sync
+```
+
+Output esperado:
+
+```text
+[closed] L<n> todoist:<id>
+Resumen: N tarea(s) cerrada(s) desde <ruta>
+```
+
+### Paso 3 — Validar el caso completo
 
 ```bat
 apps\validate_case_10.bat --no-pause
 ```
 
 Lectura esperada:
-- `Markers con fila INX: N/N`.
-- Exit 0 + `OK: todos los markers tienen fila INX todoist:*.`.
 
-## Postcondiciones / Resultado verificable
+- `Markers con fila INX: N/N`
+- `TODOIST_DB_TAREAS con Estado=Completada: M/M`
+- `INX con Estado=Completada: M/M`
 
-- Por cada línea `- [ ]` promovida: hay tarea en Todoist con `content = Descripcion` y `description = "Obsidian: <ruta_relativa>"`.
-- La nota original ahora incluye `<!-- todoist:<id> -->` al final de cada línea capturada.
-- `INX-ENLACES` contiene filas `obsidian:<ruta>` y `todoist:<id>` para la nota y cada tarea capturada.
+## Postcondiciones
 
-## Criterios de aceptación (Definition of Done)
+- Cada línea promovida tiene marker `todoist:<id>`.
+- Cada marker tiene fila `todoist:<id>` en INX.
+- Cada checkbox cerrado con marker refleja `Estado=Completada` en `TODOIST-TAREAS`.
+- Cada checkbox cerrado con marker refleja `Estado=Completada` en INX.
 
-- [x] `tools/promote_notas_checkboxes_to_todoist.py` detecta checkboxes sin marker y los convierte en tareas Todoist reales.
-- [x] La re-escritura añade el marker `<!-- todoist:<id> -->` inline.
-- [x] Re-ejecución es idempotente (líneas con marker se ignoran).
-- [x] Flag `--sync` encadena log + sync obsidian + sync todoist.
-- [x] `tools/validate_case_10.py` + `apps/validate_case_10.bat` verifican markers vs INX `todoist:*`.
-- [x] Validación end-to-end con captura real — ejecutado 2026-04-18 sobre `N251028-borrador` (10 checkboxes → 10 tareas Todoist → 10/10 cruce INX).
+## Criterios de aceptación
+
+- [x] `tools/promote_notas_checkboxes_to_todoist.py` crea tareas Todoist desde `- [ ]`.
+- [x] La reescritura añade marker inline `<!-- todoist:<id> -->`.
+- [x] Reejecución de captura es idempotente.
+- [x] `tools/close_obsidian_checkboxes_to_todoist.py` detecta `- [x] ... <!-- todoist:<id> -->` y cierra la tarea.
+- [x] `TODOIST-TAREAS` refleja `Estado=Completada` tras el cierre.
+- [x] `INX-ENLACES` refleja `Estado=Completada` para `todoist:<id>`.
+- [x] `tools/validate_case_10.py --scope all` valida captura + cierre.
+- [x] `apps/validate_case_10.bat` ejecuta la validación completa.
 
 ## Automatización actual
 
 | Acción | Comando |
 | --- | --- |
-| Capturar checkboxes de una nota a Todoist | `python tools/promote_notas_checkboxes_to_todoist.py <nota> [--sync]` |
-| Desde Windows | `apps\promote_notas_checkboxes_to_todoist.bat "<nota>" --sync` |
-| Validación cruce INX | `apps\validate_case_10.bat --no-pause` |
+| Capturar checkboxes a Todoist | `python tools/promote_notas_checkboxes_to_todoist.py <nota> [--sync]` |
+| Cerrar tareas desde checkboxes marcados | `python tools/close_obsidian_checkboxes_to_todoist.py <nota> [--sync]` |
+| Wrapper Windows de cierre | `apps\close_obsidian_checkboxes_to_todoist.bat "<nota>" --sync` |
+| Validación completa | `python tools/validate_case_10.py --scope all` |
+| Validación Windows | `apps\validate_case_10.bat --no-pause` |
 
 ## Observabilidad
 
-- El vault (`OBSIDIAN_ALPHA_PATH`) es la fuente primaria; los markers son visibles en el `.md` original (HTML comment invisible en Obsidian render).
-- `INX-ENLACES` — filas `todoist:<id>`.
+- El vault es la fuente primaria; los markers viven en el `.md`.
+- `TODOIST-TAREAS` permite ver el espejo de estado.
+- `INX-ENLACES` permite ver la fila `todoist:<id>` con `Estado`.
 
-## Gaps (pendientes)
+## Gaps pendientes
 
-- **Gap 1 — No refleja checkbox marcado**: si marcas `- [x]` en Obsidian después, la tarea Todoist no se cierra automáticamente. Dirección Obsidian → Todoist de "done" no implementada.
-- **Gap 2 — Sin flag `--all`**: procesar todo el vault de una vez requiere bucle externo.
-- **Gap 3 — Cruce INX explícito**: `obsidian:<ruta>` y `todoist:<id>` son dos filas separadas. No hay columna dedicada que las enlace.
-- **Gap 4 — Sin `--project`**: todas las tareas se crean en el inbox Todoist (sin `project_id`). Para asignar a un proyecto Todoist específico hoy hay que moverlas manualmente.
-- **Gap 5 — Descripcion plana**: `description` de la tarea es `Obsidian: <ruta>`. No incluye contexto del proyecto/tarea PTN que vive en la ruta del vault (se podría extraer de ABPC).
+- **Gap 1 — Sin batch `--all`**: captura y cierre siguen operando nota por nota.
+- **Gap 2 — Cruce explícito en INX**: `obsidian:<ruta>` y `todoist:<id>` siguen siendo filas separadas.
+- **Gap 3 — Sin `--project` en captura**: las tareas nuevas siguen naciendo en inbox.
+- **Gap 4 — Cleanup de fixtures / borrados**: si se elimina una nota, la limpieza de filas derivadas sigue siendo manual.
 
 ## Mejoras propuestas
 
-- **Mejora 1 — Close sync**: script que lee `- [x]` con marker y cierra la tarea Todoist correspondiente via `close_task(task_id)`.
-- **Mejora 2 — `--all` / batch**: escanea todo el vault y promueve todos los checkboxes nuevos en una pasada.
-- **Mejora 3 — `--project <name>`**: resuelve proyecto Todoist por nombre y lo pasa a `create_task`.
-- **Mejora 4 — Metadata ABPC en description**: parsear la ruta y añadir `Area/Bloque/Contexto/Proyecto` a la description de la tarea.
+- **Mejora 1 — Batch del vault**: `--all` para captura y cierre.
+- **Mejora 2 — Proyecto Todoist por ruta o flag**: `--project <name>`.
+- **Mejora 3 — Relación explícita en INX**: vincular `obsidian:<ruta>` con `todoist:<id>` más allá del contexto compartido.
+- **Mejora 4 — Limpieza de huérfanos Todoist/Obsidian**: script idempotente de cleanup.
 
 ## Fallos típicos
 
-- **`Nota no encontrada`**: nombre con `.md` sobrando, tildes mal codificadas o nota fuera de `OBSIDIAN_ALPHA_PATH`.
-- **`Todoist no devolvio id`**: fallo transitorio de red; re-ejecuta. El regex ignora las líneas que ya tienen marker.
-- **Re-ejecución doble** sin guardar cambios intermedios: el script detecta markers existentes y los ignora (idempotente).
+- **`Nota no encontrada`**: nombre mal escrito o nota fuera de `OBSIDIAN_ALPHA_PATH`.
+- **Sync incompleto tras captura**: falta ejecutar `sync_todoist_to_notion.py`, requisito para que INX vea la tarea.
+- **Timeout en sync Todoist → INX**: el refresh completo puede ser lento; reintentar `python tools/sync_inx_links.py --source todoist --limit 200`.
+- **INX sin `Completada`**: resolver con `python tools/ensure_inx_completed_status.py`.
 
 ## Validación práctica
 
 ```bat
-apps\validate_case_10.bat --no-pause
+python tools/validate_case_10.py --scope all
 ```
 
-El caso 10 queda **validado** cuando:
-- Markers encontrados ≥ 1.
-- `Markers con fila INX: N/N`.
-- Exit 0 con `OK: todos los markers tienen fila INX todoist:*.`.
+El caso 10 queda validado cuando:
+
+- `Markers con fila INX: N/N`
+- `TODOIST_DB_TAREAS con Estado=Completada: M/M`
+- `INX con Estado=Completada: M/M`
+- Exit 0

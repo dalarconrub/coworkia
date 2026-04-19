@@ -6,14 +6,17 @@ import json
 import os
 import sys
 from datetime import datetime
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
-load_dotenv()
+from tools.env_utils import load_project_env
 
-from tools.obsidian_tools import get_todas_notas
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
+
+from tools.obsidian_tools import get_todas_notas, read_nota
 from tools.notion_tools import create_page, query_data_source, extract_property_value
+from tools.obsidian_wikilinks import extract_kit_ids
 
 
 ABC_AREAS = "340622cf-315b-8116-a1bd-f21b04bc0ac1"
@@ -39,6 +42,10 @@ def _save_state(state: dict) -> None:
 
 def _file_mtime(path: str) -> float:
     return os.path.getmtime(path)
+
+
+def _rich_text(value: str) -> dict:
+    return {"rich_text": [{"text": {"content": value[:2000]}}]}
 
 
 def main() -> int:
@@ -76,14 +83,17 @@ def main() -> int:
         contexto = parts[2] if len(parts) > 2 else ""
 
         fecha = datetime.fromtimestamp(mtime).date().isoformat()
+        kit_ids = extract_kit_ids(read_nota(path))
         props = {
             "Evento": {"title": [{"text": {"content": nota.get("nombre", "Nota")}}]},
             "Fecha": {"date": {"start": fecha}},
-            "Archivo": {"rich_text": [{"text": {"content": nota.get("nombre", "")}}]},
-            "Ruta": {"rich_text": [{"text": {"content": rel}}]},
+            "Archivo": _rich_text(nota.get("nombre", "")),
+            "Ruta": _rich_text(rel),
             "Tipo": {"select": {"name": "Nota"}},
-            "Detalle": {"rich_text": [{"text": {"content": path}}]},
+            "Detalle": _rich_text(path),
         }
+        if kit_ids:
+            props["KIT IDs"] = _rich_text(", ".join(kit_ids))
 
         # Relaciones ABC si existen
         if area in area_map:

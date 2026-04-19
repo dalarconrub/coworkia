@@ -1,0 +1,609 @@
+{
+  "plan": {
+    "sprint_name": "Sprint Multiagent 2",
+    "objective": "Estabilizar la coordinaci?n operativa post-reseteo y preparar el siguiente frente funcional del proyecto.",
+    "start_date": "2026-04-19",
+    "end_date": "2026-05-02",
+    "status": "completed",
+    "scrum_roles": [
+      {
+        "name": "Product Owner",
+        "mission": "Mantener la visión del sprint, priorizar backlog y validar valor de negocio.",
+        "owned_artifacts": [
+          "Product Goal",
+          "Product Backlog",
+          "Sprint Goal"
+        ]
+      },
+      {
+        "name": "Scrum Master",
+        "mission": "Facilitar el flujo del sprint, coordinar dependencias y eliminar bloqueos.",
+        "owned_artifacts": [
+          "Sprint Plan",
+          "Daily Sync",
+          "Retrospective"
+        ]
+      },
+      {
+        "name": "Developer",
+        "mission": "Entregar incrementos verificables mediante cambios, sincronización o catalogación.",
+        "owned_artifacts": [
+          "Increment",
+          "Task Board",
+          "Definition of Done"
+        ]
+      }
+    ],
+    "squad_agents": [
+      {
+        "key": "scrum_master_orchestrator",
+        "name": "Scrum Master Orchestrator",
+        "kind": "coordination",
+        "scope": "Orquestación global del sistema multiagente",
+        "owned_systems": [
+          "MAR",
+          "PTN",
+          "KIT",
+          "REP",
+          "BIB",
+          "ABGD"
+        ],
+        "owned_operations": [
+          "plan",
+          "coordinate",
+          "sprint"
+        ],
+        "responsibilities": [
+          "Construir squads por objetivo",
+          "Secuenciar trabajo por sprints",
+          "Asignar agentes y definir entregables"
+        ],
+        "interfaces": [
+          "agents/orchestrator_agent.py"
+        ],
+        "cli_entrypoint": "python agents/orchestrator_agent.py",
+        "capabilities": []
+      },
+      {
+        "key": "intake_triage_agent",
+        "name": "Intake & Triage Agent",
+        "kind": "operation",
+        "scope": "Clasificación de solicitudes y derivación al dominio correcto",
+        "owned_systems": [],
+        "owned_operations": [
+          "triage",
+          "routing"
+        ],
+        "responsibilities": [
+          "Analizar la intención de la solicitud",
+          "Asignar agentes de dominio y dependencias",
+          "Detectar si la acción es captura, importación, sincronización, consulta o backup"
+        ],
+        "interfaces": [
+          "multiagents/planner.py"
+        ],
+        "cli_entrypoint": null,
+        "capabilities": []
+      },
+      {
+        "key": "sync_operations_agent",
+        "name": "Sync Operations Agent",
+        "kind": "operation",
+        "scope": "Ejecución y seguimiento de importaciones y sincronizaciones",
+        "owned_systems": [
+          "Todoist",
+          "Notion",
+          "GitHub",
+          "Paperpile",
+          "Obsidian"
+        ],
+        "owned_operations": [
+          "import",
+          "sync",
+          "backup"
+        ],
+        "responsibilities": [
+          "Coordinar importaciones y sincronizaciones",
+          "Encadenar dependencias entre sistemas",
+          "Preparar incrementos verificables por sprint"
+        ],
+        "interfaces": [
+          "apps/backs_todoist.py",
+          "apps/backs_notion.py",
+          "apps/backs_obsidian.py"
+        ],
+        "cli_entrypoint": null,
+        "capabilities": []
+      },
+      {
+        "key": "reporting_retro_agent",
+        "name": "Reporting & Retro Agent",
+        "kind": "operation",
+        "scope": "Artefactos Scrum, seguimiento y retrospectiva",
+        "owned_systems": [],
+        "owned_operations": [
+          "report",
+          "inspect",
+          "retro"
+        ],
+        "responsibilities": [
+          "Generar backlog, sprint plan y resúmenes",
+          "Consolidar hallazgos y bloqueos",
+          "Documentar retrospectivas y acciones de mejora"
+        ],
+        "interfaces": [
+          "multiagents/artifacts.py"
+        ],
+        "cli_entrypoint": null,
+        "capabilities": []
+      },
+      {
+        "key": "todoist_mar_agent",
+        "name": "Todoist MAR Agent",
+        "kind": "domain",
+        "scope": "Dominio Todoist/MAR",
+        "owned_systems": [
+          "MAR",
+          "Todoist"
+        ],
+        "owned_operations": [
+          "capture",
+          "classify",
+          "schedule",
+          "dashboard"
+        ],
+        "responsibilities": [
+          "Clasificar acciones según MAR",
+          "Crear ideas, metas, hábitos, tareas y eventos",
+          "Construir vistas operativas de hoy, pendientes e inbox"
+        ],
+        "interfaces": [
+          "agents/todoist_agent.py",
+          "apps/dashboard.py"
+        ],
+        "cli_entrypoint": "python agents/todoist_agent.py",
+        "capabilities": [
+          {
+            "name": "resumen_hoy",
+            "description": "Resume acciones vigentes para hoy"
+          },
+          {
+            "name": "crear_accion",
+            "description": "Crea acciones Todoist según tipología MAR"
+          }
+        ]
+      },
+      {
+        "key": "notion_ptn_agent",
+        "name": "Notion PTN Agent",
+        "kind": "domain",
+        "scope": "Dominio PTN/Notion",
+        "owned_systems": [
+          "PTN",
+          "Notion"
+        ],
+        "owned_operations": [
+          "create",
+          "query",
+          "relate",
+          "status"
+        ],
+        "responsibilities": [
+          "Gestionar proyectos, tareas y notas",
+          "Consultar data sources PTN",
+          "Crear registros relacionados entre proyectos y tareas"
+        ],
+        "interfaces": [
+          "agents/notion_agent.py"
+        ],
+        "cli_entrypoint": "python agents/notion_agent.py",
+        "capabilities": []
+      },
+      {
+        "key": "obsidian_abgd_agent",
+        "name": "Obsidian ABGD Agent",
+        "kind": "domain",
+        "scope": "Dominio ABGD/Obsidian",
+        "owned_systems": [
+          "ABGD",
+          "Obsidian"
+        ],
+        "owned_operations": [
+          "map",
+          "query",
+          "search",
+          "write"
+        ],
+        "responsibilities": [
+          "Navegar la jerarquía del vault",
+          "Buscar y leer notas",
+          "Crear notas en contexto"
+        ],
+        "interfaces": [
+          "agents/obsidian_agent.py"
+        ],
+        "cli_entrypoint": "python agents/obsidian_agent.py",
+        "capabilities": []
+      }
+    ],
+    "backlog": [
+      {
+        "key": "PB-201",
+        "title": "Consolidar baseline operativa post-reseteo",
+        "description": "Traducir el cierre del sistema de reseteo a un baseline operativo estable para sesiones futuras.",
+        "systems": [
+          "MAR",
+          "PTN",
+          "ABGD"
+        ],
+        "operations": [
+          "plan",
+          "sync",
+          "review"
+        ],
+        "acceptance_criteria": [
+          "El sistema de reseteo tiene un sprint activo posterior a su validaci?n",
+          "El baseline de salud se puede comprobar con comandos reproducibles",
+          "Quedan explicitados los riesgos y checks manuales pendientes"
+        ],
+        "priority": "high",
+        "estimate_points": 5
+      },
+      {
+        "key": "PB-202",
+        "title": "Automatizar higiene de apertura y cierre de sesi?n",
+        "description": "Reducir dependencia de disciplina manual para sync-chat-memory, timeline y comprobaciones de memoria.",
+        "systems": [
+          "MULTIAGENT",
+          "TOOLING",
+          "DOCS"
+        ],
+        "operations": [
+          "sync",
+          "automate",
+          "report"
+        ],
+        "acceptance_criteria": [
+          "Apertura y cierre quedan definidos como pipeline operable",
+          "Hay al menos un runbook verificable para regenerar artefactos derivados",
+          "El comportamiento esperado queda documentado para David y los agentes"
+        ],
+        "priority": "high",
+        "estimate_points": 8
+      },
+      {
+        "key": "PB-203",
+        "title": "Cerrar cobertura pendiente del caso 14",
+        "description": "Planificar y ejecutar la validaci?n manual restante del sistema de reseteo.",
+        "systems": [
+          "MAR",
+          "PTN",
+          "ABGD",
+          "MULTIAGENT"
+        ],
+        "operations": [
+          "validate",
+          "review"
+        ],
+        "acceptance_criteria": [
+          "Los 3 checks manuales del caso 14 tienen owner y criterio de salida",
+          "La bater?a autom?tica sigue verde antes de ejecutar validaciones manuales",
+          "Los hallazgos se devuelven a docs/devlog sin ambig?edad"
+        ],
+        "priority": "medium",
+        "estimate_points": 5
+      },
+      {
+        "key": "PB-204",
+        "title": "Priorizar el siguiente frente funcional tras reseteo",
+        "description": "Dejar seleccionado el siguiente objetivo de producto una vez saneada la capa operativa.",
+        "systems": [
+          "MAR",
+          "PTN",
+          "KIT",
+          "REP",
+          "BIB",
+          "ABGD"
+        ],
+        "operations": [
+          "plan",
+          "review"
+        ],
+        "acceptance_criteria": [
+          "Existe ranking expl?cito de siguientes frentes",
+          "La decisi?n queda trazada en chat y devlog",
+          "El siguiente sprint o objetivo funcional no depende de memoria impl?cita"
+        ],
+        "priority": "medium",
+        "estimate_points": 3
+      }
+    ],
+    "tasks": [
+      {
+        "key": "ST-201",
+        "title": "Baseline de salud post-reseteo",
+        "owner_agent": "sync_operations_agent",
+        "scrum_role": "Developer",
+        "depends_on": [],
+        "deliverable": "Baseline reproducible de salud sobre memoria, chat y sistema de reseteo",
+        "commands": [
+          {
+            "label": "Regenerar memoria del chat",
+            "script_path": "agents/orchestrator_agent.py",
+            "args": [
+              "sync-chat-memory"
+            ],
+            "accepts_limit": false
+          },
+          {
+            "label": "Validar memoria curada",
+            "script_path": "tools/memory_check.py",
+            "args": [],
+            "accepts_limit": false
+          },
+          {
+            "label": "Revalidar caso 14 automatico",
+            "script_path": "tools/validate_case_14.py",
+            "args": [],
+            "accepts_limit": false
+          }
+        ]
+      },
+      {
+        "key": "ST-202",
+        "title": "Automatizar apertura y cierre de sesi?n",
+        "owner_agent": "sync_operations_agent",
+        "scrum_role": "Developer",
+        "depends_on": [
+          "ST-201"
+        ],
+        "deliverable": "Runbook o automatizaci?n que reduzca pasos manuales en apertura/cierre",
+        "commands": [
+          {
+            "label": "Generar timeline de hoy",
+            "script_path": "tools/timeline.py",
+            "args": [],
+            "accepts_limit": false
+          },
+          {
+            "label": "Estado del sprint activo",
+            "script_path": "agents/orchestrator_agent.py",
+            "args": [
+              "status",
+              "Sprint Multiagent 2"
+            ],
+            "accepts_limit": false
+          }
+        ]
+      },
+      {
+        "key": "ST-203",
+        "title": "Cerrar plan de validaci?n manual del caso 14",
+        "owner_agent": "reporting_retro_agent",
+        "scrum_role": "Scrum Master",
+        "depends_on": [
+          "ST-201"
+        ],
+        "deliverable": "Checklist manual restante con owners, evidencia y criterio de cierre",
+        "commands": []
+      },
+      {
+        "key": "ST-204",
+        "title": "Priorizar siguiente frente funcional",
+        "owner_agent": "scrum_master_orchestrator",
+        "scrum_role": "Scrum Master",
+        "depends_on": [
+          "ST-202",
+          "ST-203"
+        ],
+        "deliverable": "Ranking expl?cito del siguiente bloque de trabajo post-reseteo",
+        "commands": []
+      },
+      {
+        "key": "ST-205",
+        "title": "Cierre y retrospectiva de Sprint 2",
+        "owner_agent": "reporting_retro_agent",
+        "scrum_role": "Scrum Master",
+        "depends_on": [
+          "ST-201",
+          "ST-202",
+          "ST-203",
+          "ST-204"
+        ],
+        "deliverable": "Sprint review, retrospectiva y transici?n al siguiente backlog",
+        "commands": []
+      }
+    ],
+    "events": [
+      "Sprint Planning",
+      "Daily Scrum",
+      "Backlog Refinement",
+      "Sprint Review",
+      "Sprint Retrospective"
+    ],
+    "artifacts": [
+      "Product Goal",
+      "Sprint Goal",
+      "Sprint Backlog",
+      "Increment",
+      "Definition of Done"
+    ]
+  },
+  "task_states": [
+    {
+      "task_key": "ST-201",
+      "status": "completed",
+      "started_at": "2026-04-19T15:12:43Z",
+      "finished_at": "2026-04-19T15:21:10Z",
+      "exit_code": 0,
+      "artifacts": [],
+      "notes": [
+        "Revalidar caso 14 automatico falló con exit code 1.",
+        "Runbook completado."
+      ],
+      "command_results": [
+        {
+          "label": "Regenerar memoria del chat",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\agents/orchestrator_agent.py",
+            "sync-chat-memory"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:12:43Z",
+          "finished_at": "2026-04-19T15:12:44Z",
+          "exit_code": 0,
+          "note": null
+        },
+        {
+          "label": "Validar memoria curada",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\tools/memory_check.py"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:12:44Z",
+          "finished_at": "2026-04-19T15:12:44Z",
+          "exit_code": 0,
+          "note": null
+        },
+        {
+          "label": "Revalidar caso 14 automatico",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\tools/validate_case_14.py"
+          ],
+          "status": "failed",
+          "started_at": "2026-04-19T15:12:44Z",
+          "finished_at": "2026-04-19T15:12:53Z",
+          "exit_code": 1,
+          "note": "== Fase 1 â€” MAR ==\n\n== Fase 2 â€” Notion ==\n\n== Fase 3 â€” Obsidian ==\n\n== Fase 4 â€” reset_all ==\n\n== Cross-phase ==\n\n======================================================================\nRESULTADOS\n======================================================================\n  [FAIL] 1.1   reset_mar.py --help exit 0 y muestra usage â€” rc=1\n  [FAIL] 1.2   reset-all --dry-run --limit 2 exit 0\n  [FAIL] 1.3   reset-by-type idea --dry-run --limit 2 exit 0\n  [FAIL] 1.4   reset-overdue --days 3650 --dry"
+        },
+        {
+          "label": "Regenerar memoria del chat",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\agents/orchestrator_agent.py",
+            "sync-chat-memory"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:16:31Z",
+          "finished_at": "2026-04-19T15:16:31Z",
+          "exit_code": 0,
+          "note": null
+        },
+        {
+          "label": "Validar memoria curada",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\tools/memory_check.py"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:16:31Z",
+          "finished_at": "2026-04-19T15:16:31Z",
+          "exit_code": 0,
+          "note": null
+        },
+        {
+          "label": "Revalidar caso 14 automatico",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\tools/validate_case_14.py"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:16:31Z",
+          "finished_at": "2026-04-19T15:21:10Z",
+          "exit_code": 0,
+          "note": null
+        }
+      ]
+    },
+    {
+      "task_key": "ST-202",
+      "status": "completed",
+      "started_at": "2026-04-19T15:22:19Z",
+      "finished_at": "2026-04-19T15:22:19Z",
+      "exit_code": 0,
+      "artifacts": [],
+      "notes": [
+        "Runbook completado."
+      ],
+      "command_results": [
+        {
+          "label": "Generar timeline de hoy",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\tools/timeline.py"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:22:19Z",
+          "finished_at": "2026-04-19T15:22:19Z",
+          "exit_code": 0,
+          "note": null
+        },
+        {
+          "label": "Estado del sprint activo",
+          "command": [
+            "C:\\Python310\\python.exe",
+            "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\agents/orchestrator_agent.py",
+            "status",
+            "Sprint Multiagent 2"
+          ],
+          "status": "completed",
+          "started_at": "2026-04-19T15:22:19Z",
+          "finished_at": "2026-04-19T15:22:19Z",
+          "exit_code": 0,
+          "note": null
+        }
+      ]
+    },
+    {
+      "task_key": "ST-203",
+      "status": "completed",
+      "started_at": "2026-04-19T15:23:19Z",
+      "finished_at": "2026-04-19T15:23:19Z",
+      "exit_code": 0,
+      "artifacts": [
+        "docs/casos-de-uso/14-reset-sistema.md"
+      ],
+      "notes": [
+        "Checklist manual de caso 14 documentada en docs/casos-de-uso/14-reset-sistema.md."
+      ],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-204",
+      "status": "completed",
+      "started_at": "2026-04-19T15:24:19Z",
+      "finished_at": "2026-04-19T15:24:19Z",
+      "exit_code": 0,
+      "artifacts": [
+        "chats/chat_2026-04-19.md"
+      ],
+      "notes": [
+        "Ranking funcional fijado en chat_2026-04-19.md como CERRADO #16: 08C > 10 > 09."
+      ],
+      "command_results": []
+    },
+    {
+      "task_key": "ST-205",
+      "status": "completed",
+      "started_at": "2026-04-19T15:24:39Z",
+      "finished_at": "2026-04-19T15:24:39Z",
+      "exit_code": 0,
+      "artifacts": [
+        "artifacts/sprints/sprint-multiagent-2.md",
+        "docs/casos-de-uso/14-reset-sistema.md",
+        "chats/chat_2026-04-19.md"
+      ],
+      "notes": [
+        "Review: ST-201 baseline completado, ST-202 automatiza cierre con timeline, ST-203 deja checklist manual del caso 14, ST-204 fija prioridad funcional 08C > 10 > 09.",
+        "Retro: el mayor riesgo detectado fue la fragilidad del entorno Python activo; se mitig? con tools/env_utils.py y captura UTF-8 robusta en el orquestador.",
+        "Siguiente arranque recomendado: abrir trabajo funcional sobre Caso 08 alcance C (Obsidian?KIT)."
+      ],
+      "command_results": []
+    }
+  ],
+  "created_at": "2026-04-19T15:10:49Z",
+  "updated_at": "2026-04-19T15:24:47Z"
+}

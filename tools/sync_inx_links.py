@@ -5,11 +5,13 @@ REP-Repositorios (GitHub) y BIB-Bibliografía (Paperpile).
 
 import os
 import sys
+from pathlib import Path
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from dotenv import load_dotenv
-load_dotenv()
+from tools.env_utils import load_project_env
+
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.notion_tools import (
     query_data_source,
@@ -17,6 +19,11 @@ from tools.notion_tools import (
     update_page_properties,
     extract_property_value,
 )
+from tools.obsidian_tools import get_frontmatter_by_relative_path
+
+
+def _rich_text(value: str) -> dict:
+    return {"rich_text": [{"text": {"content": value[:2000]}}]}
 
 
 def _existing_map(db_id: str) -> dict[str, str]:
@@ -49,10 +56,12 @@ def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | N
         if not tid:
             continue
         title = extract_property_value(props.get("Tarea", {})) or f"Todoist {tid}"
+        source_estado = extract_property_value(props.get("Estado", {})) or "Activa"
+        inx_estado = "Completada" if source_estado == "Completada" else "Activo"
         data = {
             "Fuente": {"select": {"name": "Todoist"}},
-            "Estado": {"select": {"name": "Activo"}},
-            "Todoist ID": {"rich_text": [{"text": {"content": tid}}]},
+            "Estado": {"select": {"name": inx_estado}},
+            "Todoist ID": _rich_text(tid),
         }
         # Relaciones PTN si existen en TODOIST-TAREAS
         for rel, name in [("PTN Proyecto", "PTN Proyecto"), ("PTN Tarea", "PTN Tarea"), ("PTN Nota", "PTN Nota")]:
@@ -110,8 +119,15 @@ def _sync_obsidian(db_links: str, db_obsidian: str, existing: dict, limit: int |
         data = {
             "Fuente": {"select": {"name": "Obsidian"}},
             "Estado": {"select": {"name": "Activo"}},
-            "Obsidian Ruta": {"rich_text": [{"text": {"content": path}}]},
+            "Obsidian Ruta": _rich_text(path),
         }
+        fm = get_frontmatter_by_relative_path(path)
+        citekey = (fm.get("citekey") or "").strip()
+        if citekey:
+            data["Paperpile Citekey"] = _rich_text(citekey)
+        kit_ids = extract_property_value(props.get("KIT IDs", {}))
+        if kit_ids:
+            data["KIT IDs"] = _rich_text(kit_ids)
         for rel, name in [("Area", "Area"), ("Bloque", "Bloque"), ("Contexto", "Contexto")]:
             rel_val = props.get(rel, {}).get("relation", [])
             if rel_val:

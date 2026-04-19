@@ -6,9 +6,11 @@ Documentación: https://developer.todoist.com/rest/v2/
 import os
 import requests
 from datetime import datetime
-from dotenv import load_dotenv
+from pathlib import Path
 
-load_dotenv()
+from tools.env_utils import load_project_env
+
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 TODOIST_API_KEY = os.getenv("TODOIST_API_KEY")
 BASE_URL = "https://api.todoist.com/api/v1"

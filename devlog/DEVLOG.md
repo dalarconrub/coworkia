@@ -240,3 +240,124 @@ Estado: DONE
 Chat: chats/chat_2026-04-19.md
 Refs: CERRADO #14
 Resumen: Nuevo docs/casos-de-uso/14-reset-sistema.md con matriz de 37 tests por fase (MAR/Notion/Obsidian/reset_all + cross-phase) y marcas A (auto) / M (manual). Nuevo tools/validate_case_14.py que ejecuta la subset A: arranca cada CLI con --help/--dry-run/argumentos invalidos y comprueba exit codes, presencia de usage, mensajes de error claros, propagacion INX 0 missing, snapshot JSON parseable, profundidad de replica vault (depth 1 = 5 dirs top, depth 3 default = 35 dirs), abort policy, skip automatico de Obsidian sin path, y propagacion de --limit. apps/validate_case_14.bat wrapper. Primera corrida: 33 PASS / 1 FAIL / 3 SKIP. El FAIL era C.2 memory_check por TREE desfasado tras anadir los ficheros nuevos — se regenero snapshot_structure y paso OK. Re-run cross-phase: 4/4 PASS. Resultado final: 34 PASS / 0 FAIL / 3 SKIP (1.8 idempotencia post-ejecucion real, 4.6 prompt interactivo sin stdin stubbing, 4.7 simulacion de fallo de fase — todos documentados en Gaps del caso). docs/casos-de-uso/index.md actualizado. memory_check OK.
+
+## 2026-04-19T15:07Z — Codex — [DOCS] Sincronizada memory/SNAPSHOT tras desfase operativo
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Resumen: Detectado desfase entre el chat activo de 2026-04-19 y memory/SNAPSHOT.md auto-generado. Se anadio evaluacion de coordinacion al chat del dia, se regenero la memoria derivada con sync-chat-memory y se dejo el estado compartido consistente para el siguiente turno.
+
+## 2026-04-19T15:10Z — Codex — [MULTIAGENT] Abierto Sprint 2 post-reseteo
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Refs: CERRADO #15
+Resumen: Se cerro la decision #15 en el chat del dia y se persistio artifacts/sprints/sprint-multiagent-2.{md,json} como sprint activo. El backlog cubre baseline post-reseteo, automatizacion de higiene de sesion, cierre manual del caso 14 y priorizacion del siguiente frente funcional.
+
+## 2026-04-19T15:11Z — Codex — [DOCS] Regenerado TREE tras apertura de Sprint 2
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Resumen: La creacion de artifacts/sprints/sprint-multiagent-2.{md,json} y artifacts/daily/2026-04-19.md dejo desfasado el TREE de memory/STRUCTURE.md. Se regenero con snapshot_structure para restaurar coherencia documental del repo.
+
+## 2026-04-19T15:21Z — Codex — [TOOLING] Baseline ST-201 recuperado: env loader + orquestador robusto
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Resumen: Sprint 2 ST-201 quedo inicialmente bloqueado por dos defectos locales (captura subprocess con cp1252 y status del sprint mal recalculado) y por dependencia dura de python-dotenv. Se anadio tools/env_utils.py con fallback de carga .env, se conecto a la ruta critica del baseline y se corrigio agents/orchestrator_agent.py. Tras regenerar STRUCTURE y relanzar ST-201 fuera del sandbox, la tarea completo el baseline real post-reseteo.
+
+## 2026-04-19T15:22Z — Codex — [MULTIAGENT] ST-202 cerrado: cierre de sesion regenera timeline
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Resumen: apps/cerrar_sesion.bat pasa a ejecutar sync-chat-memory -> timeline.py -> memory_check. Se actualizo la guia rapida y WINDOWS_START para documentar el pipeline de cierre recomendado, y el runbook de ST-202 quedo completado en Sprint 2.
+
+## 2026-04-19T15:23Z — Codex — [MULTIAGENT] ST-203 cerrado: checklist manual del caso 14
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Resumen: Se documento en docs/casos-de-uso/14-reset-sistema.md la checklist manual restante del sistema de reseteo (tests 1.8, 4.6 y 4.7) con owner, evidencia esperada y criterio de cierre. El task board de Sprint 2 se actualizo para reflejar ST-203 como completada.
+
+## 2026-04-19T15:24Z — Codex — [MULTIAGENT] ST-204 cerrado: ranking funcional post-reseteo
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Refs: CERRADO #16
+Resumen: Se fijo en el chat del dia el ranking del siguiente frente funcional tras el bloque de reseteo: (1) Caso 08 alcance C Obsidian↔KIT, (2) Caso 10 round-trip Obsidian↔Todoist, (3) Caso 09 loop BIB↔Obsidian. El sprint persistido refleja ST-204 como completada.
+
+## 2026-04-19T15:24Z — Codex — [MULTIAGENT] ST-205 cerrado: review y retrospectiva de Sprint 2
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Sprint: sprint-multiagent-2
+Resumen: Sprint 2 queda cerrado con cuatro resultados: baseline post-reseteo validado, cierre de sesion automatizado con timeline, checklist manual del caso 14 documentada y ranking funcional fijado (08C > 10 > 09). Riesgo principal identificado: fragilidad del entorno Python sin python-dotenv, mitigada con env_utils y orquestador UTF-8 robusto.
+
+## 2026-04-19T15:46Z — Codex — [ABGD] Caso 08C: cruce automatico Obsidian-KIT via KIT IDs
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #17
+Resumen: Se implemento el alcance C del caso 08 con persistencia textual de referencias [[kit:<page_id>]] en OBSIDIAN_DB e INX-ENLACES. Nuevo tools/ensure_kit_cross_fields.py asegura la propiedad 'KIT IDs' en ambas bases. tools/log_obsidian_changes.py y tools/backfill_obsidian_to_inx.py extraen KIT IDs desde notas Obsidian; tools/sync_inx_links.py --source obsidian las propaga a INX; tools/validate_case_08.py --scope c valida preservacion. Ejecucion real: schema creado en vivo, sync obsidian=31 y validacion 08C OK sin mismatches.
+
+## 2026-04-19T15:46Z — Codex — [DOCS] TREE regenerado tras 08C y sync de memoria
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #17
+Resumen: Tras anadir tools/ensure_kit_cross_fields.py y actualizar la documentacion del caso 08, se regenero memory/STRUCTURE.md y se ejecuto memory_check + sync-chat-memory para mantener coherencia entre repo, chat y memoria derivada.
+
+## 2026-04-19T15:53Z — Codex — [ABGD] Caso 08C validado end-to-end con nota real del vault
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #17
+Resumen: Se creo la nota A0-GTD\\B0A-INX\\N260419-Test-08C-kit-link.md con [[kit:340622cf-315b-814b-bf50-e20378365646]], se ejecuto backfill_obsidian_to_inx --sync y validate_case_08.py --scope c. Resultado final: 1 fila OBSIDIAN_DB con KIT IDs, 0 mismatches en INX y validacion 08C OK de extremo a extremo.
+
+## 2026-04-19T16:02Z — Codex — [ABGD] Limpieza de fixture 08C tras validacion
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #17
+Resumen: Se elimino la nota de prueba N260419-Test-08C-kit-link.md del vault y se archivaron sus filas derivadas en OBSIDIAN_DB e INX-ENLACES para dejar el entorno sin basura operativa despues de la validacion end-to-end del caso 08C.
+
+## 2026-04-19T16:33Z — Codex — [MAR] Caso 10 ampliado a round-trip de cierre Obsidian-Todoist
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #18
+Resumen: Se implemento close sync para checkboxes marcados en Obsidian. Nuevo tools/close_obsidian_checkboxes_to_todoist.py cierra la tarea en Todoist y marca Estado=Completada en TODOIST_DB_TAREAS e INX. Nuevo tools/ensure_inx_completed_status.py asegura la opcion Completada en INX. tools/sync_inx_links.py ya respeta Completada al sincronizar fuente Todoist. tools/validate_case_10.py --scope all valida captura + cierre, apps/validate_case_10.bat pasa a esa validacion. Smoke real completado con fixture temporal y cleanup total al final.
+
+## 2026-04-19T16:44Z — Codex — [BIB] Caso 09 ampliado a sync de estado-lectura Obsidian-BIB
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #19
+Resumen: Se implemento tools/sync_bib_reading_state.py para sincronizar estado-lectura desde el frontmatter de fichas Obsidian hacia BIB.Estado. tools/validate_case_09.py ahora valida cruce doble + alineacion de estado (--scope all), apps/validate_case_09.bat usa el alcance completo y se anadio apps/sync_bib_reading_state.bat. Smoke real completado con Candido2026y: cambio temporal Por leer -> En proceso -> Por leer, sync OK y validacion final en verde.
+
+## 2026-04-19T16:48Z — Codex — [BIB] INX obsidian:* expone Paperpile Citekey explicito
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #20
+Resumen: Se anadio tools/ensure_inx_paperpile_citekey_field.py para crear Paperpile Citekey en INX-ENLACES y se extendio tools/sync_inx_links.py --source obsidian para leer citekey desde el frontmatter real de la nota y poblar esa propiedad en filas obsidian:*. tools/validate_case_09.py ahora exige el cruce explicito y la doc del caso 09 se actualizo. Validacion real OK con Candido2026y tras schema update + resync de obsidian.
+
+## 2026-04-19T16:50Z — Codex — [BIB] Caso 09: batch --all-pending para promocion masiva
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #21
+Resumen: tools/promote_bib_to_obsidian.py ahora soporta --all-pending para papers con Estado=Por leer, con salvaguardas --dry-run y --limit. Se actualizaron apps/promote_bib_to_obsidian.bat y docs/casos-de-uso/09-bib-a-obsidian.md. Smoke real seguro: --all-pending --dry-run --limit 10 detecta 10 candidatos y 10 creaciones potenciales sin escribir en el vault.
+
+## 2026-04-19T17:03Z — Codex — [BIB] Caso 09: batch real de 5 papers + paperpile completo en INX
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #21
+Resumen: Se ejecuto promote_bib_to_obsidian.py --all-pending --limit 5 --contexto C137-ART --sync, creando 5 fichas nuevas en el vault. El sync fallo inicialmente por 	ools/log_ptn_changes.py aun usando python-dotenv; se corrigio y se relanzo la cadena. Para cerrar la validacion fue necesario ampliar sync_inx_links --source paperpile a todo el catalogo, dejando paperpile:* = 472 en INX. Validacion final de caso 09 OK: 6/6 fichas con cruce doble, Paperpile Citekey explicito y estado-lectura alineado con BIB.
+
+## 2026-04-19T17:07Z — Codex — [BIB] Caso 09: filtros finos para --all-pending
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #22
+Resumen: Se extendio promote_bib_to_obsidian.py --all-pending con --query y --year, manteniendo --dry-run y --limit como salvaguardas. Se actualizaron wrapper y documentacion. Bug corregido en el mismo turno: el filtro batch tenia out.append() mal indentado y devolvia 0 candidatos; revalidado con --all-pending --dry-run --query Abad2021c --limit 10, que encuentra 1 candidato y lo clasifica como skip por ficha existente.
+
+## 2026-04-19T17:11Z — Codex — [BIB] Caso 09: --sync del batch ya no deja INX parcial
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #23
+Resumen: Se corrigio tools/promote_bib_to_obsidian.py para que --sync ejecute sync_inx_links completo en fuentes obsidian y paperpile, eliminando el limite fijo de 200 que podia dejar fuera citekeys recien promovidos. Revalidacion real OK con --all-pending --dry-run --query Abad2021c --limit 10, sin regresion del filtro fino.
+
+## 2026-04-19T17:13Z — Codex — [BIB] Caso 09: filtros estructurales para --all-pending
+Estado: DONE
+Chat: chats/chat_2026-04-19.md
+Refs: CERRADO #24
+Resumen: Se extendio promote_bib_to_obsidian.py con filtros --author, --journal y --estado para el batch BIB→Obsidian, manteniendo los filtros previos --query, --year y --limit. Wrapper y documentacion actualizados. Revalidacion real OK con --all-pending --dry-run --author Candido --limit 10, que detecta 1 candidato existente y lo clasifica como skip.
