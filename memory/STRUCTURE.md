@@ -26,6 +26,7 @@ Un módulo Python por sistema (`MAR`/`PTN`/`KIT`/`REP`/`BIB`/`ABGD`) más el orq
 - `github_agent.py` — REP (catalogar repos).
 - `bib_agent.py` — BIB (catalogar bibliografía).
 - `obsidian_agent.py` — ABGD (almacenar notas).
+- `inoreader_agent.py` — fuente externa que alimenta KIT (no catálogo separado): articulos starred + tag `kit-import` → `NOTION_DB_KIT`. Ver `docs/inoreader-agent.md`.
 - `orchestrator_agent.py` — multiagente, sprints, INX sync, memoria.
 
 ### `tools/` — wrappers de APIs y utilidades
@@ -68,6 +69,7 @@ Todo lo derivado que se regenera desde fuentes:
 
 - `artifacts/multiagent/` — memoria multiagente derivada (`conversation_records.jsonl`, `decision_log.json`, `agent_state.json`, `memory_records.json`, `chat_memory.md`). Regenerable con `python agents/orchestrator_agent.py sync-chat-memory`.
 - `artifacts/inx/` — logs diarios de INX-ENLACES (`inx-daily-YYYYMMDD-HHMMSS.md`).
+- `artifacts/imports/` — staging local para importaciones manuales hacia el sistema (por ahora Google Keep Takeout para poblar KIT). No es fuente de verdad; solo input operativo local.
 - `artifacts/sprints/` — planes y runtime de sprints (`sprint-*.md`, `sprint-*-runtime.json`, `sprint-*-sync.json`).
 - `artifacts/ptn_log_state.json`, `artifacts/obsidian_log_state.json` — estados de última sync para detección de cambios.
 
@@ -110,7 +112,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -121,6 +123,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar 
 - agents/
   - bib_agent.py
   - github_agent.py
+  - inoreader_agent.py
   - kit_agent.py
   - notion_agent.py
   - obsidian_agent.py
@@ -173,6 +176,9 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar 
     - 2026-04-17.md
     - 2026-04-18.md
     - 2026-04-19.md
+  - imports/
+    - google_keep/
+    - README.md
   - inx/
     - inx-daily-20260417-072710.md
   - multiagent/
@@ -192,12 +198,16 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar 
     - sprint-multiagent-runtime.md
     - sprint-multiagent-sync.json
     - sprint-multiagent-sync.md
+  - inoreader_state.json
   - obsidian_log_state.json
   - ptn_log_state.json
 - chats/
   - chat_2026-04-17.md
   - chat_2026-04-18.md
   - chat_2026-04-19.md
+  - chat_2026-04-21.md
+  - chat_2026-04-22.md
+  - chat_2026-04-23.md
   - chat_archive_2026-04-17.md
 - devlog/
   - DEVLOG.md
@@ -218,12 +228,14 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar 
     - 12-backfill-inx-historico.md
     - 13-wikilinks-cross-system.md
     - 14-reset-sistema.md
+    - 15-inoreader-a-kit.md
     - index.md
   - abc-taxonomy.md
   - bib-agent.md
   - extract-portable-toolkit.md
   - github-rep-agent.md
   - guia-rapida.md
+  - inoreader-agent.md
   - multiagent-system.md
   - notion-kit-agent.md
   - notion-ptn-agent.md
@@ -305,13 +317,19 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar 
   - ensure_inx_completed_status.py
   - ensure_inx_paperpile_citekey_field.py
   - ensure_kit_cross_fields.py
+  - ensure_kit_external_fields.py
   - ensure_todoist_tasks_schema.py
   - env_utils.py
   - find_notion_page.py
   - fix_chat_mojibake.py
   - github_tools.py
+  - google_keep_tools.py
   - import_abc_taxonomy.py
+  - import_inoreader_articles.py
+  - import_keep_remaining.py
   - init_chat.py
+  - inoreader_oauth.py
+  - inoreader_tools.py
   - list_notion_children.py
   - log_obsidian_changes.py
   - log_ptn_changes.py
@@ -327,13 +345,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-19T17:07Z. No editar 
   - promote_bib_to_obsidian.py
   - promote_notas_checkboxes_to_todoist.py
   - promote_obsidian_to_ptn.py
-  - prune_abc_taxonomy.py
-  - reset_all.py
-  - reset_mar.py
-  - reset_notion.py
-  - reset_obsidian.py
-  - set_ptn_project_area_select.py
-  - ... (18 mas)
+  - ... (25 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

@@ -18,6 +18,8 @@ from tools.notion_tools import (
     create_page,
     update_page_properties,
     extract_property_value,
+    get_data_source_schema,
+    normalize_notion_id,
 )
 from tools.obsidian_tools import get_frontmatter_by_relative_path
 
@@ -27,12 +29,26 @@ def _rich_text(value: str) -> dict:
 
 
 def _existing_map(db_id: str) -> dict[str, str]:
+    """Devuelve {clave: page_id} para upsert por 'Clave' canonica.
+
+    Pre-flight de integridad: si la base tiene filas pero ninguna tiene 'Clave'
+    accesible (renombrado, cambio de tipo, schema migration mid-run, query que
+    cae a endpoint legacy con shape distinto), aborta. Sin esto, el incidente
+    2026-04-22 -> 384 duplicados kit:* generados por dos runs consecutivos.
+    """
     rows = query_data_source(db_id)
-    mapping = {}
+    mapping: dict[str, str] = {}
     for r in rows:
         key = extract_property_value(r.get("properties", {}).get("Clave", {}))
         if key:
             mapping[key] = r["id"]
+    if rows and not mapping:
+        raise RuntimeError(
+            f"INTEGRIDAD: INX-ENLACES tiene {len(rows)} filas pero NINGUNA con "
+            f"'Clave' poblada. Continuar duplicaria toda la base. Verifica el "
+            f"schema (campo 'Clave' renombrado, tipo cambiado, o data_source_id "
+            f"erroneo) antes de re-ejecutar."
+        )
     return mapping
 
 
@@ -42,7 +58,10 @@ def _upsert(db_id: str, key: str, title: str, props: dict, existing: dict) -> No
     if key in existing:
         update_page_properties(existing[key], props)
     else:
-        create_page(parent_id=db_id, title=title, properties=props, is_data_source=True)
+        page = create_page(parent_id=db_id, title=title, properties=props, is_data_source=True)
+        # Mutar `existing` tras crear evita duplicar dentro del mismo run si la
+        # misma clave se procesa dos veces (defensa frente a inputs con dups).
+        existing[key] = page["id"]
 
 
 def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | None) -> int:
@@ -109,6 +128,8 @@ def _sync_obsidian(db_links: str, db_obsidian: str, existing: dict, limit: int |
     rows = query_data_source(db_obsidian)
     if limit:
         rows = rows[:limit]
+    obs_props = set(get_data_source_schema(db_obsidian).get("properties", []))
+    inx_props = set(get_data_source_schema(db_links).get("properties", []))
     n = 0
     for r in rows:
         props = r.get("properties", {})
@@ -128,6 +149,21 @@ def _sync_obsidian(db_links: str, db_obsidian: str, existing: dict, limit: int |
         kit_ids = extract_property_value(props.get("KIT IDs", {}))
         if kit_ids:
             data["KIT IDs"] = _rich_text(kit_ids)
+        kit_rel = props.get("KIT", {}).get("relation", [])
+        if "KIT" in obs_props and kit_ids:
+            desired_rel = [{"id": normalize_notion_id(kit_id.strip())} for kit_id in kit_ids.split(",") if kit_id.strip()]
+            current_rel_ids = sorted(rel.get("id", "") for rel in kit_rel if rel.get("id"))
+            desired_rel_ids = sorted(rel.get("id", "") for rel in desired_rel if rel.get("id"))
+            if current_rel_ids != desired_rel_ids:
+                update_page_properties(r["id"], {"KIT": {"relation": desired_rel}})
+                kit_rel = desired_rel
+        if "KIT" in inx_props:
+            if kit_rel:
+                data["KIT"] = {"relation": kit_rel}
+            elif kit_ids:
+                data["KIT"] = {
+                    "relation": [{"id": normalize_notion_id(kit_id.strip())} for kit_id in kit_ids.split(",") if kit_id.strip()]
+                }
         for rel, name in [("Area", "Area"), ("Bloque", "Bloque"), ("Contexto", "Contexto")]:
             rel_val = props.get(rel, {}).get("relation", [])
             if rel_val:
@@ -199,6 +235,54 @@ def link_repo_to_ptn(repo_nombre: str, proyecto_ref: str) -> dict:
     return {"key": f"github:{repo_nombre}", "proyecto_id": proyecto_id, "url": url}
 
 
+def link_article_to_ptn(inoreader_id: str, proyecto_ref: str) -> dict:
+    """Vincula un articulo Inoreader (en KIT) a un proyecto PTN via INX.
+
+    NO crea fila inoreader:* propia en INX (Inoreader alimenta KIT, no es
+    catalogo separado). Reusa la fila kit:<page_id> existente y le anade la
+    relacion PTN Proyecto + URL del articulo. Si la fila INX no existe aun
+    (el sync_kit no se ha corrido), la crea con Fuente=KIT.
+    """
+    db_links = os.getenv("NOTION_DB_INX")
+    db_kit = os.getenv("NOTION_DB_KIT")
+    db_proy = os.getenv("NOTION_DS_PROYECTOS")
+    if not all([db_links, db_kit, db_proy]):
+        raise RuntimeError("Faltan NOTION_DB_INX, NOTION_DB_KIT o NOTION_DS_PROYECTOS en .env")
+    article = _find_row_by_text(db_kit, "Inoreader ID", inoreader_id)
+    if not article:
+        raise ValueError(
+            f"Articulo Inoreader '{inoreader_id}' no encontrado en KIT. "
+            "Sincroniza primero: python agents/inoreader_agent.py sync"
+        )
+    proyecto_id = _resolve_project_id(db_proy, proyecto_ref)
+    if not proyecto_id:
+        raise ValueError(f"Proyecto PTN '{proyecto_ref}' no encontrado")
+
+    kit_page_id = article["id"]
+    aprops = article.get("properties", {})
+    titulo = (extract_property_value(aprops.get("Titulo", {}))
+              or extract_property_value(aprops.get("Título", {})) or inoreader_id)
+    enlace = extract_property_value(aprops.get("Enlace", {}))
+
+    data = {
+        "Fuente": {"select": {"name": "KIT"}},
+        "Estado": {"select": {"name": "Verificado"}},
+        "PTN Proyecto": {"relation": [{"id": proyecto_id}]},
+        "KIT": {"relation": [{"id": normalize_notion_id(kit_page_id)}]},
+    }
+    if enlace:
+        data["URL"] = {"url": enlace}
+
+    existing = _existing_map(db_links)
+    _upsert(db_links, f"kit:{kit_page_id}", titulo[:2000], data, existing)
+    return {
+        "key": f"kit:{kit_page_id}",
+        "kit_page_id": kit_page_id,
+        "proyecto_id": proyecto_id,
+        "url": enlace,
+    }
+
+
 def link_paper_to_ptn(citekey: str, proyecto_ref: str) -> dict:
     """Crea/actualiza fila INX paperpile:<citekey> con relación PTN Proyecto."""
     db_links = os.getenv("NOTION_DB_INX")
@@ -263,6 +347,7 @@ def _sync_kit(db_links: str, db_kit: str, existing: dict, limit: int | None) -> 
     rows = query_data_source(db_kit)
     if limit:
         rows = rows[:limit]
+    inx_props = set(get_data_source_schema(db_links).get("properties", []))
     n = 0
     for r in rows:
         props = r.get("properties", {})
@@ -275,9 +360,11 @@ def _sync_kit(db_links: str, db_kit: str, existing: dict, limit: int | None) -> 
         enlace = extract_property_value(props.get("Enlace", {}))
         detalle_parts = [p for p in [tipo and f"Tipo: {tipo}", subtipo and f"Subtipo: {subtipo}"] if p]
         data = {
-            "Fuente": {"select": {"name": "Notion"}},
+            "Fuente": {"select": {"name": "KIT"}},
             "Estado": {"select": {"name": "Activo"}},
         }
+        if "KIT" in inx_props:
+            data["KIT"] = {"relation": [{"id": r["id"]}]}
         if enlace:
             data["URL"] = {"url": enlace}
         if detalle_parts:
@@ -285,6 +372,41 @@ def _sync_kit(db_links: str, db_kit: str, existing: dict, limit: int | None) -> 
         _upsert(db_links, f"kit:{r['id']}", titulo[:2000], data, existing)
         n += 1
     return n
+
+
+def _sync_kit_backrefs(db_kit: str, db_obsidian: str, limit: int | None) -> int:
+    kit_schema = get_data_source_schema(db_kit)
+    if "Usada en notas" not in kit_schema.get("properties", []):
+        return 0
+
+    obs_rows = query_data_source(db_obsidian)
+    if limit:
+        obs_rows = obs_rows[:limit]
+
+    reverse: dict[str, list[dict]] = {}
+    for row in obs_rows:
+        props = row.get("properties", {})
+        rels = props.get("KIT", {}).get("relation", [])
+        if not rels:
+            kit_ids = extract_property_value(props.get("KIT IDs", {}))
+            rels = [{"id": normalize_notion_id(kit_id.strip())} for kit_id in kit_ids.split(",") if kit_id.strip()]
+        for rel in rels:
+            kid = rel.get("id")
+            if not kid:
+                continue
+            reverse.setdefault(normalize_notion_id(kid), []).append({"id": row["id"]})
+
+    updated = 0
+    for row in query_data_source(db_kit):
+        target = reverse.get(normalize_notion_id(row["id"]), [])
+        current = row.get("properties", {}).get("Usada en notas", {}).get("relation", [])
+        current_ids = sorted(rel.get("id", "") for rel in current if rel.get("id"))
+        target_ids = sorted(rel.get("id", "") for rel in target if rel.get("id"))
+        if current_ids == target_ids:
+            continue
+        update_page_properties(row["id"], {"Usada en notas": {"relation": target}})
+        updated += 1
+    return updated
 
 
 def _sync_paperpile(db_links: str, db_bib: str, existing: dict, limit: int | None) -> int:
@@ -365,7 +487,12 @@ def main() -> int:
         counts["paperpile"] = _sync_paperpile(db_links, db_bib, _existing_map(db_links), args.limit)
     if "kit" in sources:
         counts["kit"] = _sync_kit(db_links, db_kit, _existing_map(db_links), args.limit)
-    print("INX enlaces sincronizados: " + " ".join(f"{k}={v}" for k, v in counts.items() if k in sources))
+    if ("obsidian" in sources or "kit" in sources) and db_obsidian and db_kit:
+        counts["kit_backrefs"] = _sync_kit_backrefs(db_kit, db_obsidian, args.limit)
+    visible = set(sources)
+    if "kit_backrefs" in counts:
+        visible.add("kit_backrefs")
+    print("INX enlaces sincronizados: " + " ".join(f"{k}={v}" for k, v in counts.items() if k in visible))
     return 0
 
 

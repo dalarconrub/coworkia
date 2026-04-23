@@ -62,6 +62,7 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | --------------------------------------------------- | ------------------------------------------------ |
 | [artifacts/sprints/](../artifacts/sprints/)         | Planes y runtime de sprints multiagente          |
 | [artifacts/inx/](../artifacts/inx/)                 | Logs diarios de sync INX-ENLACES                 |
+| [artifacts/imports/](../artifacts/imports/)         | Staging local de importaciones manuales (p. ej. Google Keep Takeout) |
 | [artifacts/daily/](../artifacts/daily/)             | Timeline agregada por día (regenerable con `python tools/timeline.py`) |
 | [artifacts/ptn_log_state.json](../artifacts/ptn_log_state.json)         | Estado última sync PTN                           |
 | [artifacts/obsidian_log_state.json](../artifacts/obsidian_log_state.json) | Estado última sync Obsidian                      |
@@ -79,6 +80,7 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | [docs/todoist-agent.md](../docs/todoist-agent.md)                 | MAR — guía del agente Todoist               |
 | [docs/notion-ptn-agent.md](../docs/notion-ptn-agent.md)           | PTN — guía del agente Notion proyectos      |
 | [docs/notion-kit-agent.md](../docs/notion-kit-agent.md)           | KIT — guía del catálogo de conocimiento     |
+| [docs/inoreader-agent.md](../docs/inoreader-agent.md)             | Inoreader → KIT — fuente externa de Information (API + JSON feed) |
 | [docs/github-rep-agent.md](../docs/github-rep-agent.md)           | REP — guía del agente GitHub                |
 | [docs/bib-agent.md](../docs/bib-agent.md)                         | BIB — guía del agente bibliográfico         |
 | [docs/obsidian-agent.md](../docs/obsidian-agent.md)               | ABGD — guía del agente Obsidian             |

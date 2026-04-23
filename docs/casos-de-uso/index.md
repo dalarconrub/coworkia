@@ -26,3 +26,4 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 - `12-backfill-inx-historico.md` — garantiza cobertura 100% vault→OBSIDIAN_DB→INX para notas históricas que `log_obsidian_changes` (mtime-based) no detecta
 - `13-wikilinks-cross-system.md` — sintaxis `[[<prefix>:<id>]]` en notas para referenciar entidades de PTN/KIT/Paperpile/Todoist/GitHub, auditadas contra INX por `tools/obsidian_wikilinks.py audit`
 - `14-reset-sistema.md` — validación del sistema de reseteo (Fases 1-4: MAR, Notion, Obsidian, orquestador general), con batería auto-ejecutable `tools/validate_case_14.py` que comprueba happy path, edge cases, idempotencia y propagación INX sin mutar datos
+- `15-inoreader-a-kit.md` — captura artículos Inoreader (starred + tag `kit-import`) → KIT vía API OAuth2 incremental o JSON feed público, materialización en INX como `kit:*` con `Fuente=KIT`, vínculo opcional a PTN con `link_article_to_ptn`

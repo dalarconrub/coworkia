@@ -57,6 +57,9 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
 - Catálogo único con campo `Tipo`: Knowledge, Information, Tool.
 - Subtipos: Concepto, Paper, App, etc.
 - Consultable por agente y por GUI.
+- **Fuentes externas que alimentan KIT** (no son catálogos separados, viven dentro de KIT con propiedades dedicadas):
+  - **Google Keep** (notas exportadas vía Takeout) → `Subtipo=Nota`, clave `Google Keep ID`.
+  - **Inoreader** (artículos tageados con `kit-import` — `starred` NO entra porque es "Read later") → `Tipo=Information`, `Subtipo` ∈ {`Artículo`, `Newsletter`, `Blog`, `Vídeo`, `Podcast`}, claves `Inoreader ID` + `Inoreader Tags`. Ver [docs/inoreader-agent.md](../docs/inoreader-agent.md) y caso 15.
 
 ### 4. Catálogo de repositorios (REP)
 - Importación desde GitHub a Notion.

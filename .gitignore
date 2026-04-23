@@ -27,6 +27,13 @@ artifacts/inx/
 # Nota: los cursores de sync (artifacts/*_log_state.json) SI se versionan
 # para poder retomar el trabajo en otra maquina sin reprocesar desde cero.
 
+# Tokens OAuth de Inoreader (access + refresh): NUNCA versionar
+artifacts/inoreader_state.json
+# Cursor de sync incremental Inoreader (regenerable, no critico)
+artifacts/inoreader_sync_state.json
+# Exports JSON descargados manualmente desde Inoreader (staging local)
+artifacts/imports/inoreader/
+
 # OS
 .DS_Store
 Thumbs.db
