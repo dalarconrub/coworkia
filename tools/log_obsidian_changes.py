@@ -15,7 +15,7 @@ from tools.env_utils import load_project_env
 load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.obsidian_tools import get_todas_notas, read_nota
-from tools.notion_tools import create_page, query_data_source, extract_property_value
+from tools.notion_tools import create_page, query_data_source, extract_property_value, get_data_source_schema, normalize_notion_id
 from tools.obsidian_wikilinks import extract_kit_ids
 
 
@@ -59,6 +59,8 @@ def main() -> int:
     notas = get_todas_notas()
     created = 0
     max_ts = last_ts
+    obs_schema = get_data_source_schema(db_id)
+    obs_props = set(obs_schema.get("properties", []))
 
     # Mapas ABC por código
     area_map = {extract_property_value(r.get("properties", {}).get("Codigo", {})): r["id"]
@@ -94,6 +96,8 @@ def main() -> int:
         }
         if kit_ids:
             props["KIT IDs"] = _rich_text(", ".join(kit_ids))
+            if "KIT" in obs_props:
+                props["KIT"] = {"relation": [{"id": normalize_notion_id(kit_id)} for kit_id in kit_ids]}
 
         # Relaciones ABC si existen
         if area in area_map:

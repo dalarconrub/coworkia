@@ -6,6 +6,7 @@ Documentación: https://developers.notion.com/reference
 
 import os
 import requests
+import re
 from pathlib import Path
 
 from tools.env_utils import load_project_env
@@ -15,14 +16,31 @@ load_project_env(Path(__file__).resolve().parent.parent / ".env")
 NOTION_TOKEN = os.getenv("NOTION_TOKEN")
 BASE_URL = "https://api.notion.com/v1"
 NOTION_VERSION = "2022-06-28"  # versión estable documentada
+NOTION_VERSION_DATA_SOURCES = "2026-03-11"
+NOTION_ID_RE = re.compile(r"^[0-9a-fA-F]{32}$")
 
 
-def _headers() -> dict:
+def _headers(version: str | None = None) -> dict:
     return {
         "Authorization": f"Bearer {NOTION_TOKEN}",
-        "Notion-Version": NOTION_VERSION,
+        "Notion-Version": version or NOTION_VERSION,
         "Content-Type": "application/json",
     }
+
+
+def _latest_headers() -> dict:
+    return _headers(NOTION_VERSION_DATA_SOURCES)
+
+
+def normalize_notion_id(raw_id: str) -> str:
+    """Normaliza IDs de Notion a formato UUID con guiones cuando aplica."""
+    if not raw_id:
+        return raw_id
+    raw_id = raw_id.strip()
+    compact = raw_id.replace("-", "")
+    if NOTION_ID_RE.fullmatch(compact):
+        return f"{compact[:8]}-{compact[8:12]}-{compact[12:16]}-{compact[16:20]}-{compact[20:]}"
+    return raw_id
 
 
 # ─── BÚSQUEDA ─────────────────────────────────────────────────────────────────
@@ -86,6 +104,7 @@ def get_database_info(database_id: str, object_type: str = "database") -> dict:
     Prueba ambos endpoints si el primero falla.
     """
     # Intentar con el endpoint correspondiente al tipo
+    database_id = normalize_notion_id(database_id)
     endpoints = []
     if object_type == "data_source":
         endpoints = [f"{BASE_URL}/data_sources/{database_id}", f"{BASE_URL}/databases/{database_id}"]
@@ -95,7 +114,10 @@ def get_database_info(database_id: str, object_type: str = "database") -> dict:
     db = None
     for endpoint in endpoints:
         try:
-            resp = requests.get(endpoint, headers=_headers())
+            resp = requests.get(
+                endpoint,
+                headers=_latest_headers() if "/data_sources/" in endpoint else _headers(),
+            )
             if resp.status_code == 200:
                 db = resp.json()
                 break
@@ -137,39 +159,36 @@ def get_data_source_schema(data_source_id: str) -> dict:
     (ID de database legacy), cae a `/databases/{id}`. Devuelve el mismo shape
     en ambos casos: {id, title, properties: list[str], property_types: dict[str,str]}.
     """
-    last_error = None
-    for url in (
-        f"{BASE_URL}/data_sources/{data_source_id}",
-        f"{BASE_URL}/databases/{data_source_id}",
-    ):
-        try:
-            resp = requests.get(url, headers=_headers())
-            resp.raise_for_status()
-            ds = resp.json()
-            raw_props = ds.get("properties", {}) if isinstance(ds.get("properties", {}), dict) else {}
-            property_types = {
-                name: meta["type"]
-                for name, meta in raw_props.items()
-                if isinstance(meta, dict) and isinstance(meta.get("type"), str)
-            }
-            return {
-                "id": ds.get("id", data_source_id),
-                "title": _extract_title(ds),
-                "properties": list(raw_props.keys()),
-                "property_types": property_types,
-            }
-        except requests.HTTPError as exc:
-            last_error = exc
-            status = exc.response.status_code if exc.response is not None else None
-            if status not in (400, 404):
-                raise
-    if last_error:
-        raise last_error
-    raise RuntimeError(f"No se pudo recuperar schema de {data_source_id}")
+    normalized_id = normalize_notion_id(data_source_id)
+    payload = None
+
+    try:
+        resolved = resolve_data_source_id(normalized_id)
+        resp = requests.get(f"{BASE_URL}/data_sources/{resolved}", headers=_latest_headers())
+        resp.raise_for_status()
+        payload = resp.json()
+    except RuntimeError:
+        resp = requests.get(f"{BASE_URL}/databases/{normalized_id}", headers=_headers())
+        resp.raise_for_status()
+        payload = resp.json()
+
+    raw_props = payload.get("properties", {}) if isinstance(payload.get("properties", {}), dict) else {}
+    property_types = {
+        name: meta["type"]
+        for name, meta in raw_props.items()
+        if isinstance(meta, dict) and isinstance(meta.get("type"), str)
+    }
+    return {
+        "id": payload.get("id", normalized_id),
+        "title": _extract_title(payload),
+        "properties": list(raw_props.keys()),
+        "property_types": property_types,
+    }
 
 
 def query_database(database_id: str, filter_obj: dict = None, sorts: list = None) -> list[dict]:
     """Consulta una base de datos (endpoint legacy, funciona con bases simples)."""
+    database_id = normalize_notion_id(database_id)
     data = {}
     if filter_obj:
         data["filter"] = filter_obj
@@ -189,22 +208,22 @@ def query_data_source(data_source_id: str, filter_obj: dict = None, sorts: list 
     if sorts:
         data["sorts"] = sorts
 
-    last_error = None
-    for url in (
-        f"{BASE_URL}/data_sources/{data_source_id}/query",
-        f"{BASE_URL}/databases/{data_source_id}/query",
-    ):
+    normalized_id = normalize_notion_id(data_source_id)
+    try:
+        resolved_data_source_id = resolve_data_source_id(normalized_id)
         try:
-            return _post_paginated(url, data)
+            return _post_paginated(
+                f"{BASE_URL}/data_sources/{resolved_data_source_id}/query",
+                data,
+                headers=_latest_headers(),
+            )
         except requests.HTTPError as exc:
-            last_error = exc
             status = exc.response.status_code if exc.response is not None else None
             if status not in (400, 404):
                 raise
-
-    if last_error:
-        raise last_error
-    return []
+            return query_database(normalized_id, filter_obj=filter_obj, sorts=sorts)
+    except RuntimeError:
+        return query_database(normalized_id, filter_obj=filter_obj, sorts=sorts)
 
 
 # ─── BASES DE DATOS ───────────────────────────────────────────────────────────
@@ -230,27 +249,28 @@ def update_database_properties(database_id: str, properties: dict) -> dict:
     Añade/actualiza propiedades del schema de una base de datos o data source.
     Intenta primero como data_source y luego como database legacy.
     """
-    last_error = None
-    for url in (
-        f"{BASE_URL}/data_sources/{database_id}",
-        f"{BASE_URL}/databases/{database_id}",
-    ):
-        try:
-            resp = requests.patch(url, headers=_headers(), json={"properties": properties})
-            resp.raise_for_status()
-            return resp.json()
-        except requests.HTTPError as exc:
-            last_error = exc
-            status = exc.response.status_code if exc.response is not None else None
-            if status not in (400, 404):
-                raise
-
-    if last_error:
-        raise last_error
-    raise RuntimeError("No se pudo actualizar el schema de la base/data_source.")
+    normalized_id = normalize_notion_id(database_id)
+    try:
+        resolved_data_source_id = resolve_data_source_id(normalized_id)
+        resp = requests.patch(
+            f"{BASE_URL}/data_sources/{resolved_data_source_id}",
+            headers=_latest_headers(),
+            json={"properties": properties},
+        )
+        resp.raise_for_status()
+        return resp.json()
+    except RuntimeError:
+        resp = requests.patch(
+            f"{BASE_URL}/databases/{normalized_id}",
+            headers=_headers(),
+            json={"properties": properties},
+        )
+        resp.raise_for_status()
+        return resp.json()
 
 def add_page_to_database(database_id: str, properties: dict) -> dict:
     """Añade una fila a una base de datos existente."""
+    database_id = normalize_notion_id(database_id)
     data = {
         "parent": {"database_id": database_id},
         "properties": properties,
@@ -287,18 +307,25 @@ def create_page(parent_id: str, title: str, properties: dict = None,
         props["Name"] = {"title": [{"text": {"content": title}}]}
 
     parents = []
+    preferred_headers = _headers()
     if is_data_source:
-        parents = [{"data_source_id": parent_id}, {"database_id": parent_id}]
+        normalized_id = normalize_notion_id(parent_id)
+        try:
+            resolved_data_source_id = resolve_data_source_id(normalized_id)
+            parents = [{"data_source_id": resolved_data_source_id}]
+            preferred_headers = _latest_headers()
+        except RuntimeError:
+            parents = [{"database_id": normalized_id}]
     elif is_database:
-        parents = [{"database_id": parent_id}]
+        parents = [{"database_id": normalize_notion_id(parent_id)}]
     else:
-        parents = [{"page_id": parent_id}]
+        parents = [{"page_id": normalize_notion_id(parent_id)}]
 
     last_error = None
     for parent in parents:
         data = {"parent": parent, "properties": props}
         try:
-            resp = requests.post(f"{BASE_URL}/pages", headers=_headers(), json=data)
+            resp = requests.post(f"{BASE_URL}/pages", headers=preferred_headers, json=data)
             resp.raise_for_status()
             return resp.json()
         except requests.HTTPError as exc:
@@ -386,7 +413,7 @@ def _extract_title(obj: dict) -> str:
     return "(sin título)"
 
 
-def _post_paginated(url: str, data: dict | None = None) -> list[dict]:
+def _post_paginated(url: str, data: dict | None = None, headers: dict | None = None) -> list[dict]:
     """Recorre endpoints paginados de Notion hasta agotar resultados."""
     payload = dict(data or {})
     payload.setdefault("page_size", 100)
@@ -399,7 +426,7 @@ def _post_paginated(url: str, data: dict | None = None) -> list[dict]:
         if next_cursor:
             body["start_cursor"] = next_cursor
 
-        resp = requests.post(url, headers=_headers(), json=body)
+        resp = requests.post(url, headers=headers or _headers(), json=body)
         resp.raise_for_status()
         page = resp.json()
 
@@ -412,6 +439,58 @@ def _post_paginated(url: str, data: dict | None = None) -> list[dict]:
             break
 
     return results
+
+
+def _resolve_data_source_id(database_or_data_source_id: str) -> tuple[str | None, list[str]]:
+    """Resuelve el data_source_id real y devuelve tambien candidatos detectados."""
+    database_or_data_source_id = normalize_notion_id(database_or_data_source_id)
+    candidates: list[str] = []
+    try:
+        resp = requests.get(f"{BASE_URL}/data_sources/{database_or_data_source_id}", headers=_latest_headers())
+        if resp.status_code == 200:
+            data_source_id = normalize_notion_id(resp.json().get("id", database_or_data_source_id))
+            return data_source_id, [data_source_id]
+    except Exception:
+        pass
+
+    try:
+        resp = requests.get(f"{BASE_URL}/databases/{database_or_data_source_id}", headers=_latest_headers())
+        if resp.status_code == 200:
+            data = resp.json()
+            data_sources = data.get("data_sources", [])
+            if data_sources:
+                candidates = [
+                    normalize_notion_id(ds.get("id", ""))
+                    for ds in data_sources
+                    if ds.get("id")
+                ]
+                if len(candidates) == 1:
+                    return candidates[0], candidates
+                return None, candidates
+    except Exception:
+        pass
+
+    return None, candidates
+
+
+def resolve_data_source_id(database_or_data_source_id: str) -> str:
+    """
+    Resuelve de forma estricta el data_source_id moderno a partir de un data_source_id
+    o de un database_id legacy.
+    """
+    normalized_id = normalize_notion_id(database_or_data_source_id)
+    resolved_id, candidates = _resolve_data_source_id(normalized_id)
+    if resolved_id:
+        return resolved_id
+    if candidates:
+        joined = ", ".join(candidates)
+        raise RuntimeError(
+            f"{normalized_id} expone multiples data_sources y hace falta elegir uno explicitamente: {joined}"
+        )
+    raise RuntimeError(
+        f"No se pudo resolver un data_source_id moderno a partir de {normalized_id}. "
+        "Evito caer en /databases/{id}/query porque puede truncar resultados en bases legacy."
+    )
 
 
 def extract_property_value(prop: dict) -> str:

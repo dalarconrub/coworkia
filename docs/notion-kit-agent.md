@@ -8,13 +8,13 @@ Agente para el sistema **KIT** en Notion.
 
 - `KIT`
 
-Y un campo `Tipo` separa las tres vistas lógicas:
+Y un campo `Tipo` separa las tres vistas logicas:
 
 - `Knowledge`
 - `Information`
 - `Tool`
 
-La separación visual se hace con vistas de Notion, no con tres bases distintas.
+La separacion visual se hace con vistas de Notion, no con tres bases distintas.
 
 ## Setup
 
@@ -22,7 +22,7 @@ La separación visual se hace con vistas de Notion, no con tres bases distintas.
 python agents/kit_agent.py crear-db --parent <NOTION_PAGE_ID>
 ```
 
-Crea la base maestra `KIT` bajo una página de Notion, recomendablemente `A4-ARX`.
+Crea la base maestra `KIT` bajo una pagina de Notion, recomendablemente `A4-ARX`.
 El comando devuelve el ID para guardarlo en:
 
 - `NOTION_DB_KIT`
@@ -55,9 +55,29 @@ python agents/kit_agent.py nueva-information "Paper Cognicion 2025" --subtipo Pa
 python agents/kit_agent.py nueva-tool "Julius AI" --subtipo IA --estado Activo --enlace https://julius.ai
 ```
 
+### Importar desde Google Keep
+
+```bash
+python agents/kit_agent.py importar-keep --source "C:\ruta\Takeout\Keep"
+python agents/kit_agent.py sincronizar-keep --source "C:\ruta\Takeout\Keep"
+```
+
+Reglas:
+
+- `importar-keep` crea solo entradas nuevas.
+- `sincronizar-keep` crea nuevas y actualiza existentes.
+- La deduplicacion se hace por `Google Keep ID`.
+- Por defecto entra como `Tipo=Information` y `Subtipo=Nota`.
+- Las notas archivadas se omiten salvo `--incluir-archivadas`.
+
 ## Propiedades
 
-`Titulo` · `Tipo` · `Subtipo` · `Estado` · `Resumen` · `Etiquetas` · `Fuente / Autor` · `Enlace` · `Nivel de confianza` · `Fecha de publicacion` · `Extractos` · `Area` · `Usada en` · `Archivos`
+`Titulo` · `Tipo` · `Subtipo` · `Estado` · `Resumen` · `Etiquetas` · `Fuente / Autor` · `Enlace` · `Nivel de confianza` · `Fecha de publicacion` · `Fecha de actualizacion` · `Extractos` · `Area` · `Usada en` · `Usada en notas` · `Google Keep ID` · `Archivos`
+
+Notas:
+
+- `Usada en` sigue como campo libre/legacy.
+- `Usada en notas` es la relation operativa con `OBSIDIAN_DB` para referencias `[[kit:<id>]]`.
 
 ## API usada
 

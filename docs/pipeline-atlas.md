@@ -135,11 +135,12 @@ flowchart LR
     NEW_K[nueva-knowledge] --> KIT_DB
     NEW_I[nueva-information] --> KIT_DB
     NEW_T[nueva-tool] --> KIT_DB
+    KEEP_I[importar-keep / sincronizar-keep] --> KIT_DB
     KIT_DB --> SYNC_KIT[sync_inx_links.py --source kit]
     SYNC_KIT --> INX[(INX-ENLACES)]
 ```
 
-- **CLI:** [agents/kit_agent.py](../agents/kit_agent.py) — `estado`, `knowledge`, `information`, `tools`, `buscar`, `nueva-*`.
+- **CLI:** [agents/kit_agent.py](../agents/kit_agent.py) — `estado`, `knowledge`, `information`, `tools`, `buscar`, `nueva-*`, `importar-keep`, `sincronizar-keep`.
 - **Apps:** integrado en [apps/project_hub_gui.py](../apps/project_hub_gui.py) (pestaña KIT).
 - **Casos de uso:** [08 KIT primera clase en INX](casos-de-uso/08-kit-en-inx.md).
 - **Env:** `NOTION_TOKEN`, `NOTION_DB_KIT`.

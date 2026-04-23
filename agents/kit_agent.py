@@ -9,18 +9,25 @@ Modelo canónico:
 
 import os
 import sys
+from pathlib import Path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 sys.stdout.reconfigure(encoding="utf-8")
-from dotenv import load_dotenv
-load_dotenv()
+from tools.env_utils import load_project_env
+
+load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
 from tools.notion_tools import (
     query_data_source,
     create_page,
     create_database,
+    get_data_source_schema,
+    resolve_data_source_id,
+    update_page_properties,
+    update_database_properties,
     extract_property_value,
 )
+from tools.google_keep_tools import load_keep_export
 
 DB_KIT = os.getenv("NOTION_DB_KIT", "")
 KIT_PARENT_PAGE = os.getenv("NOTION_KIT_PARENT_PAGE", os.getenv("NOTION_REPOS_PARENT_PAGE", ""))
@@ -38,12 +45,15 @@ SUBTIPOS_KIT = [
     "Paper",
     "Articulo",
     "Fuente",
+    "Nota",
     "App",
     "Servicio",
     "IA",
 ]
 
 ESTADOS_KIT = ["Activo", "En revision", "Archivado", "Descartado"]
+KEEP_ID_PROP = "Google Keep ID"
+UPDATED_AT_PROP = "Fecha de actualizacion"
 
 
 def _schema_kit() -> dict:
@@ -66,9 +76,12 @@ def _schema_kit() -> dict:
         "Enlace": {"url": {}},
         "Nivel de confianza": {"select": {"options": []}},
         "Fecha de publicacion": {"date": {}},
+        "Fecha de actualizacion": {"date": {}},
         "Extractos": {"rich_text": {}},
         "Area": {"select": {"options": []}},
         "Usada en": {"rich_text": {}},
+        "Usada en notas": {"relation": {"database_id": os.getenv("OBSIDIAN_DB", ""), "type": "single_property", "single_property": {}}},
+        "Google Keep ID": {"rich_text": {}},
         "Archivos": {"files": {}},
     }
 
@@ -83,8 +96,10 @@ def crear_base(parent_page_id: str = None) -> dict:
         )
     result = create_database(parent, "KIT", _schema_kit())
     db_id = result["id"]
+    ds_id = resolve_data_source_id(db_id)
     print(f"Base de datos creada: {db_id}")
-    print(f"Anade a tu .env:\n  NOTION_DB_KIT={db_id}")
+    print(f"Data source resuelto: {ds_id}")
+    print(f"Anade a tu .env:\n  NOTION_DB_KIT={ds_id}")
     return result
 
 
@@ -116,6 +131,20 @@ def _query_kit(filter_obj: dict = None) -> list[dict]:
     if not DB_KIT:
         raise ValueError("Falta NOTION_DB_KIT en .env.")
     return query_data_source(DB_KIT, filter_obj=filter_obj)
+
+
+def _ensure_kit_schema() -> None:
+    if not DB_KIT:
+        raise ValueError("Falta NOTION_DB_KIT en .env.")
+    schema = get_data_source_schema(DB_KIT)
+    missing = {}
+    props = schema.get("properties", [])
+    if KEEP_ID_PROP not in props:
+        missing[KEEP_ID_PROP] = {"rich_text": {}}
+    if UPDATED_AT_PROP not in props:
+        missing[UPDATED_AT_PROP] = {"date": {}}
+    if missing:
+        update_database_properties(DB_KIT, missing)
 
 
 def _format_lista(nombre: str, registros: list[dict]) -> str:
@@ -214,6 +243,144 @@ def _nueva_entrada(
     return create_page(parent_id=DB_KIT, title=titulo, properties=props, is_data_source=True)
 
 
+def _keep_props(note: dict, tipo: str, subtipo: str, only_if_empty: dict | None = None) -> dict:
+    props = {
+        "Titulo": {"title": [{"text": {"content": note["title"][:2000]}}]},
+        "Tipo": {"select": {"name": tipo}},
+        "Subtipo": {"select": {"name": subtipo}},
+        KEEP_ID_PROP: {"rich_text": [{"text": {"content": note["keep_id"][:500]}}]},
+        "Fuente / Autor": {"rich_text": [{"text": {"content": "Google Keep"}}]},
+    }
+
+    estado = "Archivado" if note.get("archived") else "Activo"
+    props["Estado"] = {"select": {"name": estado}}
+
+    if note.get("summary"):
+        props["Resumen"] = {"rich_text": [{"text": {"content": note["summary"][:2000]}}]}
+    if note.get("labels"):
+        props["Etiquetas"] = {"multi_select": [{"name": e[:100]} for e in note["labels"][:25]]}
+    if note.get("created_date"):
+        props["Fecha de publicacion"] = {"date": {"start": note["created_date"]}}
+    if note.get("updated_date"):
+        props[UPDATED_AT_PROP] = {"date": {"start": note["updated_date"]}}
+    if note.get("extracts"):
+        props["Extractos"] = {"rich_text": [{"text": {"content": note["extracts"][:2000]}}]}
+    if note.get("attachments"):
+        joined = "\n".join(note["attachments"])
+        props["Usada en"] = {"rich_text": [{"text": {"content": joined[:2000]}}]}
+
+    if only_if_empty:
+        merged = dict(only_if_empty)
+        merged.update(props)
+        return merged
+    return props
+
+
+def _existing_keep_entries() -> dict[str, dict]:
+    existing: dict[str, dict] = {}
+    for row in _query_kit():
+        keep_id = _prop(row, KEEP_ID_PROP)
+        if keep_id:
+            existing[keep_id] = row
+    return existing
+
+
+def importar_keep(
+    export_dir: str,
+    tipo: str = TIPOS_KIT["Information"],
+    subtipo: str = "Nota",
+    incluir_archivadas: bool = False,
+) -> str:
+    if not DB_KIT:
+        return "Error: falta NOTION_DB_KIT en .env. Ejecuta 'crear-db' primero."
+
+    _ensure_kit_schema()
+    notas = load_keep_export(export_dir)
+    existentes = _existing_keep_entries()
+
+    creados = 0
+    omitidos = 0
+    archivados_omitidos = 0
+    errores = 0
+
+    for note in notas:
+        if note.get("archived") and not incluir_archivadas:
+            archivados_omitidos += 1
+            continue
+        if note["keep_id"] in existentes:
+            omitidos += 1
+            continue
+        try:
+            create_page(
+                parent_id=DB_KIT,
+                title=note["title"],
+                properties=_keep_props(note, tipo=tipo, subtipo=subtipo),
+                is_data_source=True,
+            )
+            creados += 1
+        except Exception:
+            errores += 1
+
+    return (
+        f"\n=== IMPORTACION GOOGLE KEEP -> KIT ===\n"
+        f"  Directorio: {export_dir}\n"
+        f"  Leidas:     {len(notas)}\n"
+        f"  Creadas:    {creados}\n"
+        f"  Omitidas:   {omitidos} (ya existian)\n"
+        f"  Archivadas: {archivados_omitidos} (saltadas)\n"
+        f"  Errores:    {errores}"
+    )
+
+
+def sincronizar_keep(
+    export_dir: str,
+    tipo: str = TIPOS_KIT["Information"],
+    subtipo: str = "Nota",
+    incluir_archivadas: bool = False,
+) -> str:
+    if not DB_KIT:
+        return "Error: falta NOTION_DB_KIT en .env. Ejecuta 'crear-db' primero."
+
+    _ensure_kit_schema()
+    notas = load_keep_export(export_dir)
+    existentes = _existing_keep_entries()
+
+    nuevos = 0
+    actualizados = 0
+    archivados_omitidos = 0
+    errores = 0
+
+    for note in notas:
+        if note.get("archived") and not incluir_archivadas:
+            archivados_omitidos += 1
+            continue
+        props = _keep_props(note, tipo=tipo, subtipo=subtipo)
+        try:
+            if note["keep_id"] in existentes:
+                update_page_properties(existentes[note["keep_id"]]["id"], props)
+                actualizados += 1
+            else:
+                create_page(
+                    parent_id=DB_KIT,
+                    title=note["title"],
+                    properties=props,
+                    is_data_source=True,
+                )
+                nuevos += 1
+        except Exception:
+            errores += 1
+
+    return (
+        f"\n=== SINCRONIZACION GOOGLE KEEP -> KIT ===\n"
+        f"  Directorio:   {export_dir}\n"
+        f"  Leidas:       {len(notas)}\n"
+        f"  Nuevas:       {nuevos}\n"
+        f"  Actualizadas: {actualizados}\n"
+        f"  Archivadas:   {archivados_omitidos} (saltadas)\n"
+        f"  Errores:      {errores}"
+    )
+
+
 def nueva_knowledge(titulo: str, **kwargs) -> dict:
     return _nueva_entrada(titulo, TIPOS_KIT["Knowledge"], **kwargs)
 
@@ -246,6 +413,13 @@ if __name__ == "__main__":
     p_b = subparsers.add_parser("buscar", help="Buscar en todo KIT")
     p_b.add_argument("texto")
 
+    for cmd in ["importar-keep", "sincronizar-keep"]:
+        p = subparsers.add_parser(cmd, help=f"{cmd} desde export de Google Keep")
+        p.add_argument("--source", required=True, help="Carpeta del export de Google Keep (Takeout)")
+        p.add_argument("--tipo", default=TIPOS_KIT["Information"], choices=list(TIPOS_KIT.values()))
+        p.add_argument("--subtipo", default="Nota")
+        p.add_argument("--incluir-archivadas", action="store_true")
+
     for cmd in ["nueva-knowledge", "nueva-information", "nueva-tool"]:
         p = subparsers.add_parser(cmd, help=f"Crear entrada en {cmd}")
         p.add_argument("titulo")
@@ -270,6 +444,20 @@ if __name__ == "__main__":
         print(listar_tools(subtipo=args.subtipo, etiqueta=args.etiqueta))
     elif args.comando == "buscar":
         print(buscar_kit(args.texto))
+    elif args.comando == "importar-keep":
+        print(importar_keep(
+            args.source,
+            tipo=args.tipo,
+            subtipo=args.subtipo,
+            incluir_archivadas=args.incluir_archivadas,
+        ))
+    elif args.comando == "sincronizar-keep":
+        print(sincronizar_keep(
+            args.source,
+            tipo=args.tipo,
+            subtipo=args.subtipo,
+            incluir_archivadas=args.incluir_archivadas,
+        ))
     elif args.comando == "nueva-knowledge":
         r = nueva_knowledge(
             args.titulo,

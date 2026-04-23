@@ -30,6 +30,7 @@ def _schema() -> dict:
         "Fuente": {"select": {"options": [
             {"name": "Todoist", "color": "red"},
             {"name": "Notion", "color": "blue"},
+            {"name": "KIT", "color": "blue"},
             {"name": "Obsidian", "color": "green"},
             {"name": "GitHub", "color": "purple"},
             {"name": "Paperpile", "color": "orange"},
@@ -48,6 +49,7 @@ def _schema() -> dict:
         "PTN Nota": {"relation": {"database_id": PTN_NOT, "type": "single_property", "single_property": {}}},
         "Obsidian Ruta": {"rich_text": {}},
         "KIT IDs": {"rich_text": {}},
+        "KIT": {"relation": {"database_id": os.getenv("NOTION_DB_KIT", ""), "type": "single_property", "single_property": {}}},
         "Paperpile Citekey": {"rich_text": {}},
         "Area": {"relation": {"database_id": ABC_AREAS, "type": "single_property", "single_property": {}}},
         "Bloque": {"relation": {"database_id": ABC_BLOQUES, "type": "single_property", "single_property": {}}},

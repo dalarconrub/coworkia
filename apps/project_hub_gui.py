@@ -26,7 +26,18 @@ from agents.bib_agent import catalogar as bib_catalogar
 from agents.bib_agent import estado_bib, importar_papers, listar_papers, sincronizar as bib_sync
 from agents.github_agent import catalogar as rep_catalogar
 from agents.github_agent import estado_repos, importar_repos, listar_repos, sincronizar as rep_sync
-from agents.kit_agent import buscar_kit, estado_kit, listar_information, listar_knowledge, listar_tools, nueva_information, nueva_knowledge, nueva_tool
+from agents.kit_agent import (
+    buscar_kit,
+    estado_kit,
+    importar_keep,
+    listar_information,
+    listar_knowledge,
+    listar_tools,
+    nueva_information,
+    nueva_knowledge,
+    nueva_tool,
+    sincronizar_keep,
+)
 from agents.notion_agent import crear_nota, crear_proyecto, crear_tarea, estado_ptn, listar_notas, listar_proyectos, listar_tareas
 from agents.obsidian_agent import buscar as abgd_buscar
 from agents.obsidian_agent import estado_vault, mapa as abgd_mapa, nueva_nota as abgd_nueva_nota, ultimas_notas, ver_nota
@@ -73,6 +84,8 @@ class ProjectHubGUI:
 
         if system in {"ptn", "kit"}:
             missing = self._missing_env("NOTION_TOKEN")
+            if system == "kit":
+                missing += self._missing_env("NOTION_DB_KIT")
             return f"No configurado: falta {', '.join(missing)}" if missing else None
 
         if system == "rep":
@@ -252,11 +265,16 @@ class ProjectHubGUI:
         self.kit_query = tk.StringVar()
         self.kit_kind = tk.StringVar(value="knowledge")
         self.kit_title = tk.StringVar()
+        self.kit_keep_dir = tk.StringVar()
         ttk.Entry(p, textvariable=self.kit_query).pack(fill="x", pady=8)
         self._btn(p, "Buscar en KIT", lambda: self._run_async("kit", lambda: buscar_kit(self.kit_query.get().strip())), "Accent.TButton")
         ttk.Combobox(p, textvariable=self.kit_kind, values=["knowledge", "information", "tool"], state="readonly").pack(fill="x", pady=2)
         ttk.Entry(p, textvariable=self.kit_title).pack(fill="x", pady=2)
         self._btn(p, "Crear entrada", self._create_kit_item)
+        ttk.Separator(p).pack(fill="x", pady=12)
+        ttk.Entry(p, textvariable=self.kit_keep_dir).pack(fill="x", pady=2)
+        self._btn(p, "Importar Google Keep", self._import_keep_to_kit, "Warn.TButton")
+        self._btn(p, "Sincronizar Google Keep", self._sync_keep_to_kit, "Info.TButton")
 
     def _build_rep_tab(self):
         p = self._build_split_tab("REP", "rep")
@@ -466,6 +484,20 @@ class ProjectHubGUI:
             return
         fn = (lambda: nueva_knowledge(title)) if kind == "knowledge" else (lambda: nueva_information(title)) if kind == "information" else (lambda: nueva_tool(title))
         self._run_async("kit", fn, "Entrada KIT creada")
+
+    def _import_keep_to_kit(self):
+        source = self.kit_keep_dir.get().strip()
+        if not source:
+            messagebox.showwarning("KIT", "La ruta del export de Google Keep es obligatoria.")
+            return
+        self._run_async("kit", lambda: importar_keep(source), "Importacion Google Keep completada")
+
+    def _sync_keep_to_kit(self):
+        source = self.kit_keep_dir.get().strip()
+        if not source:
+            messagebox.showwarning("KIT", "La ruta del export de Google Keep es obligatoria.")
+            return
+        self._run_async("kit", lambda: sincronizar_keep(source), "Sincronizacion Google Keep completada")
 
     def _catalog_rep(self):
         name = self.rep_name.get().strip()

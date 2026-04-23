@@ -35,7 +35,7 @@ from tools.env_utils import load_project_env
 
 load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
-from tools.notion_tools import create_page, extract_property_value, query_data_source
+from tools.notion_tools import create_page, extract_property_value, query_data_source, get_data_source_schema, normalize_notion_id
 from tools.obsidian_tools import get_todas_notas, read_nota
 from tools.obsidian_wikilinks import extract_kit_ids
 
@@ -83,6 +83,8 @@ def main() -> int:
 
     existing = _existing_rutas(db_id)
     print(f"[scan] filas OBSIDIAN_DB con Ruta: {len(existing)}")
+    obs_schema = get_data_source_schema(db_id)
+    obs_props = set(obs_schema.get("properties", []))
 
     area_map = {extract_property_value(r.get("properties", {}).get("Codigo", {})): r["id"]
                 for r in query_data_source(ABC_AREAS)}
@@ -144,6 +146,8 @@ def main() -> int:
         }
         if kit_ids:
             props["KIT IDs"] = _rich_text(", ".join(kit_ids))
+            if "KIT" in obs_props:
+                props["KIT"] = {"relation": [{"id": normalize_notion_id(kit_id)} for kit_id in kit_ids]}
         if area in area_map:
             props["Area"] = {"relation": [{"id": area_map[area]}]}
         if bloque in bloque_map:

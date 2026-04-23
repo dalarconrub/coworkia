@@ -82,6 +82,10 @@ python agents/kit_agent.py buscar "machine learning"
 python agents/kit_agent.py nueva-knowledge "Concepto X" --tipo Síntesis
 python agents/kit_agent.py nueva-information "Paper Y" --enlace https://...
 python agents/kit_agent.py nueva-tool "Herramienta Z" --tipo App
+
+# Importar o sincronizar desde Google Keep (Takeout)
+python agents/kit_agent.py importar-keep --source "C:\ruta\Takeout\Keep"
+python agents/kit_agent.py sincronizar-keep --source "C:\ruta\Takeout\Keep"
 ```
 
 ---
