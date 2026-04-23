@@ -33,6 +33,8 @@ artifacts/inoreader_state.json
 artifacts/inoreader_sync_state.json
 # Exports JSON descargados manualmente desde Inoreader (staging local)
 artifacts/imports/inoreader/
+# Takeout Google Keep (notas personales, staging local para importar a KIT)
+artifacts/imports/google_keep/
 
 # OS
 .DS_Store
