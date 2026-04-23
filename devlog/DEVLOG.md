@@ -391,3 +391,103 @@ Resumen: Se actualizó .env para que OBSIDIAN_ABGD_ROOT y OBSIDIAN_ALPHA_PATH ap
 Estado: DONE
 Chat: chats/chat_2026-04-19.md
 Resumen: Se cambió tools/reset_mar.py para derivar/crear automáticamente un proyecto diario Z-BACK-yymmdd como destino del archivado Todoist, en lugar de usar Z-INBOX. Se añadió create_project en tools/todoist_tools.py y move_task se corrigió al endpoint oficial /api/v1/sync item_move. Ejecución real hoy: creación de Z-BACK-260419 (6gQW2Cqr8WFXCRmm) y reparación de 82 tareas marcadas-pero-no-movidas, ahora archivadas correctamente en el backup diario. Validación final: reset-all --dry-run sin candidatas y list-archived --from 2026-04-19 con 82 tareas.
+
+## 2026-04-21T03:48Z — Codex — [KIT] KIT admite importacion y sincronizacion desde Google Keep
+Estado: DONE
+Chat: chats/chat_2026-04-21.md
+Resumen: Se extendio agents/kit_agent.py con importar-keep y sincronizar-keep desde export local de Google Takeout para Google Keep, con deduplicacion por Google Keep ID y auto-ensure del schema de KIT. Se anadio tools/google_keep_tools.py para parsear notas/texto/checklists/labels/adjuntos del export, se conecto apps/project_hub_gui.py con botones de importar/sincronizar y se actualizo la documentacion de KIT y pipeline.
+
+## 2026-04-21T04:22Z — Codex — [DOCS] [DOCS] Se formaliza artifacts/imports para staging de importaciones
+Estado: DONE
+Chat: chats/chat_2026-04-21.md
+Resumen: Se creó artifacts/imports/google_keep como carpeta estable para depositar exports locales de Google Takeout antes de importarlos a KIT. Se añadió artifacts/imports/README.md y se actualizó memory/INDEX.md y memory/STRUCTURE.md; después se regeneró el TREE de STRUCTURE para reflejar la nueva ruta.
+
+## 2026-04-21T04:44Z — Codex — [KIT] Importacion real de Google Keep a KIT ejecutada
+Estado: DONE
+Chat: chats/chat_2026-04-21.md
+Resumen: Se importo el export real de Google Keep Takeout desde artifacts/imports/google_keep/.../Takeout/Conservar hacia NOTION_DB_KIT. Resultado consolidado del lote de 821 notas: 820 entradas cargadas en dos pasadas por timeout, con deduplicacion por Google Keep ID y 1 error residual. La importacion uso el nuevo flujo importar-keep y dejo las notas como Information/Nota en KIT.
+
+## 2026-04-21T05:03Z — Codex — [KIT] Importacion Google Keep a KIT completada con pasada de recuperacion
+Estado: DONE
+Chat: chats/chat_2026-04-21.md
+Resumen: Tras una primera importacion parcial por ritmo de escritura contra Notion, se ejecuto tools/import_keep_remaining.py con throttling y se completaron 546 notas pendientes desde el export real de Google Keep. Se verifico el recuento persistido en KIT/Notion al cierre para dejar la importacion completada con datos reales.
+
+## 2026-04-22T11:38Z — Codex — [KIT] Bugfix en sincronizar-keep para actualizar filas existentes
+Estado: DONE
+Chat: chats/chat_2026-04-22.md
+Resumen: Se corrigio agents/kit_agent.py para importar update_page_properties desde tools/notion_tools.py. Sin ese import, el subcomando sincronizar-keep compilaba pero fallaba en runtime al intentar actualizar notas Keep ya existentes en KIT. Validacion local en este turno: py_compile verde, parser Keep sigue leyendo 821 notas del Takeout real y la CLI de sincronizar-keep responde correctamente.
+
+## 2026-04-22T17:00Z — Codex — [KIT] Sincronizacion real Google Keep->KIT completada y compatibilidad legacy reparada
+Estado: DONE
+Chat: chats/chat_2026-04-22.md
+Resumen: Se parcheo tools/notion_tools.py para que schema/query/update/create hagan fallback a endpoints /databases/* cuando NOTION_DB_KIT llega como database legacy de una sola fuente. Despues se ejecuto sincronizar-keep contra el Takeout real en artifacts/imports/google_keep/.../Takeout/Conservar y el lote cerro sin errores: 821 notas leidas, 821 actualizadas, 0 nuevas, 0 archivadas.
+
+## 2026-04-22T17:40Z — Codex — [KIT] NOTION_DB_KIT migrado a data_source_id moderno en .env
+Estado: DONE
+Chat: chats/chat_2026-04-22.md
+Resumen: Se resolvio el data_source_id moderno de KIT contra Notion y se actualizo .env para sustituir el database legacy 340622cf-315b-81ee-9596-f282f3772b2d por 340622cf-315b-81b6-a22e-000be28f5cee. Verificacion posterior OK: resolve_data_source_id() devuelve exactamente el mismo valor configurado, sin fallback legacy.
+
+## 2026-04-22T19:30Z — Codex — [KIT] Caso 08: relations reales KIT<->Obsidian y Fuente=KIT cerrados
+Estado: DONE
+Chat: chats/chat_2026-04-22.md
+Resumen: Se extendio el caso 08 para materializar relations reales sin perder compatibilidad textual: ensure_kit_cross_fields ahora crea OBSIDIAN_DB.KIT, INX-ENLACES.KIT, KIT.Usada en notas y la opcion Fuente=KIT; log_obsidian_changes/backfill/sync_inx_links rellenan y reconcilian esas relations desde KIT IDs, y sync_inx_links hace write-back inverso a KIT. En el mismo turno se endurecio tools/validate_case_08.py para verificar relations y backrefs, y se corrigio tools/notion_tools.py para caer a /databases/* cuando /data_sources/* query devuelve 400/404. Validacion real final: 2452/2452 filas kit:* presentes en INX y alcance C verde sin mismatches ni backrefs faltantes.
+
+## 2026-04-22T21:08Z — Claude — [KIT] Inoreader -> KIT: Fase 1 + plan B JSON-feed (offline) operativo
+Estado: PROGRESS
+Chat: chats/chat_2026-04-22.md
+Resumen: Fase 1 Nivel 3 instalada: tools/inoreader_tools.py (OAuth2 + auto-refresh + normalizadores API y JSON Feed), tools/inoreader_oauth.py (autorizacion interactiva), tools/ensure_kit_external_fields.py (Inoreader ID/Tags + opciones Subtipo/Fuente, schema KIT/INX ya estaba listo), tools/import_inoreader_articles.py (modo --source para descargas locales y --url para JSON feeds publicos sin cuota API, dispatch_normalize auto-detecta formato API vs JSON Feed v1). .env.example y .gitignore actualizados (artifacts/inoreader_state.json, inoreader_sync_state.json, imports/inoreader/). Importados 5 articulos del tag kit-import (URL https://www.inoreader.com/stream/user/1003911326/tag/kit-import/view/json?n=1000) como prueba: 5 created, 0 errors. BLOQUEOS abiertos: (1) OAuth2 app pendiente de aprobacion manual de Inoreader (caso A documentado al usuario), (2) decision pendiente sobre 995 articulos restantes en kit-import - opciones A-E presentadas (curar en Inoreader, --newer-than, tag mas selectivo, importar como Pendiente, dejar en 5). Fase 2 (agents/inoreader_agent.py + sync_inoreader_to_kit.py + INX --source inoreader) NO iniciada, esperando ambas decisiones.
+
+## 2026-04-23T08:15Z — Claude — [KIT] Inoreader OAuth desbloqueado: cambio de puerto 8080->8765
+Estado: UNBLOCKED
+Chat: chats/chat_2026-04-23.md
+Resumen: Bloqueo OAuth resuelto. Causa raiz: AgentService.exe (PID 6980, servicio del sistema) ocupaba el puerto 8080 con LISTENING + ESTABLISHED, por lo que el redirect http://localhost:8080/callback se quedaba colgado tras pulsar Allow en Inoreader. Solucion: cambio del puerto OAuth a 8765 en dos sitios sincronizados: (1) Redirect URI editado en https://www.inoreader.com/developers/ a http://localhost:8765/callback, (2) INOREADER_REDIRECT_URI actualizado en .env. Re-ejecucion de python tools/inoreader_oauth.py con exito: tokens guardados en artifacts/inoreader_state.json, user-info responde 'dalarconrub', list_folders devuelve ['kit-import']. Nota: API reporta Plan=Free aunque el usuario creia tener Pro - posible inconsistencia entre suscripcion y campo isProUser, no bloqueante porque las 100 calls/dia siguen siendo viables con sync incremental ya disenado. Decision pendiente sobre los 995 articulos restantes en kit-import sigue abierta.
+
+## 2026-04-23T08:37Z — Claude — [KIT] Inoreader -> KIT Fase 2: agente CLI completo + sync API incremental + link_article_to_ptn
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Fase 2 cerrada. NUEVO: agents/inoreader_agent.py (CLI completo: auth-check con cuotas, list-folders, sync via API con cursor incremental, import-feed delegando al importer offline, listar/estado filtrables por subtipo y tag, link <inoreader_id> <proyecto_ref>); tools/sync_inoreader_to_kit.py (sync API OAuth2 con cursor por stream en artifacts/inoreader_sync_state.json, --full/--limit/--dry-run, no avanza cursor si hay errores); link_article_to_ptn() en tools/sync_inx_links.py (decision arquitectonica: NO crea claves inoreader:* en INX porque Inoreader alimenta KIT no es catalogo separado; reusa fila kit:<page_id> existente y le anade PTN Proyecto + URL). REFACTOR: tools/import_inoreader_articles.py reusa upsert helpers (existing_articles, article_to_props, upsert_article_to_kit) de sync_inoreader_to_kit -> single source of truth para escritura a KIT independiente del origen (API o JSON feed); --newer-than YYYY-MM-DD filtra client-side por published_date. SMOKE TESTS: auth-check OK (Zone 1 7/100), list-folders OK (kit-import), estado OK (6 articulos catalogados), listar OK (con filtros subtipo y tag), sync --dry-run OK (14 starred + 1 kit-import = 15 unicos), importer post-refactor con --newer-than OK, todos los modulos importan sin circulares. CUOTA REAL CONFIRMADA: 100 calls/dia Zone 1 + 100 Zone 2 por app externa (no se eleva con plan Pro).
+
+## 2026-04-23T08:37Z — Claude — [DOCS] Inoreader -> KIT: docs + memory + caso 15 alineados con Fase 2
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Documentacion alineada con Fase 2. NUEVO: docs/inoreader-agent.md (arquitectura, componentes, setup, uso diario, cuotas, INX, troubleshooting); docs/casos-de-uso/15-inoreader-a-kit.md (caso de uso completo con flujo principal, variantes A-D, postcondiciones, comandos, gaps y mejoras propuestas). EDITADO: memory/PURPOSE.md seccion 'KIT' (anade Inoreader y Google Keep como fuentes externas que alimentan KIT con propiedades dedicadas, no como catalogos separados); memory/INDEX.md seccion 6 (link a docs/inoreader-agent.md); memory/STRUCTURE.md narrativa de agents/ (inoreader_agent.py descrito como fuente externa que alimenta KIT) + TREE regenerado por tools/snapshot_structure.py @ 2026-04-23T08:35Z; docs/casos-de-uso/index.md (registro caso 15).
+
+## 2026-04-23T08:51Z — Claude — [KIT] Inoreader sync: starred quitado del flujo por defecto
+Estado: PROGRESS
+Chat: chats/chat_2026-04-23.md
+Resumen: Cambio de criterio: el estado 'starred' en Inoreader es el buffer 'Read later', NO senal de intencion de catalogar. Eliminado starred del sync por defecto en tools/sync_inoreader_to_kit.py: ahora solo lee user/-/label/<INOREADER_FOLDER_KIT> (default 'kit-import'). list_starred() en inoreader_tools.py sigue disponible como utilidad por si se usa para otros flujos futuros, no se invoca por defecto. Cursor reducido a un solo stream (mark_seen_for(folder_kit, ...)). agents/inoreader_agent.py docstring + sync output actualizados (sin metrica starred_fetched). tools/import_inoreader_articles.py documentado: el importer no impone politica (acepta cualquier --url), la convencion 'solo kit-import' la aplica el sync API. .env.example, docs/inoreader-agent.md, docs/casos-de-uso/15-inoreader-a-kit.md y memory/PURPOSE.md alineados. Smoke test post-cambio: sync --dry-run OK con 1 articulo del tag (sin starred). Sin perdida de datos: nunca se ejecuto un sync real con starred, no habia cursor persistido, KIT no contiene articulos starred.
+
+## 2026-04-23T09:09Z — Claude — [KIT] Fix dedupe Inoreader: clave canonica = URL articulo (no Inoreader ID)
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Bug arquitectonico encontrado: Inoreader expone IDs distintos para el MISMO articulo segun el endpoint. API stream/contents devuelve 'tag:google.com,2005:reader/item/<hex16>' (formato Google Reader) mientras JSON feed publico devuelve 'http://www.inoreader.com/article/<hex>' (formato Inoreader URL). Adicionalmente si un articulo aparece en mas de un feed que sigues, cada feed le asigna un Inoreader ID distinto. Resultado: dedupe por Inoreader ID NO previene duplicados cross-route ni cross-feed. Sintoma observado: tras corre sync API una vez, el articulo 'A Computational Model of Basic Addition Solving' tenia 3 filas en KIT (1 creada por API hoy, 2 creadas por import-feed ayer desde 2 feeds distintos). Solucion aplicada: cambiar clave de dedupe a URL del articulo (campo Enlace) con fallback a Inoreader ID si la URL esta vacia. Cambios: tools/inoreader_tools.merge_articles dedupe por art['url'] con fallback iid; tools/sync_inoreader_to_kit.existing_articles ahora retorna {'by_url': {url: page_id}, 'by_inoreader_id': {iid: page_id}}; upsert_article_to_kit busca por URL primero, luego iid; importer ya no muta existing manualmente (lo hace upsert internamente). Limpieza: usuario borro las 2 filas duplicadas en Notion manualmente. Smoke tests post-fix: sync incremental OK con cursor 2026-04-23T08:53 -> 0 articulos nuevos; re-import-feed del mismo articulo OK -> 0 created, 1 updated (URL match); estado=5 articulos. Fix robusto contra futuras importaciones cross-route.
+
+## 2026-04-23T09:12Z — Claude — [TOOLING] Dedupe genérico Notion: tools/dedupe_notion_db.py
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Nueva herramienta tools/dedupe_notion_db.py para detectar y archivar (soft-delete reversible) filas duplicadas en cualquier base Notion segun una clave configurable (--key <field>) o por titulo (--by-title). Politica de conservacion (--keep oldest|newest|lowest, default oldest). Modo deteccion sin --apply (dry-run, solo lista grupos); modo accion con --apply (archiva mediante notion_tools.archive_page, no eliminacion fisica). Auto-detecta el campo title del schema via get_data_source_schema().property_types. Reintentos con backoff por fila ante errores transitorios. Casos tipicos documentados en docstring: KIT por Enlace (URL articulo), BIB por Citekey, KIT/cualquiera por --by-title. Validacion en repo real: 2457 filas en KIT y 472 en BIB, 0 duplicados detectados por sus claves canonicas (Enlace y Citekey respectivamente) -> el fix anterior de dedupe URL en sync_inoreader_to_kit ya previene la causa raiz; la herramienta queda como salvaguarda futura para cualquier base.
+
+## 2026-04-23T09:23Z — Claude — [TOOLING] Fix bug que duplico notas Keep el 2026-04-21: pre-flight schema en import_keep_remaining
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Causa raiz del incidente identificada y corregida. Bug: tools/import_keep_remaining.py no verificaba que la propiedad 'Google Keep ID' existiera en el schema de NOTION_DB_KIT antes de importar. Si la propiedad no existia (caso del 2026-04-21), Notion descarta silenciosamente la propiedad al crear las filas - las notas quedan creadas pero sin Keep ID. En la siguiente ejecucion, el set 'existing' se construye vacio (ningun row tiene Keep ID a leer) y las 821 notas se ven todas como 'pending' -> se duplican. 3 ejecuciones consecutivas el 2026-04-21 produjeron 821 grupos de duplicados (~1629 filas archivadas hoy con tools/dedupe_notion_db.py). Fix en 2 capas: (1) tools/ensure_kit_external_fields.py extendido para garantizar tambien 'Google Keep ID' en KIT (centraliza props de fuentes externas Inoreader+Keep en un solo ensure); (2) tools/import_keep_remaining.py anade pre-flight schema check + heuristica defensiva: si KIT tiene >100 filas con Subtipo='Nota' pero ninguna con Google Keep ID poblado, aborta antes de duplicar (apunta al ensure script o a backfill manual). Ambas correcciones idempotentes y verificadas: ensure_kit_external_fields confirma que la propiedad ya existe ahora. Nota: agents/kit_agent.py tiene el mismo riesgo si KIT se reusa sin haber corrido crear-db; mismo fix aplicable si surge en el futuro.
+
+## 2026-04-23T11:24Z — Claude — [INX] Cleanup INX-ENLACES: 384 duplicados kit:* eliminados (--keep newest)
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Cleanup masivo en INX-ENLACES. Diagnostico: 384 grupos duplicados, todos con clave kit:*, generados por dos ejecuciones consecutivas de sync_inx_links --source kit el 2026-04-22 (~18:36 y ~19:16). Run 2 no detecto las filas del Run 1 (probable paginacion stale en _existing_map al haber miles de filas, o schema migration mid-run que cambio que campos se escriben). Analisis field-by-field de los 384 grupos: 80 son IDENTICOS (dedupe simple), 304 difieren SOLO en la relation KIT (la fila newest la tiene poblada, la oldest tiene []). 0 grupos difieren en otros campos (PTN Proyecto, Detalle, URL, Estado, etc. todos identicos). Estrategia aplicada: --keep newest preserva la version con KIT relation poblada en todos los casos; uniforme y seguro porque las claves de lookup son por campo Clave (no por page_id). Resultado: INX 3924 -> 3540 (384 archivadas, 0 errores). Verificacion post-cleanup: dedupe_notion_db --key Clave reporta 'Sin duplicados'. Pendiente: investigar y parchear la causa raiz en _existing_map para evitar reincidencia.
+
+## 2026-04-23T11:28Z — Claude — [INX] Fix sync_inx_links: pre-flight integrity en _existing_map + mutar existing en _upsert
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Fix preventivo del bug que generó los 384 duplicados kit:* el 2026-04-22 (cleanup en entrada anterior). Dos cambios en tools/sync_inx_links.py, no-destructivos en el happy path: (1) _existing_map ahora hace pre-flight integrity check: si la base INX tiene filas pero ninguna con 'Clave' poblada (causado por schema migration mid-run, campo renombrado o cambio de tipo, fallback de query_data_source a endpoint legacy con shape distinto, etc.), aborta con RuntimeError claro en vez de devolver mapping vacio que provocaria duplicacion masiva. (2) _upsert ahora muta  tras crear, evitando duplicar dentro del mismo run si la misma clave se procesa dos veces (defensa frente a inputs con dups). Verificacion: smoke test post-fix _existing_map(NOTION_DB_INX) devuelve 3540 entradas (la base completa post-cleanup), sin abort, comportamiento happy path intacto. Imports limpios. Si el patron patologico vuelve a aparecer (mapping vacio sobre base no vacia), el fix lo detecta y aborta antes de duplicar.
+
+## 2026-04-23T11:46Z — Claude — [INX] E2E test sync_inx_links --source kit con fix aplicado: PASS
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Validacion end-to-end del fix sync_inx_links. Baseline pre-test: INX=3540 (post-cleanup), KIT=828 (post-cleanup). Ejecucion: python tools/sync_inx_links.py --source kit. Output: 'INX enlaces sincronizados: kit=828 kit_backrefs=0'. Resultado: INX 3540 -> 3545 (+5 filas), todas legitimamente nuevas (Inoreader articles importados hoy/ayer que aun no habian pasado por sync_inx_links). Verificacion dedup post-test: dedupe_notion_db --db-env NOTION_DB_INX --key Clave reporta 'Sin duplicados por Clave'. 823 KIT pages fueron UPDATE (correcto, ya estaban en INX desde el cleanup), 5 fueron CREATE (correcto, faltaban). Si el bug del 2026-04-22 se hubiera reproducido habrian aparecido 828 nuevas filas + 384 duplicados al siguiente run. No paso nada de eso. Fix confirmado en condiciones de produccion.
+
+## 2026-04-23T11:47Z — Claude — [TOOLING] Cleanup pendientes menores: OBSIDIAN_DB + PTN-Proyectos + NOTION_DB log (9 filas)
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Cleanup de duplicados pendientes en 3 bases con conteos pequenos. (1) OBSIDIAN_DB: 2 grupos por Ruta, 2 archivadas (--keep oldest). Notas dup: N260418-Candido2026y, N251028-borrador. (2) NOTION_DS_PROYECTOS: 1 grupo por Nombre del Proyecto, 1 archivada (Arquitectura Coworkia v2 duplicada en mismo dia). (3) NOTION_DB (PTN log): 4 grupos por Fuente ID, 6 archivadas (Proyecto: TFG 2025-26, Proyecto: Tesis Cristian, Proyecto: Sofia, Nota: N251104-Analisis de datos con GLM con 4 copias). Total 9 filas archivadas, 0 errores. Verificacion post: las 3 bases reportan 'Sin duplicados'. Resumen acumulado del cleanup masivo de hoy 2026-04-23: KIT 1629 + INX 384 + minores 9 = 2022 filas archivadas, todas reversibles desde Notion.
