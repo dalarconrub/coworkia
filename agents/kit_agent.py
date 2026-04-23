@@ -285,6 +285,34 @@ def _existing_keep_entries() -> dict[str, dict]:
     return existing
 
 
+def _check_keep_existing_integrity(existentes: dict) -> str | None:
+    """Heuristica defensiva: si KIT tiene >100 filas con Subtipo='Nota' pero
+    NINGUNA con 'Google Keep ID' poblado, importar ahora duplicaria todas.
+
+    Caso historico: 2026-04-21 el re-run de import_keep sin el campo Keep ID
+    en schema produjo 821 x 3 = ~2463 filas duplicadas en KIT. _ensure_kit_schema
+    cubre el caso de schema faltante en creaciones futuras, pero no repara
+    filas creadas ANTES de que existiera la propiedad.
+
+    Devuelve None si esta OK, o mensaje de error si debe abortar.
+    """
+    if existentes:
+        return None
+    rows = _query_kit()
+    notas = sum(1 for r in rows if _prop(r, "Subtipo") == "Nota")
+    if notas > 100:
+        return (
+            f"Error: KIT tiene {notas} filas con Subtipo='Nota' pero NINGUNA "
+            f"tiene '{KEEP_ID_PROP}' poblado. Continuar duplicaria todas las notas "
+            f"(caso historico 2026-04-21).\n"
+            f"  Soluciones:\n"
+            f"    1) Backfill manual de '{KEEP_ID_PROP}' en las filas Nota existentes\n"
+            f"    2) Archivar primero las filas Nota sin Keep ID (filtro Notion: "
+            f"Subtipo=Nota AND Google Keep ID is empty), luego re-importar"
+        )
+    return None
+
+
 def importar_keep(
     export_dir: str,
     tipo: str = TIPOS_KIT["Information"],
@@ -297,6 +325,9 @@ def importar_keep(
     _ensure_kit_schema()
     notas = load_keep_export(export_dir)
     existentes = _existing_keep_entries()
+    err = _check_keep_existing_integrity(existentes)
+    if err:
+        return err
 
     creados = 0
     omitidos = 0
@@ -344,6 +375,9 @@ def sincronizar_keep(
     _ensure_kit_schema()
     notas = load_keep_export(export_dir)
     existentes = _existing_keep_entries()
+    err = _check_keep_existing_integrity(existentes)
+    if err:
+        return err
 
     nuevos = 0
     actualizados = 0

@@ -491,3 +491,8 @@ Resumen: Validacion end-to-end del fix sync_inx_links. Baseline pre-test: INX=35
 Estado: DONE
 Chat: chats/chat_2026-04-23.md
 Resumen: Cleanup de duplicados pendientes en 3 bases con conteos pequenos. (1) OBSIDIAN_DB: 2 grupos por Ruta, 2 archivadas (--keep oldest). Notas dup: N260418-Candido2026y, N251028-borrador. (2) NOTION_DS_PROYECTOS: 1 grupo por Nombre del Proyecto, 1 archivada (Arquitectura Coworkia v2 duplicada en mismo dia). (3) NOTION_DB (PTN log): 4 grupos por Fuente ID, 6 archivadas (Proyecto: TFG 2025-26, Proyecto: Tesis Cristian, Proyecto: Sofia, Nota: N251104-Analisis de datos con GLM con 4 copias). Total 9 filas archivadas, 0 errores. Verificacion post: las 3 bases reportan 'Sin duplicados'. Resumen acumulado del cleanup masivo de hoy 2026-04-23: KIT 1629 + INX 384 + minores 9 = 2022 filas archivadas, todas reversibles desde Notion.
+
+## 2026-04-23T16:27Z — Claude — [KIT] Pre-flight defensive en kit_agent.{importar,sincronizar}_keep
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Simetria con el fix de import_keep_remaining: ambas funciones que importan Google Keep a KIT ahora llaman _check_keep_existing_integrity antes de escribir. El helper aborta si detecta el patron patologico del 2026-04-21: KIT con >100 filas Subtipo='Nota' pero ninguna con Google Keep ID poblado (filas creadas antes de que existiera la propiedad -> dedupe falla silencioso). _ensure_kit_schema ya cubre el caso de creacion inicial sin Keep ID en schema; este helper cubre el caso residual de filas huerfanas. Cambios minimos: 1 helper nuevo + 1 llamada en importar_keep y 1 en sincronizar_keep. Smoke test: imports OK.
