@@ -110,7 +110,7 @@ Proyectos activos esperados:
   `B10-INV`, `B11-CVT`, `B12-LAB`, `B13-PUB`,
   `B20-UNI`, `B24-DOC`, `B25-FOR`, `B26-GES`,
   `B30-VIT`, `B37-ORG`, `B38-TEC`, `B39-DES`,
-  `B40-REF`, `B4X-LIB`, `B4Y-MED`, `B4Z-APP`
+  `B40-REF`, `B4X-BIB`, `B4Y-KIT`, `B4Z-GIT`
 
 ### Secciones C en A0
 

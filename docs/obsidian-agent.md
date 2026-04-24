@@ -113,9 +113,9 @@ python agents/obsidian_agent.py nueva-nota A1-INV B12-LAB C126-DIR "Análisis da
 │   ├── B38-TEC/  (C384-INF, C385-STA, C386-IAA)
 │   └── B39-DES/  (C397-FIS, C398-MEN, C399-MUS)
 └── A4-ARX/
-    ├── B4X-LIB/
-    ├── B4Y-MED/
-    └── B4Z-APP/
+    ├── B4X-BIB/
+    ├── B4Y-KIT/
+    └── B4Z-GIT/
 ```
 
 ---

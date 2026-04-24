@@ -41,9 +41,9 @@ Ubicación operativa recomendada en Notion:
   - `C0C7-PROYECTOS` → `PTN-Proyectos`
   - `C0C8-TAREAS` → `PTN-Tareas`
   - `C0C9-NOTAS` → `PTN-Notas`
-- `KIT`: catálogo maestro en `A4-ARX / B40-REF / C400-REF`.
-- `GIT`: catálogo técnico en `A4-ARX / B4Z-APP`.
-- `BIB`: catálogo bibliográfico en `A4-ARX / B4X-LIB`.
+- `KIT`: catálogo maestro en `A4-ARX / B4Y-KIT`.
+- `GIT`: catálogo técnico en `A4-ARX / B4Z-GIT`.
+- `BIB`: catálogo bibliográfico en `A4-ARX / B4X-BIB`.
 - `BACK-*`: siempre en `A5-BACK` o `Z9_BACK`.
 
 ## Mapa Maestro
@@ -77,9 +77,9 @@ La taxonomía `ABC` organiza Notion por `Área -> Bloque -> Contexto`. En el sis
   - `B39-DES`: `C397-FIS`, `C398-MEN`, `C399-MUS`
 - `A4-ARX`: archivo y recursos documentales
   - `B40-REF`: `C400-REF`
-  - `B4X-LIB`: `C4x0-LIB`, `C4x1-FIC`, `C4x2-SCI`, `C4x3-ENS`
-  - `B4Y-MED`: `C4y0-MED`, `C4y4-VID`, `C4y5-AUD`, `C4y6-MP3`
-  - `B4Z-APP`: `C4z0-APP`, `C4z7-MOC`, `C4z8-WEB`, `C4z9-SOF`
+  - `B4X-BIB`: `C4X0-LIB`, `C4X1-FIC`, `C4X2-SCI`, `C4X3-ENS` (alberga catálogo `BIB`)
+  - `B4Y-KIT`: `C4Y0-MED`, `C4Y4-VID`, `C4Y5-AUD`, `C4Y6-WEB` (alberga catálogo `KIT`)
+  - `B4Z-GIT`: `C4Z0-APP`, `C4Z7-COD`, `C4Z8-AGI`, `C4Z9-SOF` (alberga catálogo `GIT`)
 
 ## Estructura
 
@@ -421,9 +421,9 @@ Mapeo operativo confirmado bajo `A0-GTD`:
 
 Mapeo operativo en `A4-ARX`:
 
-- `C400-REF` → `KIT`
-- `B4Z-APP` → `GIT`
-- `B4X-LIB` → `BIB`
+- `B4X-BIB` → `BIB`
+- `B4Y-KIT` → `KIT`
+- `B4Z-GIT` → `GIT`
 
 Los agentes deben asumir lo siguiente:
 

@@ -94,24 +94,24 @@ Jerarquía:
 
 - `B40-REF`
   - `C400-REF`
-    - `KIT` (catálogo maestro)
-- `B4X-LIB`
-  - `C4x0-LIB`
-  - `C4x1-FIC`
-  - `C4x2-SCI`
-  - `C4x3-ENS`
+- `B4X-BIB`
+  - `C4X0-LIB`
+  - `C4X1-FIC`
+  - `C4X2-SCI`
+  - `C4X3-ENS`
   - `BIB` (catálogo bibliográfico)
-- `B4Y-MED`
-  - `C4y0-MED`
-  - `C4y4-VID`
-  - `C4y5-AUD`
-  - `C4y6-MP3`
-- `B4Z-APP`
-  - `C4z0-APP`
-  - `C4z7-MOC`
-  - `C4z8-WEB`
-  - `C4z9-SOF`
-  - `GIT` (catálogo de repositorios)
+- `B4Y-KIT`
+  - `C4Y0-MED`
+  - `C4Y4-VID`
+  - `C4Y5-AUD`
+  - `C4Y6-WEB`
+  - `KIT` (catálogo maestro Knowledge/Information/Tool)
+- `B4Z-GIT`
+  - `C4Z0-APP`
+  - `C4Z7-COD`
+  - `C4Z8-AGI`
+  - `C4Z9-SOF`
+  - `GIT` (catálogo de repositorios GitHub)
 
 ## Fuente
 
