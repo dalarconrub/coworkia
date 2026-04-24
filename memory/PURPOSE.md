@@ -18,7 +18,7 @@ Cada sistema tiene un rol funcional fijo y un código de entidad que lo identifi
 | `MAR`   | Todoist          | **Ejecuta** — tareas, eventos, hábitos, metas, ideas    | `todoist_agent.py` |
 | `PTN`   | Notion           | **Dirige** — proyectos, tareas formales, notas         | `notion_agent.py`  |
 | `KIT`   | Notion           | Catálogo único de conocimiento (Knowledge / Information / Tool) | `kit_agent.py`     |
-| `REP`   | GitHub           | Catálogo de repositorios propios y de referencia        | `github_agent.py`  |
+| `GIT`   | GitHub           | Catálogo de repositorios propios y de referencia        | `github_agent.py`  |
 | `BIB`   | Paperpile → Notion | Catálogo bibliográfico (artículos, libros, tesis)      | `bib_agent.py`     |
 | `ABGD`  | Obsidian (vault local) | **Almacena** — notas y jerarquía viva del conocimiento | `obsidian_agent.py` |
 | `INX`   | Cross-system     | Enlaces de trazabilidad entre los anteriores            | coordinado por `orchestrator_agent.py` |
@@ -61,7 +61,7 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
   - **Google Keep** (notas exportadas vía Takeout) → `Subtipo=Nota`, clave `Google Keep ID`.
   - **Inoreader** (artículos tageados con `kit-import` — `starred` NO entra porque es "Read later") → `Tipo=Information`, `Subtipo` ∈ {`Artículo`, `Newsletter`, `Blog`, `Vídeo`, `Podcast`}, claves `Inoreader ID` + `Inoreader Tags`. Ver [docs/inoreader-agent.md](../docs/inoreader-agent.md) y caso 15.
 
-### 4. Catálogo de repositorios (REP)
+### 4. Catálogo de repositorios (GIT)
 - Importación desde GitHub a Notion.
 - Metadatos: lenguaje, estrellas, actividad, estado, proceso.
 

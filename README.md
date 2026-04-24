@@ -2,14 +2,14 @@
 
 Sistema de automatización personal para clasificar, consultar y sincronizar información entre Todoist, Notion, GitHub, Paperpile y Obsidian.
 
-La idea central del proyecto es simple: no improvisar, sino clasificar. El repositorio implementa varios agentes CLI especializados, más algunas aplicaciones auxiliares, para operar sobre los sistemas MAR, PTN, KIT, REP, BIB y ABGD.
+La idea central del proyecto es simple: no improvisar, sino clasificar. El repositorio implementa varios agentes CLI especializados, más algunas aplicaciones auxiliares, para operar sobre los sistemas MAR, PTN, KIT, GIT, BIB y ABGD.
 
 ## Qué Hace
 
 - `MAR`: gestiona tareas en Todoist según su existencia temporal: idea, meta, hábito, tarea y evento.
 - `PTN`: gestiona proyectos, tareas y notas en Notion.
 - `KIT`: gestiona conocimiento, información y herramientas en Notion.
-- `REP`: importa y cataloga repositorios de GitHub en Notion.
+- `GIT`: importa y cataloga repositorios de GitHub en Notion.
 - `BIB`: importa y cataloga bibliografía de Paperpile en Notion.
 - `ABGD`: navega y escribe notas en un vault local de Obsidian.
 
@@ -42,7 +42,7 @@ Ubicación operativa recomendada en Notion:
   - `C0C8-TAREAS` → `PTN-Tareas`
   - `C0C9-NOTAS` → `PTN-Notas`
 - `KIT`: catálogo maestro en `A4-ARX / B40-REF / C400-REF`.
-- `REP`: catálogo técnico en `A4-ARX / B4Z-APP`.
+- `GIT`: catálogo técnico en `A4-ARX / B4Z-APP`.
 - `BIB`: catálogo bibliográfico en `A4-ARX / B4X-LIB`.
 - `BACK-*`: siempre en `A5-BACK` o `Z9_BACK`.
 
@@ -122,8 +122,8 @@ NOTION_DB_KIT=
 NOTION_KIT_PARENT_PAGE=
 
 GITHUB_TOKEN=
-NOTION_REPOS_PARENT_PAGE=
-NOTION_DB_REPOS=
+NOTION_GIT_PARENT_PAGE=
+NOTION_DB_GIT=
 
 PAPERPILE_BIBTEX_URL=
 NOTION_BIB_PARENT_PAGE=
@@ -142,7 +142,7 @@ Notas:
 - `NOTION_TOKEN` debe tener acceso a las páginas o bases compartidas con la integración.
 - `PTN` sigue necesitando `NOTION_TOKEN` y fuentes accesibles.
 - `KIT` usa una sola base maestra `KIT` y un campo `Tipo` para separar `Knowledge`, `Information` y `Tool`.
-- `REP` y `BIB` además necesitan `NOTION_DB_REPOS` y `NOTION_DB_BIB`.
+- `GIT` y `BIB` además necesitan `NOTION_DB_GIT` y `NOTION_DB_BIB`.
 - `GITHUB_TOKEN` necesita alcance suficiente para leer repos privados si se van a importar.
 - `PAPERPILE_BIBTEX_URL` usa el export automático BibTeX de Paperpile.
 - `OBSIDIAN_ALPHA_PATH` debe apuntar al directorio `Alpha` del vault ABGD.
@@ -230,7 +230,7 @@ python agents/kit_agent.py nueva-information "Paper Y" --subtipo Paper --enlace 
 python agents/kit_agent.py nueva-tool "Herramienta Z" --subtipo App
 ```
 
-### REP / GitHub -> Notion
+### GIT / GitHub -> Notion
 
 Configuración inicial de la base:
 
@@ -373,7 +373,7 @@ Comandos principales:
 ```bash
 python agents/orchestrator_agent.py agentes
 python agents/orchestrator_agent.py roles
-python agents/orchestrator_agent.py plan-sprint "Implementar sistema multiagente para REP y BIB" --nombre "Sprint Multiagent 1" --guardar
+python agents/orchestrator_agent.py plan-sprint "Implementar sistema multiagente para GIT y BIB" --nombre "Sprint Multiagent 1" --guardar
 ```
 
 Documentación:
@@ -422,14 +422,14 @@ Mapeo operativo confirmado bajo `A0-GTD`:
 Mapeo operativo en `A4-ARX`:
 
 - `C400-REF` → `KIT`
-- `B4Z-APP` → `REP`
+- `B4Z-APP` → `GIT`
 - `B4X-LIB` → `BIB`
 
 Los agentes deben asumir lo siguiente:
 
 - Si un ID en `.env` no responde, el agente debe recrear la base en el contenedor correcto y sobrescribir el ID.
 - `PTN` vive en `B0C-PLA`
-- `KIT/REP/BIB` viven en `B0A-KIT`
+- `KIT/GIT/BIB` viven en `B0A-KIT`
 
 ## Archivos Clave
 

@@ -6,7 +6,7 @@ Reporta:
 - Claves duplicadas.
 - Filas con campos mínimos ausentes según la fuente.
 - Filas sin relación PTN.
-- Repos en REP-Repositorios sin entrada INX.
+- Repos en GIT-Repositorios sin entrada INX.
 - Papers en BIB-Bibliografía sin entrada INX.
 """
 
@@ -100,7 +100,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     db_inx = args.db
-    db_repos = os.getenv("NOTION_DB_REPOS")
+    db_repos = os.getenv("NOTION_DB_GIT")
     db_bib = os.getenv("NOTION_DB_BIB")
     if not db_inx:
         print("Falta NOTION_DB_INX en .env")
@@ -160,10 +160,10 @@ def main(argv: list[str] | None = None) -> int:
 
     repo_orphans = _repo_orphans(db_repos, inx_keys)
     if repo_orphans:
-        _report_section(repo_orphans, "REP huérfanos (sin INX)", args.max)
+        _report_section(repo_orphans, "GIT huérfanos (sin INX)", args.max)
         print("  Sugerencia: python tools/sync_inx_links.py --source github")
     elif db_repos:
-        print("\n[REP huérfanos (sin INX)] 0")
+        print("\n[GIT huérfanos (sin INX)] 0")
         print("  OK")
 
     paper_orphans = _paper_orphans(db_bib, inx_keys)

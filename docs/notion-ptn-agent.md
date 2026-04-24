@@ -38,7 +38,7 @@ Insertar una **Linked Database** de `PTN-Notas` y filtrar:
 Insertar **Linked Databases** de:
 
 - `KIT`
-- `REP`
+- `GIT`
 - `BIB`
 
 Aplicar filtros según los medios necesarios para la nota.

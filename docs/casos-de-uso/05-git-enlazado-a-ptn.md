@@ -1,13 +1,13 @@
-## Caso de uso: Importar repo GitHub a REP y enlazar a PTN (INX)
+## Caso de uso: Importar repo GitHub a GIT y enlazar a PTN (INX)
 
 ### Objetivo
 
-Importar/actualizar un repositorio desde GitHub al catálogo REP (Notion) y enlazarlo a un proyecto PTN, con trazabilidad en `INX-ENLACES`.
+Importar/actualizar un repositorio desde GitHub al catálogo GIT (Notion) y enlazarlo a un proyecto PTN, con trazabilidad en `INX-ENLACES`.
 
 ### Actores
 
 - **Usuario**: David
-- **Sistema(s)**: GitHub, Notion (REP + PTN + INX)
+- **Sistema(s)**: GitHub, Notion (GIT + PTN + INX)
 
 ### Trigger
 
@@ -16,18 +16,18 @@ Se crea o se detecta un repo relevante para un proyecto activo (o se quiere cata
 ### Precondiciones
 
 - `.env` con `GITHUB_TOKEN`.
-- Notion REP operativo (`NOTION_DB_REPOS`, `NOTION_REPOS_PARENT_PAGE` si aplica).
+- Notion GIT operativo (`NOTION_DB_GIT`, `NOTION_GIT_PARENT_PAGE` si aplica).
 - PTN operativo (para poder relacionar con proyecto).
 
 ### Fuente de verdad (autoridad)
 
 - **Metadata técnica**: GitHub (lenguajes, topics, última actividad)
-- **Catálogo/táctica**: Notion (REP)
+- **Catálogo/táctica**: Notion (GIT)
 - **Trazabilidad**: `INX-ENLACES`
 
 ### Flujo principal (happy path)
 
-1. Importar/sincronizar repos (según flujo REP).
+1. Importar/sincronizar repos (según flujo GIT).
 2. Catalogar el repo (tipo/estado/proceso/etiquetas).
 3. Seleccionar el proyecto PTN al que pertenece.
 4. Crear/actualizar la fila INX con:
@@ -37,7 +37,7 @@ Se crea o se detecta un repo relevante para un proyecto activo (o se quiere cata
 
 ### Automatización actual
 
-- REP (según docs):
+- GIT (según docs):
   - `python agents/github_agent.py importar`
   - `python agents/github_agent.py sincronizar`
   - `python agents/github_agent.py catalogar <repo> --tipo X --proceso Y`
@@ -47,20 +47,20 @@ Se crea o se detecta un repo relevante para un proyecto activo (o se quiere cata
 
 ### Postcondiciones / Resultado verificable
 
-- En REP existe la fila del repo con propiedades correctas.
+- En GIT existe la fila del repo con propiedades correctas.
 - En `INX-ENLACES` existe `Clave=github:<Nombre>` con `URL` y, si se ha enlazado, relación a `PTN Proyecto`.
 
 ### Estado actual
 
-- `sync_inx_links.py --source github` ya existe y upsertea INX desde REP.
+- `sync_inx_links.py --source github` ya existe y upsertea INX desde GIT.
 - La convención real actual de clave es `github:<Nombre>`; no `github:<owner>/<repo>`.
 - Existe helper `link_repo_to_ptn(...)` para crear/actualizar la relación `PTN Proyecto` desde código.
 
 Validación técnica realizada el `2026-04-17`:
 
-- REP total: `113` repos
+- GIT total: `113` repos
 - Filas `github:*` en `INX-ENLACES`: `113`
-- Repos huérfanos REP→INX: `0`
+- Repos huérfanos GIT→INX: `0`
 - Filas `github:*` con `PTN Proyecto`: `1`
 - Ejemplo real enlazado:
   - `github:coworkia`

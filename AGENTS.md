@@ -139,6 +139,6 @@ python tools/devlog.py append --agent Codex --area <AREA> --status <STATUS> \
   --title "..." --summary "..." [--commits sha1,sha2] [--refs "CERRADO #N"]
 ```
 
-Áreas: `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+Áreas: `MAR`, `PTN`, `KIT`, `GIT`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`. (`REP` se conserva como alias historico.)
 Estados: `START`, `PROGRESS`, `BLOCKED`, `UNBLOCKED`, `DONE`, `REVERT`.
 Detalle completo en `.claude/multiagent.md` sección "DevLog obligatorio".

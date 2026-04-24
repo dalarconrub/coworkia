@@ -6,7 +6,7 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 
 - **Editar sin miedo**: estos documentos son la “fuente de requisitos” operativa.
 - **Un caso → mejoras**: cada caso debe terminar en “Gaps” (lo que falta) y “Mejoras propuestas” (acciones concretas).
-- **Regla de autoridad**: no mezclar fuentes de verdad. MAR vive en Todoist, PTN/KIT/REP/BIB viven en Notion, documentos viven en Obsidian, y `INX-ENLACES` es la base puente.
+- **Regla de autoridad**: no mezclar fuentes de verdad. MAR vive en Todoist, PTN/KIT/GIT/BIB viven en Notion, documentos viven en Obsidian, y `INX-ENLACES` es la base puente.
 
 ## Índice
 
@@ -16,7 +16,7 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 - `02-tarea-a-proyecto-ptn-con-inx.md` — tarea → proyecto PTN + INX (checklist v2, `inx_sync_todoist.bat`)
 - `03-nota-obsidian-desde-ptn.md` — nota Obsidian + log + INX (checklist v2, `inx_sync_obsidian.bat`)
 - `04-sync-diario-inx.md` — sincronización diaria y verificación de coherencia (`inx_daily`)
-- `05-github-rep-enlazado-a-ptn.md` — importar repo a REP y enlazar a PTN, con sync GitHub → INX ya disponible
+- `05-git-enlazado-a-ptn.md` — importar repo a GIT y enlazar a PTN, con sync GitHub → INX ya disponible
 - `06-paperpile-bib-enlazado.md` — importar paper a BIB y enlazar a PTN/Obsidian, con sync Paperpile → INX ya disponible
 - `07-promocion-obsidian-a-ptn.md` — promover nota Obsidian a PTN-Notas (inverso del caso 03), con `promote_obsidian_to_ptn.py` + gaps de cruce INX bidireccional
 - `08-kit-en-inx.md` — KIT como ciudadano de primera en INX vía `sync_inx_links --source kit` (alcance B: sin cruce automático a Obsidian)

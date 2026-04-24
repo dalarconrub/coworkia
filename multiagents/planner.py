@@ -15,7 +15,7 @@ SYSTEM_KEYWORDS = {
     "Todoist": ["todoist", "mar", "tarea", "tareas", "evento", "meta", "habito", "hábito"],
     "PTN": ["ptn", "proyecto", "proyectos", "notion", "nota", "notas"],
     "KIT": ["kit", "knowledge", "information", "tools", "conocimiento", "herramienta"],
-    "REP": ["rep", "github", "repo", "repositorio", "repositorios"],
+    "GIT": ["git", "rep", "github", "repo", "repositorio", "repositorios"],
     "BIB": ["bib", "paperpile", "paper", "papers", "bibliografia", "bibliografía"],
     "ABGD": ["abgd", "obsidian", "vault", "nota", "notas", "documento"],
 }
@@ -37,7 +37,7 @@ def infer_systems(goal: str) -> list[str]:
     for system, keywords in SYSTEM_KEYWORDS.items():
         if any(keyword in goal_lower for keyword in keywords):
             systems.append(system)
-    return systems or ["MAR", "PTN", "KIT", "REP", "BIB", "ABGD"]
+    return systems or ["MAR", "PTN", "KIT", "GIT", "BIB", "ABGD"]
 
 
 def infer_operations(goal: str) -> list[str]:
@@ -158,7 +158,7 @@ def _infer_sync_sources(systems: list[str]) -> list[str]:
     sources: list[str] = []
     if any(system in {"MAR", "Todoist"} for system in systems):
         sources.append("todoist")
-    if "REP" in systems:
+    if "GIT" in systems:
         sources.append("github")
     if "BIB" in systems:
         sources.append("paperpile")

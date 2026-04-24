@@ -16,7 +16,7 @@
 ### Precondiciones
 
 - **Acceso**: `.env` configurado (tokens/IDs).
-- **Estructura**: PTN/KIT/REP/BIB disponibles en Notion; vault ABGD accesible.
+- **Estructura**: PTN/KIT/GIT/BIB disponibles en Notion; vault ABGD accesible.
 
 ### Datos y IDs (contrato)
 
@@ -28,7 +28,7 @@
 ### Fuente de verdad (autoridad)
 
 - **MAR (tiempo/ejecución)**: Todoist
-- **PTN/KIT/REP/BIB (táctico/catálogos)**: Notion
+- **PTN/KIT/GIT/BIB (táctico/catálogos)**: Notion
 - **Documentos**: Obsidian
 - **Trazabilidad**: `INX-ENLACES` (Notion)
 

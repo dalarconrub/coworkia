@@ -89,7 +89,7 @@ class ProjectHubGUI:
             return f"No configurado: falta {', '.join(missing)}" if missing else None
 
         if system == "rep":
-            missing = self._missing_env("NOTION_TOKEN", "NOTION_DB_REPOS")
+            missing = self._missing_env("NOTION_TOKEN", "NOTION_DB_GIT")
             return f"No configurado: falta {', '.join(missing)}" if missing else None
 
         if system == "bib":
@@ -111,7 +111,7 @@ class ProjectHubGUI:
             ("todoist", "MAR / Todoist"),
             ("ptn", "PTN / Notion"),
             ("kit", "KIT / Notion"),
-            ("rep", "REP / GitHub"),
+            ("rep", "GIT / GitHub"),
             ("bib", "BIB / Paperpile"),
             ("abgd", "ABGD / Obsidian"),
         ]
@@ -155,7 +155,7 @@ class ProjectHubGUI:
 
         overview = ttk.Frame(self.root)
         overview.pack(fill="x", padx=18, pady=(0, 8))
-        for key, title in [("todoist", "MAR / Todoist"), ("ptn", "PTN / Notion"), ("rep", "REP / GitHub"), ("bib", "BIB / Paperpile"), ("abgd", "ABGD / Obsidian"), ("sprint", "Sprints")]:
+        for key, title in [("todoist", "MAR / Todoist"), ("ptn", "PTN / Notion"), ("rep", "GIT / GitHub"), ("bib", "BIB / Paperpile"), ("abgd", "ABGD / Obsidian"), ("sprint", "Sprints")]:
             card = ttk.Frame(overview, style="Card.TFrame", padding=12)
             card.pack(side="left", fill="both", expand=True, padx=6)
             ttk.Label(card, text=title, style="StatTitle.TLabel").pack(anchor="w")
@@ -184,7 +184,7 @@ class ProjectHubGUI:
         ttk.Label(left, text="Centro de control", style="Section.TLabel").pack(anchor="w", pady=(0, 8))
         buttons = ttk.Frame(left, style="Panel.TFrame")
         buttons.pack(fill="x")
-        items = [("Abrir GUI REP", lambda: self._launch_script("apps/github_gui.py"), "Info.TButton"), ("Abrir GUI BIB", lambda: self._launch_script("apps/bib_gui.py"), "Info.TButton"), ("Listar agentes", lambda: self._run_async("home", listar_agentes), "Accent.TButton"), ("Ir a Sprints", lambda: self.notebook.select(7), "TButton")]
+        items = [("Abrir GUI GIT", lambda: self._launch_script("apps/github_gui.py"), "Info.TButton"), ("Abrir GUI BIB", lambda: self._launch_script("apps/bib_gui.py"), "Info.TButton"), ("Listar agentes", lambda: self._run_async("home", listar_agentes), "Accent.TButton"), ("Ir a Sprints", lambda: self.notebook.select(7), "TButton")]
         for idx, (label, cmd, style) in enumerate(items):
             ttk.Button(buttons, text=label, command=cmd, style=style).grid(row=idx // 2, column=idx % 2, padx=6, pady=6, sticky="ew")
         buttons.columnconfigure(0, weight=1)
@@ -277,9 +277,9 @@ class ProjectHubGUI:
         self._btn(p, "Sincronizar Google Keep", self._sync_keep_to_kit, "Info.TButton")
 
     def _build_rep_tab(self):
-        p = self._build_split_tab("REP", "rep")
-        ttk.Label(p, text="REP / GitHub", style="Section.TLabel").pack(anchor="w", pady=(0, 10))
-        self._btn(p, "Estado REP", lambda: self._run_async("rep", estado_repos), "Accent.TButton")
+        p = self._build_split_tab("GIT", "rep")
+        ttk.Label(p, text="GIT / GitHub", style="Section.TLabel").pack(anchor="w", pady=(0, 10))
+        self._btn(p, "Estado GIT", lambda: self._run_async("rep", estado_repos), "Accent.TButton")
         self.rep_filter_state = tk.StringVar()
         self.rep_filter_type = tk.StringVar()
         self.rep_filter_process = tk.StringVar()
@@ -289,7 +289,7 @@ class ProjectHubGUI:
         self._btn(p, "Listar repos", lambda: self._run_async("rep", lambda: listar_repos(estado=self.rep_filter_state.get().strip() or None, tipo=self.rep_filter_type.get().strip() or None, proceso=self.rep_filter_process.get().strip() or None)))
         self._btn(p, "Importar repos", lambda: self._run_async("rep", importar_repos), "Warn.TButton")
         self._btn(p, "Sincronizar metadata", lambda: self._run_async("rep", rep_sync), "Warn.TButton")
-        self._btn(p, "Abrir GUI REP", lambda: self._launch_script("apps/github_gui.py"), "Info.TButton")
+        self._btn(p, "Abrir GUI GIT", lambda: self._launch_script("apps/github_gui.py"), "Info.TButton")
         ttk.Separator(p).pack(fill="x", pady=12)
         self.rep_name = tk.StringVar()
         self.rep_type = tk.StringVar()
@@ -502,9 +502,9 @@ class ProjectHubGUI:
     def _catalog_rep(self):
         name = self.rep_name.get().strip()
         if not name:
-            messagebox.showwarning("REP", "El nombre del repo es obligatorio.")
+            messagebox.showwarning("GIT", "El nombre del repo es obligatorio.")
             return
-        self._run_async("rep", lambda: rep_catalogar(name, tipo=self.rep_type.get().strip() or None, estado=self.rep_status.get().strip() or None), "Catalogación REP actualizada")
+        self._run_async("rep", lambda: rep_catalogar(name, tipo=self.rep_type.get().strip() or None, estado=self.rep_status.get().strip() or None), "Catalogación GIT actualizada")
 
     def _catalog_bib(self):
         text = self.bib_key.get().strip()

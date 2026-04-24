@@ -83,11 +83,11 @@ def print_env_suggestions(data_sources: list[dict], databases: list[dict]) -> No
 
     print("=== SUGERENCIAS PARA .env ===")
     if rep_candidates:
-        print("NOTION_DB_REPOS candidatos:")
+        print("NOTION_DB_GIT candidatos:")
         for item in rep_candidates[:5]:
             print(f"- {item.get('title', '(sin titulo)')} -> {item['id']}")
     else:
-        print("NOTION_DB_REPOS: sin candidato automatico por titulo")
+        print("NOTION_DB_GIT: sin candidato automatico por titulo")
 
     if bib_candidates:
         print("NOTION_DB_BIB candidatos:")
@@ -158,9 +158,9 @@ def main() -> int:
     print_env_suggestions(data_sources, databases)
 
     print("Variables que suelen quedar pendientes:")
-    print("- NOTION_DB_REPOS")
+    print("- NOTION_DB_GIT")
     print("- NOTION_DB_BIB")
-    print("- NOTION_REPOS_PARENT_PAGE")
+    print("- NOTION_GIT_PARENT_PAGE")
     print("- NOTION_BIB_PARENT_PAGE")
     return 0
 

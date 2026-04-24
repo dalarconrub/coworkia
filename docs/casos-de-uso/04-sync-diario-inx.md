@@ -78,7 +78,7 @@ apps\inx_sync_obsidian.bat 200 --no-pause
   - duplicados por `Clave`
   - campos mínimos ausentes según la `Fuente`
   - filas sin relación PTN
-  - huérfanos de `REP` y `BIB`
+  - huérfanos de `GIT` y `BIB`
 - Existe `apps/inx_daily.py` y `apps\inx_daily.bat` para ejecutar `inx-sync`, pasar el doctor y guardar un informe en `artifacts/inx/`.
 - Sigue sin haber scheduling integrado en Windows; el wrapper ya deja el flujo preparado para programarlo.
 
@@ -98,7 +98,7 @@ Validación técnica realizada el `2026-04-17`:
   - `Claves duplicadas: 0`
   - `Campos mínimos ausentes: 232`
   - `Filas sin relación PTN: 574`
-  - `REP huérfanos: 0`
+  - `GIT huérfanos: 0`
   - `BIB huérfanos: 0`
 
 Lectura operativa:

@@ -1,6 +1,6 @@
 """
 Sincroniza la base puente INX-ENLACES a partir de TODOIST-TAREAS, NOTION, OBSIDIAN,
-REP-Repositorios (GitHub) y BIB-Bibliografía (Paperpile).
+GIT-Repositorios (GitHub) y BIB-Bibliografía (Paperpile).
 """
 
 import os
@@ -206,13 +206,13 @@ def _find_row_by_text(db_id: str, prop: str, value: str) -> dict | None:
 def link_repo_to_ptn(repo_nombre: str, proyecto_ref: str) -> dict:
     """Crea/actualiza fila INX github:<repo> con relación PTN Proyecto."""
     db_links = os.getenv("NOTION_DB_INX")
-    db_repos = os.getenv("NOTION_DB_REPOS")
+    db_repos = os.getenv("NOTION_DB_GIT")
     db_proy = os.getenv("NOTION_DS_PROYECTOS")
     if not all([db_links, db_repos, db_proy]):
-        raise RuntimeError("Faltan NOTION_DB_INX, NOTION_DB_REPOS o NOTION_DS_PROYECTOS en .env")
+        raise RuntimeError("Faltan NOTION_DB_INX, NOTION_DB_GIT o NOTION_DS_PROYECTOS en .env")
     repo = _find_row_by_title(db_repos, "Nombre", repo_nombre)
     if not repo:
-        raise ValueError(f"Repo '{repo_nombre}' no encontrado en REP-Repositorios")
+        raise ValueError(f"Repo '{repo_nombre}' no encontrado en GIT-Repositorios")
     proyecto_id = _resolve_project_id(db_proy, proyecto_ref)
     if not proyecto_id:
         raise ValueError(f"Proyecto PTN '{proyecto_ref}' no encontrado")
@@ -460,7 +460,7 @@ def main() -> int:
     db_todoist = os.getenv("TODOIST_DB_TAREAS")
     db_notion = os.getenv("NOTION_DB")
     db_obsidian = os.getenv("OBSIDIAN_DB")
-    db_repos = os.getenv("NOTION_DB_REPOS")
+    db_repos = os.getenv("NOTION_DB_GIT")
     db_bib = os.getenv("NOTION_DB_BIB")
     db_kit = os.getenv("NOTION_DB_KIT")
     if not db_links:
@@ -471,7 +471,7 @@ def main() -> int:
         "todoist": ("TODOIST_DB_TAREAS", db_todoist),
         "notion": ("NOTION_DB", db_notion),
         "obsidian": ("OBSIDIAN_DB", db_obsidian),
-        "github": ("NOTION_DB_REPOS", db_repos),
+        "github": ("NOTION_DB_GIT", db_repos),
         "paperpile": ("NOTION_DB_BIB", db_bib),
         "kit": ("NOTION_DB_KIT", db_kit),
     }

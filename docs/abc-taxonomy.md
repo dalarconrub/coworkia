@@ -111,7 +111,7 @@ Jerarquía:
   - `C4z7-MOC`
   - `C4z8-WEB`
   - `C4z9-SOF`
-  - `REP` (catálogo de repositorios)
+  - `GIT` (catálogo de repositorios)
 
 ## Fuente
 

@@ -198,7 +198,7 @@ python tools/devlog.py append \
   --commits d5c6b5c --refs "CERRADO #7" --sprint "sprint-multiagent-1"
 ```
 
-Tags válidos de `--area`: `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+Tags válidos de `--area`: `MAR`, `PTN`, `KIT`, `GIT`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`. (`REP` se conserva como alias historico para entradas pre-2026-04-24.)
 Estados válidos: `START`, `PROGRESS`, `BLOCKED`, `UNBLOCKED`, `DONE`, `REVERT`.
 Campo opcional `Sprint:` para cruzar con `artifacts/sprints/<sprint>.json` — usarlo cuando la tarea pertenezca a un sprint activo.
 

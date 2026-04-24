@@ -200,14 +200,14 @@ def _build_atlas() -> list[AtlasNode]:
         ),
         AtlasNode(
             key="rep",
-            title="REP — GitHub → Notion",
+            title="GIT — GitHub → Notion",
             category="datos",
             summary="Catalogo de repositorios propios/referencia. Importa desde GitHub, "
                     "sincroniza metadata, permite catalogar por tipo/estado/proceso.",
             flow_text=(
                 "GitHub API  →  github_agent.py importar\n"
                 "                      v\n"
-                "                NOTION_DB_REPOS\n"
+                "                NOTION_DB_GIT\n"
                 "                      ^\n"
                 "           sincronizar  |  catalogar\n"
                 "                      |\n"
@@ -219,10 +219,10 @@ def _build_atlas() -> list[AtlasNode]:
                 ("App",  "apps/catalogar_repos.py"),
                 ("Tool", "tools/github_tools.py"),
             ],
-            artifacts=["NOTION_DB_REPOS (en Notion)"],
-            env_vars=["GITHUB_TOKEN", "NOTION_DB_REPOS", "NOTION_REPOS_PARENT_PAGE"],
-            casos=[("05", "docs/casos-de-uso/05-catalogo-github.md")],
-            doc_path="docs/github-rep-agent.md",
+            artifacts=["NOTION_DB_GIT (en Notion)"],
+            env_vars=["GITHUB_TOKEN", "NOTION_DB_GIT", "NOTION_GIT_PARENT_PAGE"],
+            casos=[("05", "docs/casos-de-uso/05-git-enlazado-a-ptn.md")],
+            doc_path="docs/git-agent.md",
             sample_cli='python agents/github_agent.py estado',
         ),
         AtlasNode(

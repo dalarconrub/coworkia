@@ -30,7 +30,7 @@ from tools.notion_tools import (
 from tools.google_keep_tools import load_keep_export
 
 DB_KIT = os.getenv("NOTION_DB_KIT", "")
-KIT_PARENT_PAGE = os.getenv("NOTION_KIT_PARENT_PAGE", os.getenv("NOTION_REPOS_PARENT_PAGE", ""))
+KIT_PARENT_PAGE = os.getenv("NOTION_KIT_PARENT_PAGE", os.getenv("NOTION_GIT_PARENT_PAGE", ""))
 
 TIPOS_KIT = {
     "Knowledge": "Knowledge",

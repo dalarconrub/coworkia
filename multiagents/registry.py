@@ -72,11 +72,11 @@ DOMAIN_AGENTS: list[AgentSpec] = [
         cli_entrypoint="python agents/kit_agent.py",
     ),
     AgentSpec(
-        key="github_rep_agent",
-        name="GitHub REP Agent",
+        key="github_git_agent",
+        name="GitHub GIT Agent",
         kind="domain",
-        scope="Dominio REP/GitHub->Notion",
-        owned_systems=["REP", "GitHub", "Notion"],
+        scope="Dominio GIT/GitHub->Notion",
+        owned_systems=["GIT", "GitHub", "Notion"],
         owned_operations=["import", "sync", "catalog", "explore"],
         responsibilities=[
             "Importar repositorios desde GitHub",
@@ -139,7 +139,7 @@ OPERATION_AGENTS: list[AgentSpec] = [
         name="Catalog Quality Agent",
         kind="operation",
         scope="Calidad de catalogación y consistencia semántica",
-        owned_systems=["REP", "BIB", "KIT", "PTN"],
+        owned_systems=["GIT", "BIB", "KIT", "PTN"],
         owned_operations=["catalog", "review", "normalize"],
         responsibilities=[
             "Validar propiedades, etiquetas y estados",
@@ -185,7 +185,7 @@ COORDINATION_AGENTS: list[AgentSpec] = [
         name="Scrum Master Orchestrator",
         kind="coordination",
         scope="Orquestación global del sistema multiagente",
-        owned_systems=["MAR", "PTN", "KIT", "REP", "BIB", "ABGD"],
+        owned_systems=["MAR", "PTN", "KIT", "GIT", "BIB", "ABGD"],
         owned_operations=["plan", "coordinate", "sprint"],
         responsibilities=[
             "Construir squads por objetivo",

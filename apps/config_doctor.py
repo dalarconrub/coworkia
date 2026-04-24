@@ -69,15 +69,15 @@ def check_kit() -> str:
 
 def check_rep() -> str:
     token_ok, token_detail = notion_token_detail()
-    miss = missing("NOTION_DB_REPOS")
+    miss = missing("NOTION_DB_GIT")
     if not token_ok:
         miss = ["NOTION_TOKEN", *miss]
     if miss:
-        return status_line("REP / GitHub", False, f"faltan {', '.join(miss)}")
+        return status_line("GIT / GitHub", False, f"faltan {', '.join(miss)}")
     extra = ""
     if not os.getenv("GITHUB_TOKEN"):
         extra = " | aviso: falta GITHUB_TOKEN para llamadas a GitHub"
-    return status_line("REP / GitHub", True, f"{token_detail}; NOTION_DB_REPOS presente{extra}")
+    return status_line("GIT / GitHub", True, f"{token_detail}; NOTION_DB_GIT presente{extra}")
 
 
 def check_bib() -> str:
@@ -137,7 +137,7 @@ def main() -> None:
     print("\nVariables normalmente necesarias:")
     print("- TODOIST_API_KEY")
     print("- NOTION_TOKEN")
-    print("- NOTION_DB_REPOS")
+    print("- NOTION_DB_GIT")
     print("- NOTION_DB_BIB")
     print("- OBSIDIAN_ALPHA_PATH")
 

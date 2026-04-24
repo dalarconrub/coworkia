@@ -2,7 +2,7 @@
 
 > Mapa completo del proyecto en una sola doc. Dos capas separadas para que cada diagrama siga siendo legible:
 >
-> 1. **Capa de datos** — 6 dominios (MAR, PTN, KIT, REP, BIB, ABGD) + INX como glue de trazabilidad.
+> 1. **Capa de datos** — 6 dominios (MAR, PTN, KIT, GIT, BIB, ABGD) + INX como glue de trazabilidad.
 > 2. **Capa de coordinación** — chat multiagente + devlog + memoria curada + timeline + sprints + subagentes.
 >
 > Los diagramas están en Mermaid (renderiza GitHub y Obsidian). Para verlos interactivos abre [apps/pipeline_gui.py](../apps/pipeline_gui.py).
@@ -13,7 +13,7 @@
   - [MAR — Todoist](#mar--todoist)
   - [PTN — Notion proyectos/tareas/notas](#ptn--notion-proyectostareasnotas)
   - [KIT — Notion knowledge/information/tools](#kit--notion-knowledgeinformationtools)
-  - [REP — GitHub → Notion](#rep--github--notion)
+  - [GIT — GitHub → Notion](#rep--github--notion)
   - [BIB — Paperpile → GitHub → Notion → Obsidian](#bib--paperpile--github--notion--obsidian)
   - [ABGD — Obsidian vault](#abgd--obsidian-vault)
   - [INX — Trazabilidad cross-system](#inx--trazabilidad-cross-system)
@@ -47,7 +47,7 @@ flowchart LR
         MAR[MAR<br/>Todoist]
         PTN[PTN<br/>Notion Proy/Tareas/Notas]
         KIT[KIT<br/>Notion Knowledge]
-        REP[REP<br/>Notion Repos]
+        GIT[GIT<br/>Notion Repos]
         BIB[BIB<br/>Notion Bibliografía]
         ABGD[ABGD<br/>Vault local]
     end
@@ -57,8 +57,8 @@ flowchart LR
     TD <--> MAR
     NT <--> PTN
     NT <--> KIT
-    GH -->|import/sync| REP
-    REP <-->|persistencia| NT
+    GH -->|import/sync| GIT
+    GIT <-->|persistencia| NT
     PP -->|BibTeX via GitHub| BIB
     BIB <-->|persistencia| NT
     OB <--> ABGD
@@ -66,7 +66,7 @@ flowchart LR
     MAR -.trace.-> INX
     PTN -.trace.-> INX
     KIT -.trace.-> INX
-    REP -.trace.-> INX
+    GIT -.trace.-> INX
     BIB -.trace.-> INX
     ABGD -.trace.-> INX
 ```
@@ -145,24 +145,24 @@ flowchart LR
 - **Casos de uso:** [08 KIT primera clase en INX](casos-de-uso/08-kit-en-inx.md).
 - **Env:** `NOTION_TOKEN`, `NOTION_DB_KIT`.
 
-### REP — GitHub → Notion
+### GIT — GitHub → Notion
 
 Catálogo de repositorios. Importa desde GitHub, sincroniza metadata (estrellas, lenguajes, actividad), permite catalogar por tipo/estado/proceso.
 
 ```mermaid
 flowchart LR
     GH[GitHub API] --> IMP[github_agent.py importar]
-    IMP --> REP_DB[(NOTION_DB_REPOS)]
-    REP_DB --> SYNC_M[github_agent.py sincronizar]
-    SYNC_M -->|estrellas, fechas| REP_DB
-    CAT[github_agent.py catalogar] --> REP_DB
-    REP_DB --> GUI[apps/github_gui.py]
+    IMP --> GIT_DB[(NOTION_DB_GIT)]
+    GIT_DB --> SYNC_M[github_agent.py sincronizar]
+    SYNC_M -->|estrellas, fechas| GIT_DB
+    CAT[github_agent.py catalogar] --> GIT_DB
+    GIT_DB --> GUI[apps/github_gui.py]
 ```
 
 - **CLI:** [agents/github_agent.py](../agents/github_agent.py) — `importar`, `sincronizar`, `catalogar`, `listar`, `estado`.
 - **Apps:** [apps/github_gui.py](../apps/github_gui.py), [apps/catalogar_repos.py](../apps/catalogar_repos.py).
 - **Casos de uso:** [05 catálogo GitHub](casos-de-uso/05-catalogo-github.md).
-- **Env:** `GITHUB_TOKEN`, `NOTION_DB_REPOS`, `NOTION_REPOS_PARENT_PAGE`.
+- **Env:** `GITHUB_TOKEN`, `NOTION_DB_GIT`, `NOTION_GIT_PARENT_PAGE`.
 
 ### BIB — Paperpile → GitHub → Notion → Obsidian
 
@@ -310,7 +310,7 @@ Registro **feature-level append-only** en [devlog/DEVLOG.md](../devlog/DEVLOG.md
 
 - **CLI:** `python tools/devlog.py {append,view}` — filtros por `--area`, `--agent`, `--status`, `--limit`.
 - **Campo opcional `Sprint:`** para cruzar con `artifacts/sprints/`.
-- **Áreas:** `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+- **Áreas:** `MAR`, `PTN`, `KIT`, `GIT`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
 - **Detalle:** sección "DevLog obligatorio" en [.claude/multiagent.md](../.claude/multiagent.md).
 
 ### Memoria del proyecto
@@ -485,7 +485,7 @@ python tools/reset_notion.py restore-all --target proyectos
 **Qué NO toca:**
 - El campo `Estado` existente (mantiene sus valores actuales intactos).
 - Las relaciones entre Proyectos ↔ Tareas ↔ Notas.
-- Otros data sources fuera del trío PTN (KIT / REP / BIB quedan para iteración siguiente).
+- Otros data sources fuera del trío PTN (KIT / GIT / BIB quedan para iteración siguiente).
 
 **Flags transversales:** `--dry-run`, `--limit N`, `--snapshot`, `--no-inx` (omite propagación INX).
 
@@ -543,7 +543,7 @@ Los 13 casos en [docs/casos-de-uso/](casos-de-uso/) son los **flujos reales** qu
 | 02 | Captura formal a PTN | PTN |
 | 03 | Obsidian ↔ PTN | ABGD + PTN |
 | 04 | Sync INX diario | MAR + PTN + ABGD + INX |
-| 05 | Catálogo GitHub | REP |
+| 05 | Catálogo GitHub | GIT |
 | 06 | Catálogo Paperpile | BIB |
 | 07 | Migración Tarea → Ruta en PTN-Notas | PTN + ABGD |
 | 08 | KIT primera clase en INX | KIT + INX |
@@ -597,7 +597,7 @@ flowchart TB
 | PTN/KIT | `NOTION_TOKEN` | sí |
 | PTN | `NOTION_DS_PROYECTOS`, `NOTION_DS_TAREAS`, `NOTION_DS_NOTAS`, `NOTION_DB_INX` | sí |
 | KIT | `NOTION_DB_KIT` | sí |
-| REP | `GITHUB_TOKEN`, `NOTION_DB_REPOS`, `NOTION_REPOS_PARENT_PAGE` | sí |
+| GIT | `GITHUB_TOKEN`, `NOTION_DB_GIT`, `NOTION_GIT_PARENT_PAGE` | sí |
 | BIB | `PAPERPILE_BIBTEX_URL`, `GITHUB_TOKEN`, `NOTION_DB_BIB`, `NOTION_BIB_PARENT_PAGE` | sí |
 | ABGD | `OBSIDIAN_ABGD_ROOT`, `OBSIDIAN_ALPHA_PATH` | sí |
 
@@ -624,7 +624,7 @@ apps\pipeline_gui.bat
   - Sprints activos — nombre(s) y cuántos cubren la fecha.
   - Últimas 5 entradas del devlog (área + título compacto).
 - **Sidebar izquierda** — árbol con 13 nodos agrupados en dos categorías:
-  - *Capa de datos*: MAR, PTN, KIT, REP, BIB, ABGD, INX.
+  - *Capa de datos*: MAR, PTN, KIT, GIT, BIB, ABGD, INX.
   - *Capa de coordinación*: Chat, Devlog, Memory, Timeline, Sprints, Subagentes.
 - **Panel derecho** (por nodo seleccionado): resumen, flow ASCII, lista de scripts con botones de acción, artifacts, variables de entorno resueltas (`OK`/`MISSING`), casos aplicables con enlace, CLI de ejemplo.
 

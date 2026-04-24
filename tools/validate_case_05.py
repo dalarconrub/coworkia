@@ -1,14 +1,14 @@
 """
-Validacion del caso de uso 5: importar repo GitHub a REP y enlazar a PTN (INX).
+Validacion del caso de uso 5: importar repo GitHub a GIT y enlazar a PTN (INX).
 
 Contrato base (alcance B):
-- NOTION_DB_REPOS tiene N repos.
+- NOTION_DB_GIT tiene N repos.
 - INX-ENLACES tiene una fila por cada repo con Clave = 'github:<Nombre>'.
-- La fila INX lleva Elemento (=Nombre), Fuente=GitHub, URL del repo si REP la tiene.
+- La fila INX lleva Elemento (=Nombre), Fuente=GitHub, URL del repo si GIT la tiene.
 
 Chequeo adicional opcional (alcance C):
-- Sin duplicados en REP por Nombre ni por URL.
-- Sin filas github:* INX que no correspondan a un repo REP (huerfanas).
+- Sin duplicados en GIT por Nombre ni por URL.
+- Sin filas github:* INX que no correspondan a un repo GIT (huerfanas).
 - Sin filas INX con Fuente!=GitHub para clave github:*.
 - Reporta cuantos github:* tienen PTN Proyecto enlazado (informativo,
   no bloquea: el doc historico mencionaba >=1 enlace, pero el caso no lo
@@ -17,11 +17,11 @@ Chequeo adicional opcional (alcance C):
 Uso:
   python tools/validate_case_05.py
   python tools/validate_case_05.py --scope c
-Requiere .env: NOTION_DB_REPOS, NOTION_DB_INX
+Requiere .env: NOTION_DB_GIT, NOTION_DB_INX
 
 Exit codes:
   0  OK.
-  1  REP repos sin fila INX github:<nombre> O huerfanas o duplicados o fuente mismatch.
+  1  GIT repos sin fila INX github:<nombre> O huerfanas o duplicados o fuente mismatch.
   2  Falta configuracion (.env).
 """
 
@@ -59,10 +59,10 @@ def _dedupe_rows(rows: list[dict]) -> list[dict]:
 
 def _scope_c(rep_rows: list[dict], inx_github: dict[str, dict],
              rep_names: set[str]) -> int:
-    """Validaciones extras: dedupe REP, huerfanas INX, fuente mismatch."""
+    """Validaciones extras: dedupe GIT, huerfanas INX, fuente mismatch."""
     fails = 0
 
-    # 1. Duplicados en REP por Nombre
+    # 1. Duplicados en GIT por Nombre
     by_nombre: dict[str, list[dict]] = defaultdict(list)
     by_url: dict[str, list[dict]] = defaultdict(list)
     for r in rep_rows:
@@ -76,7 +76,7 @@ def _scope_c(rep_rows: list[dict], inx_github: dict[str, dict],
     dups_nombre = {k: v for k, v in by_nombre.items() if len(v) > 1}
     dups_url = {k: v for k, v in by_url.items() if len(v) > 1}
 
-    # 2. Huerfanas INX (en INX pero no en REP)
+    # 2. Huerfanas INX (en INX pero no en GIT)
     huerfanas_inx = sorted(set(inx_github.keys()) - rep_names)
 
     # 3. Fuente mismatch
@@ -93,30 +93,30 @@ def _scope_c(rep_rows: list[dict], inx_github: dict[str, dict],
         if rel:
             linked.append(nombre)
 
-    print("\n=== Validacion alcance C (REP coherencia + INX huerfanas + Fuente) ===\n")
-    print(f"REP duplicados por Nombre:           {len(dups_nombre)} grupos")
-    print(f"REP duplicados por URL:              {len(dups_url)} grupos")
-    print(f"INX github:* sin REP correspondiente: {len(huerfanas_inx)}")
+    print("\n=== Validacion alcance C (GIT coherencia + INX huerfanas + Fuente) ===\n")
+    print(f"GIT duplicados por Nombre:           {len(dups_nombre)} grupos")
+    print(f"GIT duplicados por URL:              {len(dups_url)} grupos")
+    print(f"INX github:* sin GIT correspondiente: {len(huerfanas_inx)}")
     print(f"INX github:* con Fuente != GitHub:   {len(fuente_mismatch)}")
     print(f"INX github:* enlazados a PTN Proyecto: {len(linked)} (informativo)")
 
     if dups_nombre:
-        print("\n[!] Duplicados REP por Nombre (hasta 5):")
+        print("\n[!] Duplicados GIT por Nombre (hasta 5):")
         for nombre in list(dups_nombre.keys())[:5]:
             print(f"  - {nombre} ({len(dups_nombre[nombre])} filas)")
-        print("    Ejecuta: python tools/dedupe_notion_db.py --db-env NOTION_DB_REPOS --by-title --apply")
+        print("    Ejecuta: python tools/dedupe_notion_db.py --db-env NOTION_DB_GIT --by-title --apply")
         fails += 1
     if dups_url:
-        print("\n[!] Duplicados REP por URL (hasta 5):")
+        print("\n[!] Duplicados GIT por URL (hasta 5):")
         for url in list(dups_url.keys())[:5]:
             print(f"  - {url} ({len(dups_url[url])} filas)")
-        print("    Ejecuta: python tools/dedupe_notion_db.py --db-env NOTION_DB_REPOS --key URL --apply")
+        print("    Ejecuta: python tools/dedupe_notion_db.py --db-env NOTION_DB_GIT --key URL --apply")
         fails += 1
     if huerfanas_inx:
-        print("\n[!] Huerfanas INX (github:* sin REP, hasta 5):")
+        print("\n[!] Huerfanas INX (github:* sin GIT, hasta 5):")
         for n in huerfanas_inx[:5]:
             print(f"  - github:{n}")
-        print("    Diagnosticar manualmente: repos archivados/renombrados en GitHub o REP")
+        print("    Diagnosticar manualmente: repos archivados/renombrados en GitHub o GIT")
         fails += 1
     if fuente_mismatch:
         print("\n[!] Filas github:* con Fuente != GitHub (hasta 5):")
@@ -132,7 +132,7 @@ def _scope_c(rep_rows: list[dict], inx_github: dict[str, dict],
 
     if fails:
         return 1
-    print("\nOK: REP sin duplicados, INX sin huerfanas github:*, Fuente coherente.")
+    print("\nOK: GIT sin duplicados, INX sin huerfanas github:*, Fuente coherente.")
     return 0
 
 
@@ -141,10 +141,10 @@ def main() -> int:
     parser.add_argument("--scope", choices=["b", "c"], default="b")
     args = parser.parse_args()
 
-    db_repos = os.getenv("NOTION_DB_REPOS")
+    db_repos = os.getenv("NOTION_DB_GIT")
     db_inx = os.getenv("NOTION_DB_INX")
     if not db_repos or not db_inx:
-        print("Faltan NOTION_DB_REPOS o NOTION_DB_INX en .env")
+        print("Faltan NOTION_DB_GIT o NOTION_DB_INX en .env")
         return 2
 
     rep_rows = _dedupe_rows(query_data_source(db_repos))
@@ -171,12 +171,12 @@ def main() -> int:
     matched = [e for e in rep_entries if e["nombre"] in inx_github]
     missing = [e for e in rep_entries if e["nombre"] not in inx_github]
 
-    print("=== Validacion caso 5 (REP -> INX-ENLACES) ===\n")
-    print(f"REP: {len(rep_rows)} filas unicas")
+    print("=== Validacion caso 5 (GIT -> INX-ENLACES) ===\n")
+    print(f"GIT: {len(rep_rows)} filas unicas")
     print(f"  - Con Nombre: {len(rep_entries)}")
     print(f"INX-ENLACES: {len(inx_rows)} filas unicas")
     print(f"  - Clave github:*: {len(inx_github)}")
-    print(f"\nREP entries presentes en INX: {len(matched)}/{len(rep_entries)}")
+    print(f"\nGIT entries presentes en INX: {len(matched)}/{len(rep_entries)}")
 
     if matched:
         print("\nEjemplos (hasta 5):")
@@ -184,17 +184,17 @@ def main() -> int:
             print(f"  - github:{e['nombre']} | {e['url'][:70]}")
 
     if missing:
-        print("\n[!] REP entries sin fila INX github:<nombre> (hasta 5):")
+        print("\n[!] GIT entries sin fila INX github:<nombre> (hasta 5):")
         for e in missing[:5]:
             print(f"  - github:{e['nombre']} | {e['url'][:70]}")
         print("\n    Ejecuta: python tools/sync_inx_links.py --source github --limit 200")
         return 1
 
     if len(rep_entries) == 0:
-        print("\n[!] No hay entradas con Nombre en NOTION_DB_REPOS.")
+        print("\n[!] No hay entradas con Nombre en NOTION_DB_GIT.")
         return 1
 
-    print("\nOK: todos los repos REP estan reflejados en INX-ENLACES.")
+    print("\nOK: todos los repos GIT estan reflejados en INX-ENLACES.")
 
     if args.scope == "c":
         return _scope_c(rep_rows, inx_github, rep_names)

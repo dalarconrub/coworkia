@@ -1,9 +1,9 @@
 """
-Agente REP (Repositorios) para GitHub + Notion.
+Agente GIT (Repositorios) para GitHub + Notion.
 
 Cataloga repositorios de GitHub en una base de datos de Notion.
 Funcionalidades:
-  - Crear la base de datos REP-Repositorios en Notion
+  - Crear la base de datos GIT-Repositorios en Notion
   - Importar todos los repos del usuario
   - Sincronizar metadata (última actividad, estrellas, lenguajes)
   - Catalogar: asignar tipo, estado, versión, proceso
@@ -31,8 +31,8 @@ from tools.github_tools import (
     extract_repo_info,
 )
 
-DB_REPOS = os.getenv("NOTION_DB_REPOS", "")
-REPOS_PARENT_PAGE = os.getenv("NOTION_REPOS_PARENT_PAGE", "")
+DB_GIT = os.getenv("NOTION_DB_GIT", "")
+GIT_PARENT_PAGE = os.getenv("NOTION_GIT_PARENT_PAGE", "")
 
 
 # ─── SCHEMA DE LA BASE DE DATOS ──────────────────────────────────────────────
@@ -93,17 +93,17 @@ DB_SCHEMA = {
 # ─── SETUP ───────────────────────────────────────────────────────────────────
 
 def crear_base_datos(parent_page_id: str = None) -> dict:
-    """Crea la base de datos REP-Repositorios en Notion."""
-    parent = parent_page_id or REPOS_PARENT_PAGE
+    """Crea la base de datos GIT-Repositorios en Notion."""
+    parent = parent_page_id or GIT_PARENT_PAGE
     if not parent:
         raise ValueError(
-            "Falta NOTION_REPOS_PARENT_PAGE en .env. "
+            "Falta NOTION_GIT_PARENT_PAGE en .env. "
             "Crea una página en Notion y pon su ID como valor."
         )
-    result = create_database(parent, "REP-Repositorios", DB_SCHEMA)
+    result = create_database(parent, "GIT-Repositorios", DB_SCHEMA)
     db_id = result["id"]
     print(f"Base de datos creada: {db_id}")
-    print(f"Añade a tu .env:\n  NOTION_DB_REPOS={db_id}")
+    print(f"Añade a tu .env:\n  NOTION_DB_GIT={db_id}")
     return result
 
 
@@ -153,9 +153,9 @@ def importar_repos(db_id: str = None, con_lenguajes: bool = True) -> str:
     Importa todos los repos del usuario a Notion.
     con_lenguajes=True hace una llamada extra por repo para obtener todos los lenguajes.
     """
-    database = db_id or DB_REPOS
+    database = db_id or DB_GIT
     if not database:
-        return "Error: falta NOTION_DB_REPOS en .env. Ejecuta 'crear-db' primero."
+        return "Error: falta NOTION_DB_GIT en .env. Ejecuta 'crear-db' primero."
 
     # Obtener repos existentes para evitar duplicados
     existentes = _repos_existentes(database)
@@ -205,9 +205,9 @@ def importar_repos(db_id: str = None, con_lenguajes: bool = True) -> str:
 
 def sincronizar(db_id: str = None) -> str:
     """Actualiza metadata de repos existentes desde GitHub."""
-    database = db_id or DB_REPOS
+    database = db_id or DB_GIT
     if not database:
-        return "Error: falta NOTION_DB_REPOS en .env."
+        return "Error: falta NOTION_DB_GIT en .env."
 
     # Obtener repos de Notion y GitHub
     paginas = query_database(database)
@@ -270,9 +270,9 @@ def catalogar(nombre: str, tipo: str = None, estado: str = None,
               etiquetas: list[str] = None, notas: str = None,
               db_id: str = None) -> str:
     """Actualiza campos de catalogación de un repo."""
-    database = db_id or DB_REPOS
+    database = db_id or DB_GIT
     if not database:
-        return "Error: falta NOTION_DB_REPOS en .env."
+        return "Error: falta NOTION_DB_GIT en .env."
 
     pagina = _buscar_repo(database, nombre)
     if not pagina:
@@ -304,9 +304,9 @@ def catalogar(nombre: str, tipo: str = None, estado: str = None,
 def listar_repos(estado: str = None, tipo: str = None, proceso: str = None,
                  db_id: str = None) -> str:
     """Lista repos catalogados con filtros opcionales."""
-    database = db_id or DB_REPOS
+    database = db_id or DB_GIT
     if not database:
-        return "Error: falta NOTION_DB_REPOS en .env."
+        return "Error: falta NOTION_DB_GIT en .env."
 
     filter_obj = _build_filter(estado, tipo, proceso)
     registros = query_database(database, filter_obj=filter_obj)
@@ -314,7 +314,7 @@ def listar_repos(estado: str = None, tipo: str = None, proceso: str = None,
     if not registros:
         return "No hay repositorios que coincidan."
 
-    lineas = [f"=== REP-REPOSITORIOS ({len(registros)}) ===\n"]
+    lineas = [f"=== GIT-REPOSITORIOS ({len(registros)}) ===\n"]
     for r in registros:
         lineas.append(_fmt_repo(r))
     return "\n".join(lineas)
@@ -322,9 +322,9 @@ def listar_repos(estado: str = None, tipo: str = None, proceso: str = None,
 
 def estado_repos(db_id: str = None) -> str:
     """Resumen del catálogo de repositorios."""
-    database = db_id or DB_REPOS
+    database = db_id or DB_GIT
     if not database:
-        return "Error: falta NOTION_DB_REPOS en .env."
+        return "Error: falta NOTION_DB_GIT en .env."
 
     registros = query_database(database)
     if not registros:
@@ -346,7 +346,7 @@ def estado_repos(db_id: str = None) -> str:
             por_proceso[proceso] = por_proceso.get(proceso, 0) + 1
 
     lineas = [
-        f"=== ESTADO REP ({len(registros)} repos) ===\n",
+        f"=== ESTADO GIT ({len(registros)} repos) ===\n",
         "Por estado:",
     ]
     for k, v in sorted(por_estado.items(), key=lambda x: -x[1]):
@@ -438,7 +438,7 @@ def _build_filter(estado: str = None, tipo: str = None, proceso: str = None) -> 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Agente REP - Repositorios GitHub → Notion")
+    parser = argparse.ArgumentParser(description="Agente GIT - Repositorios GitHub → Notion")
     subparsers = parser.add_subparsers(dest="comando")
 
     # crear-db

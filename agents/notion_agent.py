@@ -463,8 +463,8 @@ if __name__ == "__main__":
     p_nn.add_argument("--fecha",    default=None, help="YYYY-MM-DD")
     p_nn.add_argument("--proyecto", default=None, help="ID del proyecto")
 
-    p_lr = subparsers.add_parser("link-repo-to-ptn", help="Enlazar repo GitHub (REP) a proyecto PTN via INX")
-    p_lr.add_argument("repo", help="Nombre exacto del repo en REP-Repositorios")
+    p_lr = subparsers.add_parser("link-repo-to-ptn", help="Enlazar repo GitHub (GIT) a proyecto PTN via INX")
+    p_lr.add_argument("repo", help="Nombre exacto del repo en GIT-Repositorios")
     p_lr.add_argument("proyecto", help="ID o nombre del proyecto PTN")
 
     p_lp = subparsers.add_parser("link-paper-to-ptn", help="Enlazar paper Paperpile (BIB) a proyecto PTN via INX")

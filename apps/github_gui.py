@@ -1,5 +1,5 @@
 """
-GUI para el Agente REP — Repositorios GitHub → Notion.
+GUI para el Agente GIT — Repositorios GitHub → Notion.
 Interfaz gráfica con tkinter para importar, sincronizar, catalogar y explorar repos.
 """
 
@@ -17,7 +17,7 @@ from tkinter import ttk, messagebox
 from tools.notion_tools import query_database, extract_property_value, update_page_properties
 from tools.github_tools import get_user_repos, get_repo_languages, extract_repo_info
 from agents.github_agent import (
-    DB_REPOS, importar_repos, sincronizar, catalogar, estado_repos,
+    DB_GIT, importar_repos, sincronizar, catalogar, estado_repos,
     _repos_existentes, _repo_a_propiedades,
 )
 
@@ -41,7 +41,7 @@ PURPLE = "#cba6f7"
 class GitHubGUI:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("REP — Repositorios GitHub → Notion")
+        self.root.title("GIT — Repositorios GitHub → Notion")
         self.root.geometry("960x700")
         self.root.configure(bg=BG)
         self.root.minsize(800, 600)
@@ -102,7 +102,7 @@ class GitHubGUI:
         # Header
         header = ttk.Frame(self.root)
         header.pack(fill="x", padx=16, pady=(12, 0))
-        ttk.Label(header, text="REP — Repositorios", style="Title.TLabel").pack(side="left")
+        ttk.Label(header, text="GIT — Repositorios", style="Title.TLabel").pack(side="left")
 
         self.lbl_status = ttk.Label(header, text="", style="Dim.TLabel")
         self.lbl_status.pack(side="right")
@@ -294,7 +294,7 @@ class GitHubGUI:
 
     def _cargar_repos_bg(self):
         try:
-            paginas = query_database(DB_REPOS)
+            paginas = query_database(DB_GIT)
             self.repos_data = []
             procesos = set()
 

@@ -50,7 +50,8 @@ VALID_AGENTS = {"David"} | ROOT_AGENTS  # raices + director; subagentes admitido
 _SUBAGENT_RE = re.compile(r"^(?P<root>Claude|Copilot|Codex)/(?P<sub>[A-Za-z0-9_\-]+)$")
 VALID_STATUSES = {"START", "PROGRESS", "BLOCKED", "UNBLOCKED", "DONE", "REVERT"}
 VALID_AREAS = {
-    "MAR", "PTN", "KIT", "REP", "BIB", "ABGD", "INX",
+    "MAR", "PTN", "KIT", "GIT", "BIB", "ABGD", "INX",
+    "REP",  # alias historico de GIT, conservado para que entradas pre-2026-04-24 sigan validas
     "MULTIAGENT", "TOOLING", "DOCS", "INFRA",
 }
 

@@ -90,7 +90,7 @@ python agents/kit_agent.py sincronizar-keep --source "C:\ruta\Takeout\Keep"
 
 ---
 
-### REP — Repositorios GitHub (Notion)
+### GIT — Repositorios GitHub (Notion)
 
 Cataloga repos con tipo, estado, proceso y cadenas de versión.
 
@@ -118,7 +118,7 @@ python agents/github_agent.py estado
 python apps/github_gui.py
 ```
 
-**GUI REP** — 3 pestañas: Explorar (tabla con filtros y ordenación), Catalogar (editar propiedades), Acciones (importar/sincronizar).
+**GUI GIT** — 3 pestañas: Explorar (tabla con filtros y ordenación), Catalogar (editar propiedades), Acciones (importar/sincronizar).
 
 ---
 
@@ -248,7 +248,7 @@ python tools/devlog.py append \
   [--commits sha1,sha2] [--refs "CERRADO #N"] [--sprint "<nombre>"]
 ```
 
-Áreas: `MAR`, `PTN`, `KIT`, `REP`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`.
+Áreas: `MAR`, `PTN`, `KIT`, `GIT`, `BIB`, `ABGD`, `INX`, `MULTIAGENT`, `TOOLING`, `DOCS`, `INFRA`. (`REP` se conserva como alias historico.)
 Estados: `START`, `PROGRESS`, `BLOCKED`, `UNBLOCKED`, `DONE`, `REVERT`.
 
 ### Vista temporal — `artifacts/daily/`

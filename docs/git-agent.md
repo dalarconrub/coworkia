@@ -1,4 +1,4 @@
-# Agente REP — Repositorios GitHub → Notion
+# Agente GIT — Repositorios GitHub → Notion
 
 Cataloga y documenta repositorios de GitHub en una base de datos de Notion.
 Permite importar, sincronizar, catalogar y explorar repos desde CLI o GUI.
@@ -15,7 +15,7 @@ GitHub API ──→ tools/github_tools.py ──→ agents/github_agent.py ─�
 | Archivo | Propósito |
 |---------|-----------|
 | `tools/github_tools.py` | Wrappers API GitHub REST v3 |
-| `agents/github_agent.py` | Agente REP: importar, sincronizar, catalogar, listar |
+| `agents/github_agent.py` | Agente GIT: importar, sincronizar, catalogar, listar |
 | `apps/github_gui.py` | Interfaz gráfica (tkinter) |
 | `apps/catalogar_repos.py` | Script de catalogación masiva inicial |
 
@@ -23,8 +23,8 @@ GitHub API ──→ tools/github_tools.py ──→ agents/github_agent.py ─�
 
 ```
 GITHUB_TOKEN=ghp_...              # Token clásico con scope 'repo'
-NOTION_REPOS_PARENT_PAGE=xxx      # ID de la página padre donde se creó la BD
-NOTION_DB_REPOS=xxx               # ID de la BD REP-Repositorios
+NOTION_GIT_PARENT_PAGE=xxx      # ID de la página padre donde se creó la BD
+NOTION_DB_GIT=xxx               # ID de la BD GIT-Repositorios
 ```
 
 ### Cómo obtener `GITHUB_TOKEN`
@@ -32,7 +32,7 @@ NOTION_DB_REPOS=xxx               # ID de la BD REP-Repositorios
 1. GitHub.com → Settings → Developer settings → Personal access tokens → Tokens (classic)
 2. Generate new token → scope `repo` → copiar
 
-### Cómo obtener `NOTION_REPOS_PARENT_PAGE`
+### Cómo obtener `NOTION_GIT_PARENT_PAGE`
 
 1. Crea una página en Notion (o usa una existente)
 2. Comparte la página con tu integración de Notion (... → Conexiones)
@@ -44,7 +44,7 @@ NOTION_DB_REPOS=xxx               # ID de la BD REP-Repositorios
 
 ```bash
 python agents/github_agent.py crear-db
-# Devuelve el ID → copiarlo a NOTION_DB_REPOS en .env
+# Devuelve el ID → copiarlo a NOTION_DB_GIT en .env
 ```
 
 ### Importar repos

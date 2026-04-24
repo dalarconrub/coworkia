@@ -19,7 +19,7 @@ Si detectas desalineación entre `memory/*.md` y el repo real, corrígela en el 
 Coworkia es un sistema multiagente para gestión personal y conocimiento con esta división canónica:
 
 - `Todoist` ejecuta (`MAR`)
-- `Notion` dirige (`PTN`, `KIT`, `REP`, `BIB`)
+- `Notion` dirige (`PTN`, `KIT`, `GIT`, `BIB`)
 - `Obsidian` almacena (`ABGD`)
 
 Agentes de dominio principales:

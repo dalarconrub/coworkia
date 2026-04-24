@@ -32,7 +32,7 @@ Dentro del markdown de una nota:
 [[kit:<page_id>]]           # entrada KIT
 [[paperpile:<citekey>]]     # paper BIB
 [[todoist:<task_id>]]       # tarea Todoist
-[[github:<nombre_repo>]]    # repo REP
+[[github:<nombre_repo>]]    # repo GIT
 ```
 
 - Se aceptan UUIDs con o sin guiones para `ptn` y `kit` (matching normalizado).

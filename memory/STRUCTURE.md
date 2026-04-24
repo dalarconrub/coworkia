@@ -18,12 +18,12 @@ Coworkia separa por **responsabilidad operativa**, no por tecnología:
 ## Carpetas top-level
 
 ### `agents/` — orquestación por dominio
-Un módulo Python por sistema (`MAR`/`PTN`/`KIT`/`REP`/`BIB`/`ABGD`) más el orquestador multiagente. Son las **entradas principales por dominio**: cada fichero expone un CLI (`python agents/<x>.py <cmd>`). Dependen de `tools/` para llamadas API de bajo nivel.
+Un módulo Python por sistema (`MAR`/`PTN`/`KIT`/`GIT`/`BIB`/`ABGD`) más el orquestador multiagente. Son las **entradas principales por dominio**: cada fichero expone un CLI (`python agents/<x>.py <cmd>`). Dependen de `tools/` para llamadas API de bajo nivel.
 
 - `todoist_agent.py` — MAR (ejecutar).
 - `notion_agent.py` — PTN (dirigir).
 - `kit_agent.py` — KIT (catalogar conocimiento).
-- `github_agent.py` — REP (catalogar repos).
+- `github_agent.py` — GIT (catalogar repos). Antes REP, alias retenido en devlog.
 - `bib_agent.py` — BIB (catalogar bibliografía).
 - `obsidian_agent.py` — ABGD (almacenar notas).
 - `inoreader_agent.py` — fuente externa que alimenta KIT (no catálogo separado): articulos starred + tag `kit-import` → `NOTION_DB_KIT`. Ver `docs/inoreader-agent.md`.
@@ -37,7 +37,7 @@ Regla: si algo se usa desde más de un agente, va aquí. Si es de un solo domini
 ### `apps/` — interfaces de usuario
 GUIs Tkinter, dashboards interactivos, doctores de diagnóstico y lanzadores `.bat` para Windows. Consumen `agents/` y `tools/` pero no son invocadas por ellos (capa superior).
 
-Ejemplos: `dashboard.py` (MAR diario), `project_hub_gui.*` (PTN), `github_gui.py` (REP), `bib_gui.py` (BIB), `inx_daily.*`, `config_doctor.py`, `notion_doctor.py`, `inx_doctor.py`.
+Ejemplos: `dashboard.py` (MAR diario), `project_hub_gui.*` (PTN), `github_gui.py` (GIT), `bib_gui.py` (BIB), `inx_daily.*`, `config_doctor.py`, `notion_doctor.py`, `inx_doctor.py`.
 
 ### `multiagents/` — capa de orquestación IA
 Paquete Python que modela Scrum sobre el proyecto:
