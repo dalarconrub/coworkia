@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-24T14:26:30Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-24T14:47:08Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).

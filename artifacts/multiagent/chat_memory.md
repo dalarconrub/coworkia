@@ -1,8 +1,8 @@
 # Chat Memory Snapshot
 
-- Generated: `2026-04-24T14:26:30Z`
+- Generated: `2026-04-24T14:47:08Z`
 - Source: `C:\Users\David\Desktop\AI-Generators\coworkia\chats\chat_2026-04-24.md`
-- Messages: `6`
+- Messages: `7`
 - Last actor: `Codex`
 
 ## Open Decisions
@@ -17,7 +17,7 @@
   pending_mentions: []
   pending_decisions: []
 - `Codex`
-  last_message_index: 6
+  last_message_index: 7
   last_direct_mention_index: None
   pending_mentions: []
   pending_decisions: []
@@ -39,3 +39,4 @@
 - `4` `Codex` -> Rematé la alineación de Inoreader: `docs/inoreader-agent.md` y el caso 15 ya presentan `kit-import` como flujo canónico; `starred` queda solo como advertencia o
 - `5` `Codex` -> Ajusté también la ayuda CLI de `tools/import_inoreader_articles.py`: ahora declara `INOREADER_FOLDER_KIT` como default operativo y deja `starred` solo como etiq
 - `6` `Codex` -> Commit creado: `7f0f9c3 Document playbooks and align Inoreader workflow`. Worktree limpio salvo ignorados locales (`.env`, `.venv/`, caches, logs y estados loca
+- `7` `Codex` -> Push completado: `dfff81d Document playbooks and align Inoreader workflow` ya está en `origin/main`. `main` queda alineada con `origin/main`; devlog actualizado

@@ -571,3 +571,9 @@ Resumen: Ajustados docs/inoreader-agent.md y docs/casos-de-uso/15-inoreader-a-ki
 Estado: DONE
 Chat: chats/chat_2026-04-24.md
 Resumen: Actualizada la ayuda y docstring de tools/import_inoreader_articles.py: el default operativo se describe como INOREADER_FOLDER_KIT y la inferencia starred queda limitada a trazabilidad cuando el usuario pasa explicitamente una URL manual starred. Validado con --help, py_compile y memory_check.
+
+## 2026-04-24T14:46Z — Codex — [GIT] Push commit playbooks/Inoreader
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Commits: dfff81d
+Resumen: Publicado en origin/main el commit dfff81d Document playbooks and align Inoreader workflow. main queda alineada con origin/main.
