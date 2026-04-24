@@ -496,3 +496,43 @@ Resumen: Cleanup de duplicados pendientes en 3 bases con conteos pequenos. (1) O
 Estado: DONE
 Chat: chats/chat_2026-04-23.md
 Resumen: Simetria con el fix de import_keep_remaining: ambas funciones que importan Google Keep a KIT ahora llaman _check_keep_existing_integrity antes de escribir. El helper aborta si detecta el patron patologico del 2026-04-21: KIT con >100 filas Subtipo='Nota' pero ninguna con Google Keep ID poblado (filas creadas antes de que existiera la propiedad -> dedupe falla silencioso). _ensure_kit_schema ya cubre el caso de creacion inicial sin Keep ID en schema; este helper cubre el caso residual de filas huerfanas. Cambios minimos: 1 helper nuevo + 1 llamada en importar_keep y 1 en sincronizar_keep. Smoke test: imports OK.
+
+## 2026-04-23T17:11Z — Claude — [INX] Backfill INX completo --source all post-fix: PASS (0 duplicados)
+Estado: DONE
+Chat: chats/chat_2026-04-23.md
+Resumen: Ejecucion full de sync_inx_links --source all tras los fixes de _existing_map y _upsert. Resultado: 'INX enlaces sincronizados: todoist=451 notion=16 obsidian=35 github=113 paperpile=472 kit=828 kit_backrefs=0' = 1915 upserts en total. INX pre=3545 -> post=3545 (delta +0, todos UPDATE porque INX ya tenia coverage canonica completa tras cleanups previos). Verificacion post: dedupe_notion_db --key Clave reporta 'Sin duplicados'. Si el bug de _existing_map estuviera vivo, las 1915 upserts habrian producido ~1915 dups potenciales; con el fix aplicado, cero. Tiempo total ~25 min (lento por las 6 invocaciones de _existing_map paginadas sobre 3545 filas INX). Fix validado en condiciones de produccion masiva.
+
+## 2026-04-24T05:14Z — Claude — [REP] Validador caso 5 (REP <-> INX) creado: tools/validate_case_05.py
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Nuevo validador alineado con el patron de validate_case_08.py para automatizar el audit del caso 5 (importar repo GitHub a REP y enlazar a PTN). Alcance B (base): REP entries con Nombre tienen fila INX github:<Nombre>; reporta count, ejemplos, missing si los hay. Alcance C (--scope c, extras): sin duplicados REP por Nombre ni por URL; sin filas INX github:* huerfanas (sin REP correspondiente); Fuente coherente (=GitHub); count informativo de repos enlazados a PTN Proyecto. Exit codes 0/1/2 alineados con caso 08. Smoke test post-creacion: scope B PASS (113/113 REP en INX), scope C PASS (0 dups, 0 huerfanas, 0 fuente mismatch, 0 PTN enlaces). Cierra brecha: solo casos 5 y 6 (REP, BIB) carecian de validator entre 02-14; ahora REP cubierto. Pendiente: validate_case_06 para BIB con la misma estructura.
+
+## 2026-04-24T05:19Z — Claude — [BIB] Validador caso 6 (BIB <-> INX) creado: tools/validate_case_06.py
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Nuevo validador alineado con validate_case_05.py y validate_case_08.py para automatizar el audit del caso 6 (importar paper Paperpile a BIB y enlazar a PTN/Obsidian). Alcance B: papers BIB con Citekey tienen fila INX paperpile:<citekey>; reporta count, ejemplos, missing si los hay. Alcance C (--scope c): sin duplicados BIB por Citekey ni por DOI; sin huerfanas INX paperpile:* sin BIB correspondiente; Fuente coherente (=Paperpile); count informativo de papers enlazados a PTN Proyecto. Smoke test: scope B PASS (472/472 BIB en INX), scope C PASS (0 dups Citekey/DOI, 0 huerfanas, 0 fuente mismatch, 0 PTN enlaces). Cobertura completa de validators ahora: 02, 03, 05-14 cubiertos. Solo casos 1 (captura zinbox) y 4 (sync diario INX) sin validator por naturaleza no-verificable post-hoc.
+
+## 2026-04-24T05:25Z — Claude — [INX] Re-link github:coworkia -> Arquitectura Coworkia v2 (recovery post-reset 2026-04-19)
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Recovery manual del unico enlace conocido perdido por el reset del 2026-04-19 (commit 467034f). link_repo_to_ptn('coworkia', 'Arquitectura Coworkia v2') ejecutado: INX github:coworkia ahora apunta a PTN Proyecto page_id 33f622cf-315b-814c-84fd-c9d3fa6042eb con Estado=Verificado y URL=https://github.com/dalarconrub/coworkia. Validacion post via tools/validate_case_05.py --scope c: 'INX github:* enlazados a PTN Proyecto: 1' (coincide con doc historico del 2026-04-17). Pendiente: investigar otros enlaces huerfanos (paperpile:*, kit:*, obsidian:*, todoist:* tambien podrian haber perdido enlaces a PTN). Estructural: snapshot/restore de relaciones INX->PTN no existe en el flujo de reset, deberia anadirse para evitar futuras perdidas silenciosas.
+
+## 2026-04-24T05:27Z — Claude — [INX] Investigacion cierre: regresion github:coworkia NO causada por reset ni por sync actual
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Investigacion completa. Hallazgos: (1) Backup ptn-proyectos-191723Z.json (pre-reset 21:17) tiene IDENTICOS page_ids a los actuales en PTN-Proyectos -> reset NO roto IDs, mi teoria inicial era incorrecta. (2) reset_notion._flip_archivo solo modifica campo 'Archivo' (checkbox) en INX cuando archiva PTN; NO toca relaciones (PTN Proyecto, KIT, etc.). (3) _sync_github en sync_inx_links.py no incluye PTN Proyecto en su dict 'data', por lo que _upsert via update_page_properties no lo sobrescribe (Notion API preserva propiedades no listadas en el payload). (4) Mismo razonamiento aplica a _sync_paperpile, _sync_kit, _sync_obsidian, etc. Conclusion: el codigo ACTUAL no causa la perdida de relaciones INX->PTN. La regresion historica de github:coworkia se debio a alguna de: (a) borrado manual desde UI de Notion, (b) doc del 2026-04-17 era aspiracional sin validacion real, (c) version vieja de algun script ya refactorizada. El re-link de hoy debe ser estable. Pendiente opcional: verificar empiricamente corriendo sync_inx_links --source github y comprobando que PTN Proyecto persiste post-sync.
+
+## 2026-04-24T05:50Z — Claude — [INX] Fix _sync_github: no degrada Estado=Verificado a Activo en cada sync
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Cambio en tools/sync_inx_links.py _sync_github: removido 'Estado': {'select': {'name': 'Activo'}} del dict 'data'. Razon: la version anterior sobrescribia el Estado=Verificado puesto por link_repo_to_ptn en cada ejecucion de sync_inx_links --source github, degradando metadato curado. Comportamiento nuevo: Estado en filas INX github:* es estable, solo lo modifica link_repo_to_ptn (a Verificado) o el usuario manualmente. Trade-off: filas github:* nuevas (creadas por sync sin previo link) quedan sin Estado hasta vinculacion manual. Verificacion empirica: link_repo_to_ptn('coworkia', 'Arquitectura Coworkia v2') -> Estado=Verificado; sync_inx_links --source github (con fix) -> Estado sigue Verificado, PTN Proyecto sigue intacta. Mismo patron aplicable a _sync_paperpile y _sync_kit si aparece la misma necesidad (no aplicado por scope, solo github).
+
+## 2026-04-24T05:59Z — Claude — [INX] Patron preservar Estado=Verificado aplicado a _sync_kit y _sync_paperpile
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Consistencia con el fix anterior de _sync_github. Eliminado 'Estado': {'select': {'name': 'Activo'}} del data dict de _sync_kit y _sync_paperpile en tools/sync_inx_links.py. Razon: igual que para github, las funciones link_*_to_ptn (link_paper_to_ptn, link_article_to_ptn) ponen Estado=Verificado como metadato curado; los syncs no deben degradarlo a Activo en cada ejecucion. Trade-off documentado: nuevas filas paperpile:* y kit:* creadas via sync sin previo link quedan sin Estado hasta vinculacion. Asimetria con _sync_todoist/_sync_ptn_log/_sync_obsidian es intencional: esas fuentes no tienen helpers link_*_to_ptn por ahora. Smoke test imports OK.
+
+## 2026-04-24T06:01Z — Claude — [DOCS] Caso 14: documentado comportamiento garantizado de relaciones INX->PTN ante reset
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Anadida seccion 'Comportamiento garantizado: relaciones curadas INX->PTN preservadas' a docs/casos-de-uso/14-reset-sistema.md, entre Postcondiciones y Definition of Done. Documenta: (1) reset_notion._flip_archivo solo modifica el campo Archivo en INX, no toca relaciones ni Estado/URL/Detalle/Fuente; (2) _sync_github, _sync_paperpile, _sync_kit NO incluyen Estado en payload de upsert (fix de hoy) -> preservan Verificado puesto por link_*_to_ptn; (3) asimetria intencional con _sync_todoist/_sync_ptn_log/_sync_obsidian (esas si setean Estado por carecer de helpers link_*_to_ptn); (4) trade-off documentado: nuevas filas sin previo link quedan sin Estado; (5) validacion empirica del 2026-04-24 con github:coworkia citada; (6) implicacion: no hace falta snapshot/restore de relaciones alrededor del flujo de reset. Cierra el riesgo percibido sobre 'relaciones rotas' que motivo la investigacion de hoy.
