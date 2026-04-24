@@ -28,7 +28,7 @@ Como obtener la URL publica (modo --url, recomendado):
         python tools/import_inoreader_articles.py \\
             --url "https://www.inoreader.com/stream/user/.../tag/kit-import/view/json?n=1000" \\
             --tag kit-import
-     Repetible con varias --url para starred + tag a la vez.
+     Repetible con varias --url si quieres importar varias fuentes manuales.
 
 Como usar archivos descargados (modo --source, equivalente offline):
   1. Mismos pasos 1-5; en vez de copiar URL, descarga el JSON al disco.
@@ -37,8 +37,9 @@ Como usar archivos descargados (modo --source, equivalente offline):
         python tools/import_inoreader_articles.py --source artifacts/imports/inoreader/
 
 Convencion de source_tag (etiqueta en KIT.Inoreader Tags):
-  - --url: se infiere de la URL ('starred' si contiene esa palabra,
-           si no INOREADER_FOLDER_KIT). Override con --tag.
+  - --url: se infiere INOREADER_FOLDER_KIT salvo que la URL manual contenga
+           'starred', en cuyo caso se etiqueta asi solo para trazabilidad.
+           Override con --tag.
   - --source: se infiere del nombre de archivo (stem).
               'starred' contiene esa palabra -> 'starred'.
               stem == INOREADER_FOLDER_KIT   -> ese nombre.
@@ -138,9 +139,9 @@ def main() -> int:
     )
     parser.add_argument(
         "--tag", default=None,
-        help="source_tag para asignar a los articulos descargados con --url. "
-             "Si se pasan varias --url, se aplica a todas. Default: 'starred' "
-             "si la URL contiene 'starred', si no el INOREADER_FOLDER_KIT.",
+        help="source_tag para articulos descargados con --url. "
+             "Si se pasan varias --url, se aplica a todas. Default: INOREADER_FOLDER_KIT; "
+             "si la URL manual contiene 'starred', se etiqueta 'starred' solo para trazabilidad.",
     )
     parser.add_argument("--limit", type=int, default=None,
                         help="Procesa solo los N primeros articulos (pruebas)")

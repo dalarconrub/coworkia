@@ -21,6 +21,9 @@ logs/
 artifacts/sprints/*.md
 !artifacts/sprints/sprint-multiagent-1.md
 
+# Local Claude/Codex permission state
+.claude/settings.json
+
 # Regenerable outputs (each run produces a new file)
 artifacts/inx/
 

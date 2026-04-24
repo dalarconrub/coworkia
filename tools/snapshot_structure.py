@@ -38,13 +38,24 @@ EXCLUDE_DIRS = {
     ".idea", ".vscode", ".pytest_cache", ".mypy_cache",
     ".ruff_cache", "build", "dist", ".cache", ".next",
 }
-EXCLUDE_FILE_SUFFIXES = {".pyc", ".pyo"}
+EXCLUDE_FILE_SUFFIXES = {".pyc", ".pyo", ".log"}
+EXCLUDE_RELATIVE_FILES = {
+    Path("artifacts") / "inoreader_state.json",
+    Path("artifacts") / "inoreader_sync_state.json",
+    Path(".claude") / "settings.json",
+}
 
 MAX_DEPTH = 2
 MAX_CHILDREN_PER_DIR = 40
 
 
 def _should_skip(p: Path) -> bool:
+    try:
+        rel = p.relative_to(_ROOT)
+    except ValueError:
+        rel = p
+    if rel in EXCLUDE_RELATIVE_FILES:
+        return True
     if p.name in EXCLUDE_DIRS:
         return True
     if p.is_file() and p.suffix in EXCLUDE_FILE_SUFFIXES:

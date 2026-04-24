@@ -13,7 +13,7 @@ Coworkia separa por **responsabilidad operativa**, no por tecnología:
 - **Lo vivo** (hilos, logs, memoria operativa) → `chats/`, `devlog/`, `artifacts/`.
 - **Lo curado** (identidad, propósito, estructura) → `memory/`, raíz (`README.md`, `CLAUDE.md`, `AGENTS.md`).
 - **Lo ejecutable** (lógica del sistema) → `agents/`, `tools/`, `apps/`, `multiagents/`.
-- **La documentación de uso** (guías para humanos) → `docs/`.
+- **La documentación de uso** (guías para humanos) → `docs/`, `playbooks/`.
 
 ## Carpetas top-level
 
@@ -26,7 +26,7 @@ Un módulo Python por sistema (`MAR`/`PTN`/`KIT`/`GIT`/`BIB`/`ABGD`) más el orq
 - `github_agent.py` — GIT (catalogar repos). Antes REP, alias retenido en devlog.
 - `bib_agent.py` — BIB (catalogar bibliografía).
 - `obsidian_agent.py` — ABGD (almacenar notas).
-- `inoreader_agent.py` — fuente externa que alimenta KIT (no catálogo separado): articulos starred + tag `kit-import` → `NOTION_DB_KIT`. Ver `docs/inoreader-agent.md`.
+- `inoreader_agent.py` — fuente externa que alimenta KIT (no catálogo separado): articulos con tag `kit-import` → `NOTION_DB_KIT`. Ver `docs/inoreader-agent.md`.
 - `orchestrator_agent.py` — multiagente, sprints, INX sync, memoria.
 
 ### `tools/` — wrappers de APIs y utilidades
@@ -77,11 +77,16 @@ Todo lo derivado que se regenera desde fuentes:
 Guías para humanos. No es memoria del sistema.
 
 - `guia-rapida.md` — quick start.
-- `todoist-agent.md`, `notion-ptn-agent.md`, `notion-kit-agent.md`, `github-rep-agent.md`, `bib-agent.md`, `obsidian-agent.md` — una guía por agente.
+- `todoist-agent.md`, `notion-ptn-agent.md`, `notion-kit-agent.md`, `git-agent.md`, `bib-agent.md`, `obsidian-agent.md` — una guía por agente.
 - `multiagent-system.md` — arquitectura Scrum interna.
 - `abc-taxonomy.md` — referencia de la taxonomía ABC.
 - `extract-portable-toolkit.md` — exportar herramientas agnósticas.
 - `casos-de-uso/` — workflows paso a paso.
+
+### `playbooks/` — metodologías reutilizables
+Guías operativas extraídas de trabajos ya ejecutados en otros proyectos o frentes. No son memoria canónica de Coworkia ni documentación de usuario por sistema; son patrones transferibles que pueden aplicarse a proyectos futuros.
+
+- `bookdown-exhaustive-project-playbook.md` — método para crear un bookdown exhaustivo, navegable y validable de un proyecto complejo.
 
 ### `.claude/`, `.github/`
 Protocolo y configuración de agentes:
@@ -107,12 +112,13 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 3. **Nueva GUI** → en `apps/`, consumiendo `agents/`+`tools/`.
 4. **Nuevo MD top-level en raíz** → actualizar `memory/INDEX.md` y `memory/STRUCTURE.md`.
 5. **Nuevo tipo de artefacto derivado** → bajo `artifacts/<nombre>/`, documentar qué script lo regenera.
+6. **Nuevo playbook reutilizable** → bajo `playbooks/`, con propósito, fuentes, criterios de cierre y referencia en `memory/INDEX.md` si inaugura una nueva familia.
 
 ## Árbol actual
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-24T12:41Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -198,7 +204,6 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
     - sprint-multiagent-runtime.md
     - sprint-multiagent-sync.json
     - sprint-multiagent-sync.md
-  - inoreader_state.json
   - obsidian_log_state.json
   - ptn_log_state.json
 - chats/
@@ -208,6 +213,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
   - chat_2026-04-21.md
   - chat_2026-04-22.md
   - chat_2026-04-23.md
+  - chat_2026-04-24.md
   - chat_archive_2026-04-17.md
 - devlog/
   - DEVLOG.md
@@ -218,7 +224,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
     - 02-tarea-a-proyecto-ptn-con-inx.md
     - 03-nota-obsidian-desde-ptn.md
     - 04-sync-diario-inx.md
-    - 05-github-rep-enlazado-a-ptn.md
+    - 05-git-enlazado-a-ptn.md
     - 06-paperpile-bib-enlazado.md
     - 07-promocion-obsidian-a-ptn.md
     - 08-kit-en-inx.md
@@ -233,7 +239,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
   - abc-taxonomy.md
   - bib-agent.md
   - extract-portable-toolkit.md
-  - github-rep-agent.md
+  - git-agent.md
   - guia-rapida.md
   - inoreader-agent.md
   - multiagent-system.md
@@ -257,6 +263,9 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
   - multiagent-system.md
   - planner.py
   - registry.py
+- playbooks/
+  - bookdown-exhaustive-project-playbook.md
+  - README.md
 - Sistemas/
   - ABC/
     - ABC 2a5622cf315b8044a83feb2033f661d1_ABC-AREA 2a5622cf315b813faa22000be68a3416.csv
@@ -311,6 +320,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
   - create_abc_taxonomy_dbs.py
   - create_inx_links_db.py
   - dedupe_abc_taxonomy.py
+  - dedupe_notion_db.py
   - devlog.py
   - enable_ptn_relations.py
   - ensure_archivo_field.py
@@ -344,8 +354,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-23T08:35Z. No editar 
   - paperpile_tools.py
   - promote_bib_to_obsidian.py
   - promote_notas_checkboxes_to_todoist.py
-  - promote_obsidian_to_ptn.py
-  - ... (25 mas)
+  - ... (28 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

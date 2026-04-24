@@ -68,7 +68,7 @@ INOREADER_FOLDER_KIT=kit-import
 | Archivo | Contenido |
 | --- | --- |
 | `artifacts/inoreader_state.json` | `access_token`, `refresh_token`, `expires_at` (refrescados automáticamente) |
-| `artifacts/inoreader_sync_state.json` | Cursores por stream (`starred`, `kit-import`): unix epoch del último sync OK |
+| `artifacts/inoreader_sync_state.json` | Cursores por stream sincronizado (por defecto `kit-import`): unix epoch del último sync OK |
 
 ## Setup inicial
 
@@ -91,7 +91,7 @@ python tools/ensure_kit_external_fields.py
 
 Añade (sin destruir lo existente):
 - `KIT.Inoreader ID` (rich_text)
-- `KIT.Inoreader Tags` (multi_select: `starred`, `kit-import`)
+- `KIT.Inoreader Tags` (multi_select: `kit-import` y otros tags importados manualmente si aplica)
 - `KIT.Fuente / Autor` (rich_text)
 - `KIT.Subtipo`: opciones `Artículo`, `Newsletter`, `Blog`, `Vídeo`, `Podcast`
 - `INX-ENLACES.Fuente`: opción `Inoreader`
@@ -183,7 +183,7 @@ python agents/inoreader_agent.py listar
 python agents/inoreader_agent.py listar --subtipo Newsletter
 
 :: Filtrar por origen
-python agents/inoreader_agent.py listar --tag starred
+python agents/inoreader_agent.py listar --tag kit-import
 
 :: Resumen agregado por subtipo y por tag de origen
 python agents/inoreader_agent.py estado

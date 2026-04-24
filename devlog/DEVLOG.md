@@ -546,3 +546,28 @@ Resumen: Refactor nivel B (per la propuesta) para harmonizar nomenclatura: entit
 Estado: DONE
 Chat: chats/chat_2026-04-24.md
 Resumen: Realineamiento de la taxonomia A4-ARX en docs Coworkia para que los catalogos KIT/BIB/GIT tengan bloques de primera clase con codigo coherente. Cambios solo en documentacion del codebase (no toca Notion ni vault local; el usuario hara esos pasos manualmente). README.md (3 secciones), docs/abc-taxonomy.md (seccion A4-ARX), docs/todoist-agent.md (lista de bloques), docs/obsidian-agent.md (arbol de carpetas). Renames: B4X-LIB->B4X-BIB, B4Y-MED->B4Y-KIT, B4Z-APP->B4Z-GIT. Contextos: x/y/z mayusculas (X/Y/Z) ya estaban en el template Sistemas/Sistema_ABGD-main pero los docs Coworkia los tenian en minusculas - alineado. Renames especificos pedidos: C4Y6-MP3->C4Y6-WEB, C4Z7-MOC->C4Z7-COD, C4Z8-WEB->C4Z8-AGI. NO tocado: Sistemas/ABC/*.csv (snapshots Notion), Sistemas/Sistema_ABGD-main/* (template ABGD), artifacts/resets/*.json (historicos), C111-REP en A1-INV/B11-CVT (significado academico distinto). Acciones manuales pendientes para el usuario fuera del repo: (1) renombrar bloques en Notion ABC-BLOQUE database; (2) renombrar contextos en Notion ABC-CONTEXTO database; (3) mover paginas Notion KIT/BIB/GIT bajo nuevo bloque parent; (4) renombrar carpetas vault Obsidian en OBSIDIAN_ABGD_ROOT/Alpha/A4-ARX/.
+
+## 2026-04-24T12:38Z — Codex — [DOCS] Alinear playbooks e Inoreader en memoria
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Documentada la nueva carpeta top-level playbooks/ en memory/INDEX.md y memory/STRUCTURE.md, con TREE regenerado por tools/snapshot_structure.py. Corregidos restos documentales tras GIT rename (github-rep-agent -> git-agent) y política Inoreader vigente (solo tag kit-import, sin starred por defecto) en memory/STRUCTURE.md, docs/casos-de-uso/index.md y tools/import_inoreader_articles.py.
+
+## 2026-04-24T12:40Z — Codex — [TOOLING] Filtrar estado local en snapshot_structure
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Endurecido tools/snapshot_structure.py para excluir .claude/settings.json, ficheros .log y estados locales de Inoreader del TREE de memory/STRUCTURE.md. Anadida regla en .gitignore para no versionar .claude/settings.json. Validado con py_compile y snapshot_structure.py --check.
+
+## 2026-04-24T12:41Z — Codex — [DOCS] Indice local de playbooks
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Anadido playbooks/README.md como indice operativo de la nueva carpeta de metodologias reutilizables, con criterios para futuros playbooks. Regenerado memory/STRUCTURE.md para incluir el README en el TREE.
+
+## 2026-04-24T12:43Z — Codex — [DOCS] Completar alineacion docs Inoreader kit-import
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Ajustados docs/inoreader-agent.md y docs/casos-de-uso/15-inoreader-a-kit.md para que el flujo canonico sea tag explicito kit-import. Las menciones a starred quedan solo como advertencia de que no dispara import o como posibilidad manual explicita del importer offline.
+
+## 2026-04-24T12:45Z — Codex — [TOOLING] Aclarar ayuda CLI import_inoreader_articles
+Estado: DONE
+Chat: chats/chat_2026-04-24.md
+Resumen: Actualizada la ayuda y docstring de tools/import_inoreader_articles.py: el default operativo se describe como INOREADER_FOLDER_KIT y la inferencia starred queda limitada a trazabilidad cuando el usuario pasa explicitamente una URL manual starred. Validado con --help, py_compile y memory_check.

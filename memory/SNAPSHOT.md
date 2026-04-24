@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-19T17:15:17Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-24T14:26:30Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).
@@ -69,6 +69,8 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-04-19.md` (msg #22)
 - **[2026-04-19]** `Codex` — ejecutado batch real `--all-pending --limit 5 --contexto C137-ART --sync` del caso 09. Se crearon 5 fichas nuevas (`Abad2021c`, `Abedishargh2021d`, `Abril2024i`, `Agras2021q`, `Ahmed2018t`). El primer intento fall? por dependencia vieja de `python-dotenv` en `tools/log_ptn_changes.py`; se corrigi? en el mismo turno y se relanz? la sincronizaci?n. Para que la validaci?n cerrara 6/6 hizo falta ampliar `sync_inx_links --source paperpile` al cat?logo completo: ahora `INX-ENLACES` contiene `paperpile:* = 472` y el caso 09 queda verde con cruce doble y `Paperpile Citekey` expl?cito. SIGUIENTE: @David si quieres seguir expandiendo BIB, el siguiente paso natural es otro batch acotado (por ejemplo 10 o 25 papers) o a?adir filtros m?s finos a `--all-pending`.
   - origen: `chats/chat_2026-04-19.md` (msg #27)
+- **[2026-04-19]** `Codex` — `.env` ya apunta al vault nuevo tras el reset de Obsidian. Se actualizaron `OBSIDIAN_ABGD_ROOT=C:/GDrive/dalarconrub/ABGD/ABGD-260419` y `OBSIDIAN_ALPHA_PATH=C:/GDrive/dalarconrub/ABGD/ABGD-260419/1.ALPHA` para dejar consistente la sesi?n operativa con el vault rotado. SIGUIENTE: @David abre `ABGD-260419` en Obsidian desktop para continuar trabajando sobre el vault nuevo.
+  - origen: `chats/chat_2026-04-19.md` (msg #36)
 - **[archive_2026-04-17]** `Codex` — los marcadores canónicos del hilo son `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)
 - **[archive_2026-04-17]** `Codex` — la causa de los acentos rotos en chat.md es el uso de Windows PowerShell 5.1 sobre un archivo UTF-8 sin indicar codificación explícita. Regla fija del sistema: cualquier lectura/escritura manual de chat.md en PowerShell debe usar -Encoding utf8.

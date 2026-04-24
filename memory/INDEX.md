@@ -86,6 +86,7 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | [docs/obsidian-agent.md](../docs/obsidian-agent.md)               | ABGD — guía del agente Obsidian             |
 | [docs/extract-portable-toolkit.md](../docs/extract-portable-toolkit.md) | Cómo exportar herramientas agnósticas      |
 | [docs/casos-de-uso/](../docs/casos-de-uso/)                       | Workflows paso a paso                       |
+| [playbooks/](../playbooks/)                                       | Metodologías reutilizables extraídas de trabajos cerrados |
 
 ## 7. Arranque y entorno
 

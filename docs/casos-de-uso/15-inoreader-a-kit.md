@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Que cada artículo curado en Inoreader (starred o tageado con `kit-import`)
+Que cada artículo curado en Inoreader con el tag explícito `kit-import`
 quede catalogado en `NOTION_DB_KIT` con metadata limpia (subtipo, autor,
 fecha, URL, resumen), expuesto en `INX-ENLACES` vía la fila `kit:<page_id>`,
 y opcionalmente vinculado a un proyecto PTN.
@@ -32,7 +32,7 @@ David quiere catalogar un artículo leído en Inoreader como Information del KIT
 
 ## Fuente de verdad
 
-- **Origen del artículo**: Inoreader (feed/tag/starred)
+- **Origen del artículo**: Inoreader (feed/tag; por defecto solo `kit-import`)
 - **Catálogo y estado de lectura**: Notion (KIT, propiedad `Estado`)
 - **Trazabilidad y enlace a PTN**: Notion (`INX-ENLACES`)
 
