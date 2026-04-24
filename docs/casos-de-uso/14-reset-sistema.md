@@ -121,6 +121,24 @@ apps\validate_case_14.bat
 - Snapshots dry-run sí se crean en `artifacts/resets/YYYY-MM-DD/` (son auto-limpiables por convención; no afectan producción).
 - Vaults / Todoist / Notion quedan **idénticos al estado pre-test**.
 
+## Comportamiento garantizado: relaciones curadas INX→PTN preservadas
+
+**Lo que SÍ hace `reset_notion.py` en INX:** flip del campo `Archivo: Checkbox` (true cuando archiva la fuente PTN, false al restaurar). Una sola propiedad. Línea de referencia: `_flip_archivo` en [tools/reset_notion.py](../../tools/reset_notion.py).
+
+**Lo que NO toca:** ninguna `relation` (`PTN Proyecto`, `PTN Tarea`, `PTN Nota`, `KIT`, `Area`, `Bloque`, `Contexto`), ni `URL`, ni `Detalle`, ni `Fuente`, ni `Estado`. Las relaciones curadas vía `link_repo_to_ptn` / `link_paper_to_ptn` / `link_article_to_ptn` quedan intactas tras cualquier reset.
+
+**Comportamiento de los syncs post-reset:** las funciones `_sync_github`, `_sync_paperpile` y `_sync_kit` en [tools/sync_inx_links.py](../../tools/sync_inx_links.py) **NO incluyen `Estado` en el payload de upsert** — esto preserva `Estado=Verificado` puesto por los helpers `link_*_to_ptn`. Las relaciones tampoco están en el payload, así que se preservan (Notion API no toca propiedades omitidas).
+
+**Asimetría intencional:** `_sync_todoist`, `_sync_ptn_log`, `_sync_obsidian` SÍ setean `Estado` porque no tienen helper `link_*_to_ptn` asociado — su Estado es derivado del origen o placeholder. Si se añade un `link_*_to_ptn` para esas fuentes, aplicar el mismo patrón.
+
+**Trade-off conocido:** filas `github:*`, `paperpile:*`, `kit:*` creadas por sync (sin previo link) quedan **sin `Estado`** hasta que se vinculen vía `link_*_to_ptn` o se establezca manualmente. Estado es metadato curado, no derivado.
+
+**Validación empírica del 2026-04-24** (entrada devlog `[INX] Investigacion cierre: regresion github:coworkia NO causada por reset ni por sync actual`):
+- `link_repo_to_ptn('coworkia', 'Arquitectura Coworkia v2')` → `Estado=Verificado`, `PTN Proyecto=[<id>]`
+- `python tools/sync_inx_links.py --source github` → ambos campos persisten sin cambios.
+
+**Implicación operativa:** un reset NO destruye los enlaces curados a proyectos PTN. No hace falta un script de "snapshot/restore de relaciones" alrededor del flujo de reset.
+
 ## Definition of Done
 
 - [ ] Todos los tests **A** pasan (`validate_case_14.py` exit 0).

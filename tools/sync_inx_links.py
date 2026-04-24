@@ -330,9 +330,12 @@ def _sync_github(db_links: str, db_repos: str, existing: dict, limit: int | None
         tipo = extract_property_value(props.get("Tipo", {}))
         estado_repo = extract_property_value(props.get("Estado", {}))
         detalle_parts = [p for p in [tipo and f"Tipo: {tipo}", estado_repo and f"Estado: {estado_repo}"] if p]
+        # NOTA: 'Estado' NO se incluye aqui para no degradar 'Verificado' (set
+        # por link_repo_to_ptn) a 'Activo' en cada sync. Para nuevas filas,
+        # quedan sin Estado hasta que se vinculen via link_repo_to_ptn o se
+        # establezcan manualmente. Estado en INX es metadato curado, no derivado.
         data = {
             "Fuente": {"select": {"name": "GitHub"}},
-            "Estado": {"select": {"name": "Activo"}},
         }
         if url:
             data["URL"] = {"url": url}
@@ -359,9 +362,11 @@ def _sync_kit(db_links: str, db_kit: str, existing: dict, limit: int | None) -> 
         subtipo = extract_property_value(props.get("Subtipo", {}))
         enlace = extract_property_value(props.get("Enlace", {}))
         detalle_parts = [p for p in [tipo and f"Tipo: {tipo}", subtipo and f"Subtipo: {subtipo}"] if p]
+        # NOTA: 'Estado' NO se incluye aqui por consistencia con _sync_github,
+        # para no degradar 'Verificado' (set por link_article_to_ptn) a 'Activo'
+        # en cada sync. Estado en INX es metadato curado, no derivado.
         data = {
             "Fuente": {"select": {"name": "KIT"}},
-            "Estado": {"select": {"name": "Activo"}},
         }
         if "KIT" in inx_props:
             data["KIT"] = {"relation": [{"id": r["id"]}]}
@@ -425,9 +430,11 @@ def _sync_paperpile(db_links: str, db_bib: str, existing: dict, limit: int | Non
         anio = extract_property_value(props.get("Año", {}))
         journal = extract_property_value(props.get("Journal", {}))
         detalle_parts = [p for p in [anio and f"Año: {anio}", journal and f"Journal: {journal}"] if p]
+        # NOTA: 'Estado' NO se incluye aqui por consistencia con _sync_github,
+        # para no degradar 'Verificado' (set por link_paper_to_ptn) a 'Activo'
+        # en cada sync. Estado en INX es metadato curado, no derivado.
         data = {
             "Fuente": {"select": {"name": "Paperpile"}},
-            "Estado": {"select": {"name": "Activo"}},
         }
         if doi:
             data["URL"] = {"url": doi}
