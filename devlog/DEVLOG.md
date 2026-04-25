@@ -652,3 +652,38 @@ Resumen: Anadido playbooks/playbooks-readme-portable-playbook.md para reproducir
 Estado: DONE
 Chat: chats/chat_2026-04-25.md
 Resumen: David autorizo commit y push de los cambios acumulados de la sesion: bookdown del proyecto, validadores y tests, protocolo portable de inicio/cierre, playbook portable para README de playbooks, memoria actualizada, chat/devlog y artefactos multiagente derivados. Validaciones previas: memory_check OK y snapshot_structure --check OK.
+
+## 2026-04-25T19:10Z — Codex — [MAR] Aclarar inbox operativo Todoist
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: David corrigio la rutina de arranque MAR: inbox se refiere al proyecto real Todoist Inbox, no a zinbox. Queda registrada la convencion: Z-* son backs/staging y no se consultan en arranque normal salvo peticion explicita. Se localizo Inbox como project_id=6Crfvj4MWg6GfVq6 y se listo su contenido actual: 33 tareas.
+
+## 2026-04-25T19:17Z — Codex — [MAR] Procesar Inbox operativo Todoist
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Procesado el proyecto Todoist Inbox real (project_id=6Crfvj4MWg6GfVq6) como arranque operativo MAR. Se movieron 31 entradas claras a bloques ABC livianos: B12-LAB, B11-CVT, B13-PUB, B24-DOC, B26-GES, B37-ORG, B39-DES y B40-REF. No se consultaron Z-* durante el procesamiento posterior. Inbox queda con 2 entradas pendientes de decision: SPAM Food Craving y cita medica pasada del 2026-04-24.
+
+## 2026-04-25T19:29Z — Codex — [MAR] Sincronizar Todoist con Notion
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Ejecutado sync MAR->Notion con tools/sync_todoist_to_notion.py --limit 200 tras procesar Inbox y cambios manuales de David en Todoist. Primer intento agoto timeout; reintento con timeout ampliado finalizo OK: Tareas sincronizadas 114. No se ejecuto sync INX en este paso.
+
+## 2026-04-25T19:51Z — Codex — [MAR] Resincronizar Todoist con Notion
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Reejecutado tools/sync_todoist_to_notion.py --limit 200 tras nuevos cambios manuales de David en Todoist. Finalizo OK con Tareas sincronizadas 108. No se ejecuto sync INX en este paso.
+
+## 2026-04-25T20:00Z — Codex — [INX] Sincronizar INX desde Todoist
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Ejecutado tools/sync_inx_links.py --source todoist --limit 200 tras resincronizar TODOIST-TAREAS. Finalizo OK con INX enlaces sincronizados: todoist=200.
+
+## 2026-04-25T20:07Z — Codex — [DOCS] Documentar pipeline MAR diario
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Documentado el pipeline operativo validado: Inbox real de Todoist (project_id=6Crfvj4MWg6GfVq6) -> clasificacion ligera en proyectos A/B -> sync_todoist_to_notion.py --limit 200 -> sync_inx_links.py --source todoist --limit 200. Actualizados README, docs/todoist-agent.md, docs/pipeline-atlas.md, docs/casos-de-uso/04-sync-diario-inx.md y bookdown 03/07/08. Corregidas referencias que trataban zinbox como arranque normal; Z-* queda como backs/staging explicito. Validaciones: generate_static_html OK, validate_static_html OK con warning Mermaid CDN, memory_check OK, pytest bookdown 3 passed.
+
+## 2026-04-25T20:10Z — Codex — [TOOLING] Ajustar cierre de sesion con commit y push
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: David establecio la politica local: cuando dice cierra sesion, Coworkia debe validar, hacer commit y push por defecto de los cambios de la sesion, salvo omision explicita. Actualizados AGENTS.md, README.md, playbook portable y tools/session_protocol.py. El adaptador ahora auto-detecta cambios, genera mensaje de cierre por defecto, hace push salvo --no-push y permite --no-commit para inventario sin commit.

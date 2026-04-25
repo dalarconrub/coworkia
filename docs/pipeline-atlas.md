@@ -77,7 +77,9 @@ Sistema de ejecución diaria. Clasifica acciones por cómo existen en el tiempo:
 
 ```mermaid
 flowchart TD
-    CAP[Captura desde cualquier cliente Todoist] --> CLF{Clasificación MAR}
+    CAP[Captura desde cualquier cliente Todoist] --> INBOX[Inbox normal<br/>project_id 6Crfvj4MWg6GfVq6]
+    INBOX --> TRIAGE[Revision diaria<br/>mover a proyecto A/B]
+    TRIAGE --> CLF{Clasificación MAR}
     CLF -->|Idea| MAR_I[Idea]
     CLF -->|Meta| MAR_M[Meta]
     CLF -->|Hábito| MAR_H[Hábito]
@@ -90,12 +92,24 @@ flowchart TD
     TODOIST_TAREAS --> INX[INX-ENLACES]
 ```
 
-- **CLI:** [agents/todoist_agent.py](../agents/todoist_agent.py) — `resumen`, `estado`, `listar --tipo <meta|evento|...>`, `nueva-idea/meta/habito/tarea/evento`.
+- **Inbox operativo:** `Inbox` normal de Todoist (`project_id=6Crfvj4MWg6GfVq6`). Los proyectos `Z-*` son backs/staging y no se consultan en el arranque diario salvo petición explícita.
+- **Triage diario:** `estado` → listar `Inbox` → `ver <TASK_ID>` → `mover <TASK_ID> <PROJECT_ID>` a bloque A/B liviano.
+- **CLI:** [agents/todoist_agent.py](../agents/todoist_agent.py) — `estado`, `listar`, `buscar`, `ver`, `mover`, `editar`, `reclasificar`, `idea/meta/habito/tarea/evento`.
 - **Apps:** [apps/dashboard.py](../apps/dashboard.py), [apps/backs_todoist.py](../apps/backs_todoist.py), [apps/mar_doctor.py](../apps/mar_doctor.py).
-- **Sync:** [tools/sync_todoist_to_notion.py](../tools/sync_todoist_to_notion.py) → espejo en Notion para que INX pueda referenciarlo.
+- **Sync:** [tools/sync_todoist_to_notion.py](../tools/sync_todoist_to_notion.py) → espejo `TODOIST-TAREAS` en Notion; después [tools/sync_inx_links.py](../tools/sync_inx_links.py) `--source todoist` propaga a `INX-ENLACES`.
 - **Escalación inversa:** [tools/promote_notas_checkboxes_to_todoist.py](../tools/promote_notas_checkboxes_to_todoist.py) (desde Obsidian, caso 10).
 - **Casos de uso:** [01 captura](casos-de-uso/01-captura-todoist-zinbox.md), [04 sync](casos-de-uso/04-sync-diario-inx.md), [10 checkboxes→Todoist](casos-de-uso/10-checkboxes-obsidian-a-todoist.md).
 - **Env:** `TODOIST_API_KEY`.
+
+Comandos validados del pipeline diario:
+
+```bash
+python agents/todoist_agent.py estado
+python agents/todoist_agent.py ver <TASK_ID>
+python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>
+python tools/sync_todoist_to_notion.py --limit 200
+python tools/sync_inx_links.py --source todoist --limit 200
+```
 
 ### PTN — Notion proyectos/tareas/notas
 

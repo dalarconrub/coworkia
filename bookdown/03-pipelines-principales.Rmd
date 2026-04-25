@@ -4,19 +4,26 @@
 
 ```mermaid
 flowchart LR
-    Inbox[Todoist inbox] --> Dashboard[apps/dashboard.py]
-    Dashboard --> Clasificacion[Idea / Meta / Habito / Tarea / Evento]
-    Clasificacion --> Todoist[Todoist]
+    Estado[agents/todoist_agent.py estado] --> Inbox[Todoist Inbox normal]
+    Inbox --> Clasificacion[Clasificacion ligera en proyectos A/B]
+    Clasificacion --> Todoist[Todoist MAR]
     Todoist --> Sync[tools/sync_todoist_to_notion.py]
-    Sync --> INX[INX]
+    Sync --> Tareas[TODOIST-TAREAS en Notion]
+    Tareas --> INX[sync_inx_links.py --source todoist]
 ```
 
 | Paso | Comando | Salida |
 | --- | --- | --- |
-| Ver foco diario | `python apps/dashboard.py` | Dashboard MAR |
 | Ver estado | `python agents/todoist_agent.py estado` | Resumen del sistema |
-| Listar inbox | `python agents/todoist_agent.py zinbox --limit 20` | Entradas por procesar |
-| Sincronizar a Notion | `python tools/sync_todoist_to_notion.py` | Filas en `TODOIST-TAREAS` |
+| Revisar inbox real | `python -c "from tools.todoist_tools import get_tasks; tasks=get_tasks(project_id='6Crfvj4MWg6GfVq6'); print(len(tasks))"` | Cola `Inbox` normal |
+| Ver detalle | `python agents/todoist_agent.py ver <TASK_ID>` | Tipo MAR, descripcion, fechas |
+| Mover a bloque | `python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>` | Entrada fuera de Inbox |
+| Sincronizar a Notion | `python tools/sync_todoist_to_notion.py --limit 200` | Filas en `TODOIST-TAREAS` |
+| Propagar a INX | `python tools/sync_inx_links.py --source todoist --limit 200` | Filas `todoist:<id>` en `INX-ENLACES` |
+
+`Inbox` significa el proyecto normal de Todoist (`project_id=6Crfvj4MWg6GfVq6`).
+Los proyectos `Z-*` son backs/staging y no se consultan en el arranque diario
+salvo peticion explicita.
 
 ## PTN Proyectos
 

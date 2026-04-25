@@ -32,7 +32,7 @@ Esta tabla ayuda a decidir que comando ejecutar sin recorrer todo el repo. No en
 | `apps/inx_doctor.py` | Diagnosticar INX | Reporte consola | Revisar trazabilidad |
 | `apps/inx_daily.py` | Sync y reporte diario INX | `artifacts/inx/` | Cierre o auditoria diaria |
 | `apps/mar_doctor.py` | Doctor MAR sobre Notion | Reporte consola | Revisar TODOIST-TAREAS |
-| `apps/export_zinbox.py` | Exportar inbox Todoist a Notion | Paginas BACK | Backup o auditoria |
+| `apps/export_zinbox.py` | Exportar Z-INBOX/back Todoist a Notion | Paginas BACK | Backup o auditoria explicita |
 | `apps/backs_todoist.py` | Backup de Todoist | BACK-Todoist | Backup manual |
 | `apps/backs_notion.py` | Backup de Notion | BACK-Notion | Backup manual |
 | `apps/backs_obsidian.py` | Backup de Obsidian | BACK-Obsidian | Backup manual |

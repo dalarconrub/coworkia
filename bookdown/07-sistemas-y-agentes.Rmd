@@ -35,11 +35,17 @@ Este capitulo convierte la division conceptual de Coworkia en un mapa operativo.
 python apps/dashboard.py
 python agents/todoist_agent.py hoy
 python agents/todoist_agent.py estado
-python agents/todoist_agent.py zinbox --limit 20
 python agents/todoist_agent.py listar tarea
 python agents/todoist_agent.py capturar "Nueva entrada"
-python tools/sync_todoist_to_notion.py
+python agents/todoist_agent.py ver <TASK_ID>
+python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>
+python tools/sync_todoist_to_notion.py --limit 200
+python tools/sync_inx_links.py --source todoist --limit 200
 ```
+
+El inbox diario es el proyecto normal `Inbox` de Todoist
+(`project_id=6Crfvj4MWg6GfVq6`). Los proyectos `Z-*` son backs/staging y no se
+consultan en el arranque normal salvo peticion explicita.
 
 ### Responsabilidad
 

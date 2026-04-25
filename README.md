@@ -181,7 +181,6 @@ python agents/todoist_agent.py hoy
 python agents/todoist_agent.py estado
 python agents/todoist_agent.py listar meta
 python agents/todoist_agent.py proyectos
-python agents/todoist_agent.py zinbox --limit 20
 python agents/todoist_agent.py buscar "tesis"
 python agents/todoist_agent.py ver <TASK_ID>
 python agents/todoist_agent.py idea "Idea sin fecha"
@@ -196,6 +195,11 @@ python agents/todoist_agent.py editar <TASK_ID> --due-date 2026-04-15
 python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T10:00:00
 python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
 ```
+
+Arranque diario MAR: revisar el proyecto normal `Inbox` de Todoist
+(`project_id=6Crfvj4MWg6GfVq6`), mover cada entrada clara a un proyecto A/B
+liviano y sincronizar. Los proyectos `Z-*` son backs/staging y no se consultan
+salvo petición explícita.
 
 Estructura alineada con Notion:
 
@@ -321,6 +325,13 @@ python tools/sync_inx_links.py --source notion --limit 200
 python tools/sync_inx_links.py --source obsidian --limit 200
 ```
 
+Para propagar cambios MAR recientes:
+
+```bash
+python tools/sync_todoist_to_notion.py --limit 200
+python tools/sync_inx_links.py --source todoist --limit 200
+```
+
 Atajos en Windows (`.bat`):
 
 ```bat
@@ -388,7 +399,7 @@ Documentación:
 David puede usar dos comandos naturales:
 
 - `inicia sesion`: recuperar memoria, chat diario, devlog, estado Git, diff y siguiente paso probable.
-- `cierra sesion`: inventariar estado final; commit/push solo si se pide explicitamente y con archivos seleccionados.
+- `cierra sesion`: inventariar estado final, validar, hacer commit y push de los cambios de la sesión salvo que David pida explícitamente omitirlo.
 
 Helper local:
 

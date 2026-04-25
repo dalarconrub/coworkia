@@ -101,8 +101,9 @@ Cuando el usuario diga `sigue` o `continua`, interpreta:
 Cuando el usuario diga `cierra sesion`, interpreta:
 
 > Deja la sesion reproducible: valida lo que corresponda, registra chat/devlog si
-> toca, inventaria Git, prepara commit/push solo con intencion explicita y deja
-> pendientes claros.
+> toca, inventaria Git, prepara commit/push segun la politica local del repo y
+> deja pendientes claros. En Coworkia, `cierra sesion` implica commit y push por
+> defecto salvo que David pida explicitamente omitirlos.
 
 ## Procedimiento: inicia sesion
 
@@ -196,10 +197,10 @@ Cuando el usuario diga `cierra sesion`, interpreta:
    - `python agents/orchestrator_agent.py sync-chat-memory`
 6. Si existe timeline diario y el cierre lo requiere:
    - `python tools/timeline.py`
-7. Preparar commit solo si el usuario lo pidio o si la convencion local lo exige.
+7. Preparar commit si el usuario lo pidio o si la convencion local lo exige.
    - incluir solo archivos de la sesion;
    - no mezclar cambios ajenos;
-   - no hacer push sin intencion explicita.
+   - no hacer push sin intencion explicita o politica local que lo autorice.
 8. Entregar inventario final:
    - archivos cambiados;
    - validaciones ejecutadas;
@@ -228,6 +229,7 @@ Si el repo usa mucho este protocolo, conviene crear un script local:
 ```bash
 python tools/session_protocol.py inicia
 python tools/session_protocol.py cierra
+python tools/session_protocol.py cierra --no-commit
 python tools/session_protocol.py cierra --paths docs playbooks --commit-message "Update session protocol"
 ```
 
@@ -281,4 +283,3 @@ Estos puntos son transferibles a otros repos con multiagentes:
 - [ ] Documentar comandos de validacion minimos.
 - [ ] Anadir un script tipo `tools/session_protocol.py` si aporta valor.
 - [ ] Probar un ciclo completo: `inicia sesion` -> trabajo -> `cierra sesion`.
-

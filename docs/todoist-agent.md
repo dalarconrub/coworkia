@@ -34,10 +34,13 @@ python agents/todoist_agent.py listar habito
 python agents/todoist_agent.py listar tarea
 python agents/todoist_agent.py listar evento
 python agents/todoist_agent.py proyectos
-python agents/todoist_agent.py zinbox --limit 20
 python agents/todoist_agent.py buscar "tesis"
 python agents/todoist_agent.py ver <TASK_ID>
 ```
+
+Para listar el inbox operativo normal desde script, usa el proyecto Todoist `Inbox`
+(`project_id=6Crfvj4MWg6GfVq6`). Los proyectos `Z-*` no forman parte del arranque
+diario normal.
 
 ### Crear acciones
 
@@ -72,13 +75,24 @@ python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T
 python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
 ```
 
-### Flujo de triage recomendado
+### Flujo operativo diario recomendado
 
 ```bash
-python agents/todoist_agent.py zinbox --limit 20
+python agents/todoist_agent.py estado
+python -c "from tools.todoist_tools import get_tasks; tasks=get_tasks(project_id='6Crfvj4MWg6GfVq6'); print(f'Inbox: {len(tasks)}'); [print(f\"{t['id']} | {t['content']}\") for t in tasks]"
 python agents/todoist_agent.py ver <TASK_ID>
-python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
+python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>
+python tools/sync_todoist_to_notion.py --limit 200
+python tools/sync_inx_links.py --source todoist --limit 200
 ```
+
+Lectura del pipeline:
+
+1. `estado` da el volumen MAR activo.
+2. El inbox normal de Todoist se revisa como cola de entrada diaria.
+3. Cada entrada se deja en un proyecto A/B liviano (`B12-LAB`, `B13-PUB`, etc.).
+4. `sync_todoist_to_notion.py` actualiza el espejo `TODOIST-TAREAS`.
+5. `sync_inx_links.py --source todoist` actualiza `INX-ENLACES` desde ese espejo.
 
 ---
 
@@ -125,20 +139,28 @@ Dentro de los bloques `A0` (B00/B0A/B0B/B0C) se crean secciones C:
 
 Los proyectos `Z-*` son buffers de entrada y limpieza.
 Por defecto se ignoran en análisis operativos (salvo que se pida explícitamente).
+No se usan como "inbox" diario: `Z-INBOX` y el resto de `Z-*` son back/staging.
 
 ### Sync a Notion (B0A-INX)
 
-Rápido (no marca completadas):
+Espejo operativo normal:
 
 ```bash
-python tools/sync_todoist_to_notion.py --limit 200 --skip-completed
+python tools/sync_todoist_to_notion.py --limit 200
 ```
 
-Completo (actualiza y marca completadas):
+El sync hace upsert en `TODOIST-TAREAS` por `Todoist ID`, actualiza propiedades
+disponibles en el schema y excluye `Z-*`.
+
+Propagación a INX:
 
 ```bash
-python tools/sync_todoist_to_notion.py
+python tools/sync_inx_links.py --source todoist --limit 200
 ```
+
+Para marcar completadas por diferencia contra un snapshot de activos se usa el
+modo batch avanzado `--save-active` / `--finalize-completed`; no forma parte del
+sync diario simple.
 
 ---
 

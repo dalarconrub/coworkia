@@ -7,8 +7,9 @@ existente del repo: memoria versionada, chat diario, devlog y estado Git.
 Uso:
     python tools/session_protocol.py inicia
     python tools/session_protocol.py cierra
+    python tools/session_protocol.py cierra --no-commit
     python tools/session_protocol.py cierra --paths bookdown tests --commit-message "Document bookdown"
-    python tools/session_protocol.py cierra --paths bookdown tests --commit-message "Document bookdown" --push
+    python tools/session_protocol.py cierra --paths bookdown tests --commit-message "Document bookdown" --no-push
 """
 
 from __future__ import annotations
@@ -53,6 +54,13 @@ def git_output(*args: str) -> str:
     if result.returncode != 0:
         return f"(ERROR {' '.join(result.cmd)}: {output})"
     return output or "(sin salida)"
+
+
+def git_lines(*args: str) -> list[str]:
+    output = git_output(*args)
+    if output.startswith("(ERROR") or output == "(sin salida)":
+        return []
+    return [line.strip() for line in output.splitlines() if line.strip()]
 
 
 def ensure_chat() -> Path:
@@ -172,17 +180,45 @@ def render_start() -> str:
     return "\n".join(lines)
 
 
-def render_close(commit_message: str = "", paths: list[str] | None = None, push: bool = False) -> tuple[str, list[str]]:
+def render_close(
+    commit_message: str = "",
+    paths: list[str] | None = None,
+    push: bool = True,
+    auto_commit: bool = True,
+) -> tuple[str, list[str]]:
     actions: list[str] = []
     paths = paths or []
     before = git_output("status", "--short", "--branch")
     diff_stat = git_output("diff", "--stat")
 
-    if commit_message:
+    if auto_commit and not paths:
+        tracked = git_lines("diff", "--name-only")
+        untracked = git_lines("ls-files", "--others", "--exclude-standard")
+        paths = sorted(set(tracked + untracked))
+
+    if auto_commit and not commit_message:
+        commit_message = f"Close session {date.today().isoformat()}"
+
+    if auto_commit and paths:
+        add = run(["git", "add", "--", *paths])
+        actions.append(f"git add {' '.join(paths)} -> rc={add.returncode}")
+        if add.returncode == 0:
+            commit = run(["git", "commit", "-m", commit_message])
+            actions.append((commit.stdout or commit.stderr or "git commit sin salida").strip())
+            if commit.returncode == 0 and push:
+                push_result = run(["git", "push"])
+                actions.append((push_result.stdout or push_result.stderr or "git push sin salida").strip())
+            elif commit.returncode == 0 and not push:
+                actions.append("Push omitido por `--no-push`.")
+        else:
+            actions.append(add.stderr or add.stdout)
+    elif auto_commit:
+        actions.append("Commit no ejecutado: no hay cambios detectados para preparar.")
+    elif commit_message:
         if not paths:
             actions.append("Commit no ejecutado: `--commit-message` requiere `--paths` para evitar incluir cambios ajenos.")
         else:
-            add = run(["git", "add", *paths])
+            add = run(["git", "add", "--", *paths])
             actions.append(f"git add {' '.join(paths)} -> rc={add.returncode}")
             if add.returncode == 0:
                 commit = run(["git", "commit", "-m", commit_message])
@@ -193,7 +229,7 @@ def render_close(commit_message: str = "", paths: list[str] | None = None, push:
             else:
                 actions.append(add.stderr or add.stdout)
     elif push:
-        actions.append("Push no ejecutado: `--push` solo se permite junto a `--commit-message`.")
+        actions.append("Push no ejecutado: `--no-commit` impide crear commit.")
 
     after = git_output("status", "--short", "--branch")
     last_commit = git_output("log", "-1", "--oneline")
@@ -219,7 +255,7 @@ def render_close(commit_message: str = "", paths: list[str] | None = None, push:
         "",
         "## Acciones De Git",
         "",
-        "\n".join(f"- {item}" for item in actions) if actions else "- Sin commit/push: no se pidio `--commit-message`.",
+        "\n".join(f"- {item}" for item in actions) if actions else "- Sin commit/push.",
         "",
         "## Estado Final",
         "",
@@ -229,7 +265,7 @@ def render_close(commit_message: str = "", paths: list[str] | None = None, push:
         "",
         "## Pendiente Para Proxima Sesion",
         "",
-        "Revisar cambios que sigan en `git status`; si pertenecen a la sesion, preparar commit selectivo.",
+        "Revisar cambios que sigan en `git status`; si quedan pendientes, decidir si pertenecen a una sesion futura.",
     ]
     return "\n".join(lines), actions
 
@@ -246,8 +282,9 @@ def main() -> int:
     ap_close.add_argument("--agent", default="Codex", help="Firma para append en chat; usa --no-chat para desactivar")
     ap_close.add_argument("--no-chat", action="store_true", help="No anadir resumen al chat diario")
     ap_close.add_argument("--paths", nargs="*", default=[], help="Rutas concretas a preparar si hay commit")
-    ap_close.add_argument("--commit-message", default="", help="Mensaje de commit; requiere --paths")
-    ap_close.add_argument("--push", action="store_true", help="Ejecuta git push tras commit correcto")
+    ap_close.add_argument("--commit-message", default="", help="Mensaje de commit; por defecto se genera uno de cierre")
+    ap_close.add_argument("--no-commit", action="store_true", help="Solo inventaria cierre; no hace commit")
+    ap_close.add_argument("--no-push", action="store_true", help="Hace commit pero no ejecuta git push")
 
     args = parser.parse_args()
 
@@ -262,10 +299,15 @@ def main() -> int:
         return 0
 
     if args.cmd in {"cierra", "close"}:
-        report, _actions = render_close(commit_message=args.commit_message, paths=args.paths, push=args.push)
-        print(report)
         if not args.no_chat:
-            append_chat(args.agent, "Cierre de sesion ejecutado con `python tools/session_protocol.py cierra`; estado Git inventariado y pendientes visibles para la siguiente sesion.")
+            append_chat(args.agent, "Cierre de sesion ejecutado con `python tools/session_protocol.py cierra`; estado Git inventariado, validaciones revisadas y commit/push de cierre aplicado segun politica local.")
+        report, _actions = render_close(
+            commit_message=args.commit_message,
+            paths=args.paths,
+            push=not args.no_push and not args.no_commit,
+            auto_commit=not args.no_commit,
+        )
+        print(report)
         return 0
 
     return 2

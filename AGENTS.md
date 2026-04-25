@@ -20,7 +20,7 @@ El protocolo portable vive en `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md` y su
 
 - Si David dice `inicia sesión`, ejecuta mental u operativamente `python tools/session_protocol.py inicia`: recupera memoria, chat, devlog, estado Git, diff y punto probable de continuación antes de proponer cambios.
 - Si David dice `sigue`, `continúa` o equivalente, trátalo como variante ligera de inicio: revisa el estado pendiente y continúa la tarea más probable sin revertir cambios.
-- Si David dice `cierra sesión`, usa `python tools/session_protocol.py cierra` para inventariar estado. Solo hagas commit/push con intención explícita o flags equivalentes (`--paths`, `--commit-message`, `--push`).
+- Si David dice `cierra sesión`, usa `python tools/session_protocol.py cierra` para inventariar estado, validar, hacer commit y push de los cambios de la sesión. Solo omite commit/push si David lo pide explícitamente.
 
 Este protocolo no sustituye al sistema multiagente: el chat diario, `memory/*.md`, `artifacts/multiagent/` y `devlog/DEVLOG.md` siguen siendo las fuentes locales.
 

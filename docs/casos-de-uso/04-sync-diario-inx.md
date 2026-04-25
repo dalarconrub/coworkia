@@ -35,6 +35,19 @@ Inicio del día / cierre del día / antes de planificar.
 4. Upsert de `INX-ENLACES` desde las tres fuentes.
 5. Revisar métricas de salud (duplicados, faltan relaciones, enlaces rotos).
 
+### Variante MAR inmediata
+
+Cuando solo han cambiado tareas en Todoist, basta con la cadena corta:
+
+```bash
+.\.venv\Scripts\python.exe tools\sync_todoist_to_notion.py --limit 200
+.\.venv\Scripts\python.exe tools\sync_inx_links.py --source todoist --limit 200
+```
+
+La primera orden actualiza el espejo `TODOIST-TAREAS`; la segunda propaga o
+actualiza filas `todoist:<id>` en `INX-ENLACES`. El sync Todoist excluye `Z-*`,
+por lo que el origen operativo normal es el `Inbox` real y los proyectos A/B.
+
 ## Automatización actual
 
 - Comando mínimo de sync:

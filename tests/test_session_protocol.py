@@ -21,9 +21,9 @@ def test_session_protocol_start_no_chat_reports_context():
     assert "## Devlog Reciente" in result.stdout
 
 
-def test_session_protocol_close_no_chat_does_not_commit():
+def test_session_protocol_close_no_chat_no_commit_reports_inventory():
     result = subprocess.run(
-        [sys.executable, "tools/session_protocol.py", "cierra", "--no-chat"],
+        [sys.executable, "tools/session_protocol.py", "cierra", "--no-chat", "--no-commit"],
         cwd=ROOT,
         text=True,
         capture_output=True,
