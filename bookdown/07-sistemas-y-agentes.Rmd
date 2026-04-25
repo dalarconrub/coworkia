@@ -1,0 +1,236 @@
+# Sistemas Y Agentes
+
+## Para Que Sirve
+
+Este capitulo convierte la division conceptual de Coworkia en un mapa operativo. Cada sistema tiene una fuente de verdad, un agente CLI, una documentacion de referencia y una relacion concreta con `INX`.
+
+## Tabla Maestra De Sistemas
+
+| Sistema | Fuente De Verdad | Agente | Docs | INX |
+| --- | --- | --- | --- | --- |
+| `MAR` | Todoist | `agents/todoist_agent.py` | `docs/todoist-agent.md` | `todoist:*` |
+| `PTN` | Notion Proyectos/Tareas/Notas | `agents/notion_agent.py` | `docs/notion-ptn-agent.md` | `notion:*` y relaciones PTN |
+| `KIT` | Notion `KIT` | `agents/kit_agent.py` | `docs/notion-kit-agent.md` | `kit:*` |
+| `GIT` | GitHub + Notion `GIT` | `agents/github_agent.py` | `docs/git-agent.md` | `github:*` |
+| `BIB` | Paperpile + Notion `BIB` | `agents/bib_agent.py` | `docs/bib-agent.md` | `paperpile:*` |
+| `ABGD` | Vault Obsidian | `agents/obsidian_agent.py` | `docs/obsidian-agent.md` | `obsidian:*` |
+| `INX` | Notion `INX-ENLACES` | `agents/orchestrator_agent.py` + `tools/sync_inx_links.py` | `docs/pipeline-atlas.md` | Capa de enlace |
+| Inoreader | Inoreader API/feed + KIT | `agents/inoreader_agent.py` | `docs/inoreader-agent.md` | `kit:*` y relaciones PTN |
+
+## MAR - Todoist Ejecuta
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Agente | `agents/todoist_agent.py` |
+| Dashboard | `apps/dashboard.py` |
+| Sync a Notion | `tools/sync_todoist_to_notion.py` |
+| Doctor | `apps/mar_doctor.py` |
+| Guia | `docs/todoist-agent.md` |
+
+### Comandos Base
+
+```bash
+python apps/dashboard.py
+python agents/todoist_agent.py hoy
+python agents/todoist_agent.py estado
+python agents/todoist_agent.py zinbox --limit 20
+python agents/todoist_agent.py listar tarea
+python agents/todoist_agent.py capturar "Nueva entrada"
+python tools/sync_todoist_to_notion.py
+```
+
+### Responsabilidad
+
+MAR decide que existe como accion, cuando requiere atencion y como se clasifica temporalmente: idea, meta, habito, tarea o evento.
+
+## PTN - Notion Dirige
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Agente | `agents/notion_agent.py` |
+| GUI | `apps/project_hub_gui.py` |
+| Log de cambios | `tools/log_ptn_changes.py` |
+| Migraciones | `tools/migrate_ptn.py`, `tools/migrate_notas_ptn_relations.py` |
+| Guia | `docs/notion-ptn-agent.md` |
+
+### Comandos Base
+
+```bash
+python agents/notion_agent.py estado
+python agents/notion_agent.py proyectos
+python agents/notion_agent.py tareas
+python agents/notion_agent.py notas
+python agents/notion_agent.py nuevo-proyecto "Proyecto X"
+python tools/log_ptn_changes.py
+```
+
+### Responsabilidad
+
+PTN sostiene la direccion formal: proyectos, tareas planificadas, notas de seguimiento y relaciones de trabajo. Notion es autoridad canonica para proyectos.
+
+## KIT - Catalogo De Conocimiento
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Agente | `agents/kit_agent.py` |
+| Import Google Keep | `tools/import_keep_remaining.py`, `tools/google_keep_tools.py` |
+| Import Inoreader | `agents/inoreader_agent.py`, `tools/sync_inoreader_to_kit.py` |
+| Validador | `tools/validate_case_08.py` |
+| Guia | `docs/notion-kit-agent.md` |
+
+### Comandos Base
+
+```bash
+python agents/kit_agent.py estado
+python agents/kit_agent.py knowledge
+python agents/kit_agent.py information
+python agents/kit_agent.py tools
+python agents/kit_agent.py buscar "machine learning"
+python tools/validate_case_08.py --scope c
+```
+
+### Responsabilidad
+
+KIT no es una carpeta de notas sueltas. Es el catalogo unico de Knowledge, Information y Tool. Inoreader y Google Keep alimentan KIT con propiedades dedicadas, no bases paralelas.
+
+## GIT - Catalogo Tecnico
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Agente | `agents/github_agent.py` |
+| GUI | `apps/github_gui.py` |
+| Wrapper API | `tools/github_tools.py` |
+| Validador | `tools/validate_case_05.py` |
+| Guia | `docs/git-agent.md` |
+
+### Comandos Base
+
+```bash
+python agents/github_agent.py estado
+python agents/github_agent.py importar
+python agents/github_agent.py sincronizar
+python agents/github_agent.py listar
+python tools/validate_case_05.py --scope c
+```
+
+### Responsabilidad
+
+GIT cataloga repositorios propios y de referencia. Las claves INX siguen siendo `github:<nombre>` porque describen la fuente externa, aunque el sistema interno se llame `GIT`.
+
+## BIB - Catalogo Bibliografico
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Agente | `agents/bib_agent.py` |
+| GUI | `apps/bib_gui.py` |
+| Wrapper Paperpile | `tools/paperpile_tools.py` |
+| Promocion a Obsidian | `tools/promote_bib_to_obsidian.py` |
+| Validador | `tools/validate_case_06.py` |
+| Guia | `docs/bib-agent.md` |
+
+### Comandos Base
+
+```bash
+python agents/bib_agent.py estado
+python agents/bib_agent.py importar
+python agents/bib_agent.py sincronizar
+python agents/bib_agent.py listar
+python tools/validate_case_06.py --scope c
+```
+
+### Responsabilidad
+
+BIB toma Paperpile como entrada bibliografica y mantiene una base Notion con estado de lectura, relevancia, DOI, citekey y relaciones con PTN o ABGD.
+
+## ABGD - Obsidian Almacena
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Agente | `agents/obsidian_agent.py` |
+| Wrapper filesystem | `tools/obsidian_tools.py` |
+| Wikilinks | `tools/obsidian_wikilinks.py` |
+| Log de cambios | `tools/log_obsidian_changes.py` |
+| Promocion a PTN | `tools/promote_obsidian_to_ptn.py` |
+| Guia | `docs/obsidian-agent.md` |
+
+### Comandos Base
+
+```bash
+python agents/obsidian_agent.py estado
+python agents/obsidian_agent.py mapa
+python agents/obsidian_agent.py ultimas --n 15
+python agents/obsidian_agent.py buscar "estadistica"
+python tools/obsidian_wikilinks.py audit
+```
+
+### Responsabilidad
+
+ABGD almacena pensamiento vivo, escritura larga y archivo estable. No reemplaza a PTN; cuando una nota se vuelve accionable o formal, se promueve.
+
+## INX - Trazabilidad Cross-System
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Orquestador | `agents/orchestrator_agent.py` |
+| Sync directo | `tools/sync_inx_links.py` |
+| Doctor | `apps/inx_doctor.py` |
+| Report diario | `apps/inx_daily.py` |
+| Atlas | `docs/pipeline-atlas.md` |
+
+### Comandos Base
+
+```bash
+python agents/orchestrator_agent.py inx-sync --limit 200
+python tools/sync_inx_links.py --source all
+python apps/inx_doctor.py
+python apps/inx_daily.py --limit 200
+```
+
+### Responsabilidad
+
+INX registra enlaces entre sistemas y permite auditar cobertura, huerfanas, duplicados y backrefs. No debe convertirse en sistema fuente.
+
+## Orquestacion Multiagente
+
+### Donde Vive
+
+| Elemento | Ruta |
+| --- | --- |
+| Protocolo Codex | `AGENTS.md` |
+| Protocolo Claude | `CLAUDE.md` |
+| Protocolo Copilot | `.github/copilot-instructions.md` |
+| Protocolo compartido | `.claude/multiagent.md` |
+| Runtime | `multiagents/` |
+| Chat diario | `chats/chat_YYYY-MM-DD.md` |
+| Memoria derivada | `artifacts/multiagent/` |
+
+### Comandos Base
+
+```bash
+python tools/init_chat.py
+python agents/orchestrator_agent.py agentes
+python agents/orchestrator_agent.py roles
+python agents/orchestrator_agent.py sync-chat-memory
+python tools/devlog.py view --limit 20
+```
+
+## Que Debe Recordar Un Usuario
+
+- Cada sistema tiene una autoridad clara; las sincronizaciones no cambian esa autoridad.
+- Los validadores `validate_case_*.py` son la forma rapida de probar workflows cerrados.
+- Las GUIs ayudan a operar, pero los agentes CLI son los entrypoints mas auditables.
+- Todo cambio que afecte memoria, estructura o manual debe cerrar con validacion y devlog.

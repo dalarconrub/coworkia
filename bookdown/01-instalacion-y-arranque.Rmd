@@ -1,0 +1,70 @@
+# Instalacion Y Primer Arranque
+
+## Requisitos
+
+| Requisito | Uso |
+| --- | --- |
+| Python 3.10+ | Ejecutar agentes, herramientas, apps y validadores |
+| `.env` | Tokens e IDs de Todoist, Notion, GitHub, Paperpile y Obsidian |
+| Acceso Notion compartido con la integracion | Operar PTN, KIT, GIT, BIB e INX |
+| Vault Obsidian local | Operar ABGD |
+
+## Instalacion Base
+
+```bash
+pip install -r requirements.txt
+```
+
+En Windows, el arranque asistido vive en:
+
+```bat
+apps\setup_venv.bat
+INICIAR_COWORKIA.bat
+```
+
+## Diagnostico Inicial
+
+```bash
+python apps/config_doctor.py
+python apps/notion_doctor.py
+python tools/memory_check.py
+```
+
+## Resolver El Chat Del Dia
+
+```bash
+python tools/init_chat.py
+```
+
+Ese comando crea o resuelve `chats/chat_YYYY-MM-DD.md`, recuerda el orden de lectura de memoria y muestra las ultimas entradas del devlog.
+
+## Variables Principales
+
+| Variable | Sistema | Nota |
+| --- | --- | --- |
+| `TODOIST_API_KEY` | MAR | Token de Todoist |
+| `NOTION_TOKEN` | PTN/KIT/GIT/BIB/INX | Token de integracion Notion |
+| `NOTION_DS_PROYECTOS` | PTN | Data source de proyectos |
+| `NOTION_DB_KIT` | KIT | Catalogo Knowledge/Information/Tool |
+| `NOTION_DB_GIT` | GIT | Catalogo de repos GitHub |
+| `NOTION_DB_BIB` | BIB | Catalogo bibliografico |
+| `PAPERPILE_BIBTEX_URL` | BIB | Export BibTeX automatico |
+| `OBSIDIAN_ABGD_ROOT` | ABGD | Raiz del vault local |
+
+## Salida Esperada
+
+| Comando | Resultado Esperado |
+| --- | --- |
+| `python apps/config_doctor.py` | Variables criticas presentes o avisos concretos |
+| `python apps/notion_doctor.py` | Acceso a recursos Notion compartidos |
+| `python tools/memory_check.py` | Memoria versionada consistente |
+| `python tools/init_chat.py` | Ruta del chat activo y briefing de sesion |
+
+## Errores Frecuentes
+
+| Sintoma | Interpretacion | Accion |
+| --- | --- | --- |
+| Notion devuelve no accesible | La pagina o base no esta compartida con la integracion | Compartir la pagina raiz correcta |
+| Un agente lista cero entidades | Falta ID de base o token | Revisar `.env` y ejecutar doctores |
+| Obsidian no encuentra notas | Ruta local incorrecta | Verificar `OBSIDIAN_ABGD_ROOT` |
+| El chat muestra mojibake | Problema de encoding | Ejecutar `python tools/fix_chat_mojibake.py chats/chat_YYYY-MM-DD.md` |

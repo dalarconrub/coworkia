@@ -1,0 +1,103 @@
+# Validacion Y Acceptance
+
+## Para Que Sirve
+
+Coworkia no tiene una unica suite global que pruebe todo sin credenciales. Su validacion se organiza por capas: checks locales, doctores de configuracion, validadores de casos, syncs controlados y evidencias en `artifacts/`.
+
+## Capas De Validacion
+
+| Capa | Comando | Que Protege | Coste |
+| --- | --- | --- | --- |
+| Sintaxis Python | `python -m py_compile <archivos>` | Errores de import/parsing | Bajo |
+| Memoria | `python tools/memory_check.py` | `memory/` y TREE de estructura | Bajo |
+| Bookdown | `python bookdown/validate_static_html.py` | HTML, tablas, enlaces, anchors | Bajo |
+| Configuracion | `python apps/config_doctor.py` | `.env` y rutas locales | Bajo |
+| Notion | `python apps/notion_doctor.py` | Acceso API a recursos | Medio |
+| INX | `python apps/inx_doctor.py` | Coherencia de enlaces | Medio |
+| Casos | `python tools/validate_case_XX.py` | Workflows concretos | Medio/Alto |
+| Reset | `python tools/validate_case_14.py` | Seguridad no destructiva de reset | Medio |
+
+## Smoke Recomendado Tras Cambios Documentales
+
+```bash
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
+python -m pytest tests/test_bookdown_static_html.py -q
+python tools/memory_check.py
+```
+
+Este smoke no toca APIs externas salvo que algun test futuro lo haga. Es el cierre minimo para cambios en `bookdown/`, `memory/`, `README.md` o `docs/`.
+
+## Smoke Recomendado Tras Cambios De Codigo
+
+| Cambio | Validacion Minima |
+| --- | --- |
+| Agente MAR | `python agents/todoist_agent.py estado` + `apps\mar_check.bat 200 --no-pause` |
+| PTN/Notion | `python agents/notion_agent.py estado` + `python apps/notion_doctor.py` |
+| KIT | `python agents/kit_agent.py estado` + `python tools/validate_case_08.py --scope c` |
+| GIT | `python agents/github_agent.py estado` + `python tools/validate_case_05.py --scope c` |
+| BIB | `python agents/bib_agent.py estado` + `python tools/validate_case_06.py --scope c` |
+| ABGD | `python agents/obsidian_agent.py estado` + `python tools/obsidian_wikilinks.py audit` |
+| INX | `python agents/orchestrator_agent.py inx-sync --limit 200` + `python apps/inx_doctor.py` |
+| Reset | `python tools/validate_case_14.py` antes de cualquier ejecucion real |
+
+## Exit Codes De Validadores
+
+| Familia | Convencion |
+| --- | --- |
+| `validate_case_05`, `06`, `08`, `09`, `10`, `14` | Documentan exit codes en cabecera |
+| `validate_case_02`, `03`, `07`, `11`, `12`, `13` | Usan exit code del flujo de validacion |
+| Doctores `apps/*_doctor.py` | Deben fallar solo ante problemas accionables |
+| Bookdown | `0` si HTML valido, `1` si hay regresion detectable |
+
+## Acceptance Por Tipo De Trabajo
+
+| Tipo De Cambio | Criterio De Cierre |
+| --- | --- |
+| Nuevo capitulo bookdown | `_bookdown.yml` actualizado, HTML regenerado, validador OK |
+| Nuevo script | Tabla maestra actualizada, ayuda CLI revisada, test o smoke definido |
+| Nueva GUI | Comando documentado, flujo visible, dependencia de `.env` clara |
+| Nuevo caso de uso | Documento en `docs/casos-de-uso/`, comando, DoD, validador o doctor |
+| Cambio de schema Notion | `ensure_*` o migracion idempotente, dry-run si procede, devlog |
+| Cambio INX | Sync controlado, doctor, validador de caso afectado |
+| Reset o limpieza masiva | Snapshot/backups, dry-run, limits, validacion no destructiva |
+
+## Evidencias Y Artefactos
+
+| Artefacto | Generador | Uso |
+| --- | --- | --- |
+| `bookdown/_book/index.html` | `bookdown/generate_static_html.py` | Manual navegable |
+| `artifacts/daily/YYYY-MM-DD.md` | `tools/timeline.py` | Vista temporal del dia |
+| `artifacts/inx/*.md` | `apps/inx_daily.py` | Reporte INX |
+| `artifacts/multiagent/*.json*` | `agents/orchestrator_agent.py sync-chat-memory` | Memoria derivada |
+| `memory/SNAPSHOT.md` | `sync-chat-memory` | MEMORIA/BLOQUEO/SIGUIENTE agregados |
+| `devlog/DEVLOG.md` | `tools/devlog.py append` | Hitos feature-level |
+
+## Stop Conditions
+
+| Situacion | Parar Y Resolver |
+| --- | --- |
+| Un validador reporta duplicados en Notion | No seguir sincronizando hasta entender fuente |
+| Una migracion no es idempotente | No repetir en produccion |
+| `memory_check` falla | Corregir memoria antes de cerrar turno |
+| `validate_static_html` falla | No entregar bookdown como navegable |
+| Notion no ve una base que la UI si muestra | Compartir pagina/base con la integracion antes de tocar IDs |
+| Reset real sin dry-run ni snapshot | No ejecutar |
+
+## Comandos De Release Documental
+
+```bash
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
+python -m pytest tests/test_bookdown_static_html.py -q
+python tools/snapshot_structure.py
+python tools/memory_check.py
+python tools/devlog.py append --agent Codex --area DOCS --status DONE --title "..." --summary "..."
+```
+
+## Que Debe Recordar Un Usuario
+
+- Validar el artefacto publicado importa mas que mirar solo `.Rmd`.
+- Los validadores con `--scope c` son preferibles cuando se quiere auditar huerfanas, duplicados y relaciones.
+- El cierre documental minimo es render, validador, test bookdown, memory_check y devlog.
+- No todos los tests deben tocar APIs externas; cuando dependen de credenciales, documentar la dependencia.

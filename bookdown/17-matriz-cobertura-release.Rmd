@@ -1,0 +1,86 @@
+# Matriz De Cobertura Y Release
+
+Este capitulo convierte el playbook de construccion del manual en una lista auditable. Sirve para decidir si el bookdown esta listo para commit, publicacion local o siguiente ampliacion.
+
+## Cobertura Por Capitulo
+
+| Capitulo | Cubre | Fuente Principal | Validacion |
+| --- | --- | --- | --- |
+| `index.Rmd` | Objetivo, lectores, ruta de lectura y diagrama general | `memory/PURPOSE.md`, `README.md` | Render HTML |
+| `01-instalacion-y-arranque.Rmd` | Entorno, credenciales, arranque, smoke tests | `.env.example`, `WINDOWS_START.md`, `README.md` | Comandos smoke documentados |
+| `02-arquitectura-operativa.Rmd` | Sistemas, carpetas, responsabilidades, flujo estructural | `memory/STRUCTURE.md`, `memory/PURPOSE.md` | `python tools/snapshot_structure.py --check` |
+| `03-pipelines-principales.Rmd` | Flujos end-to-end y estados de capacidad | `docs/pipeline-atlas.md`, casos de uso | Diagramas + tablas |
+| `04-catalogos-maestros.Rmd` | Carpetas, scripts, tests y navegacion rapida | `memory/STRUCTURE.md`, `tools/`, `docs/` | Tablas consistentes |
+| `05-operacion-validacion-y-mantenimiento.Rmd` | Rutina diaria, validacion, mantenimiento, stop conditions | `apps/`, `tools/`, `devlog/` | Validadores por capa |
+| `07-sistemas-y-agentes.Rmd` | Manual operativo por sistema externo/agente | `agents/`, `docs/*-agent.md` | Comandos canonicos |
+| `08-tabla-maestra-scripts.Rmd` | Inventario operativo de entrypoints | `agents/`, `tools/`, `apps/` | Revisión contra `rg --files` |
+| `09-casos-de-uso.Rmd` | Mapa de 15 casos y validadores asociados | `docs/casos-de-uso/` | `tools/validate_case_*.py` |
+| `10-validacion-y-acceptance.Rmd` | Acceptance, evidencias, coste y fallos esperados | `tests/`, `tools/`, `apps/` | `pytest` + validadores |
+| `11-inx-arquitectura.Rmd` | Claves, fuentes, syncs, relaciones y health checks INX | `tools/sync_inx_links.py`, `apps/inx_doctor.py` | INX doctor + validate cases |
+| `12-notion-abc-fuentes-de-verdad.Rmd` | Notion, ABC, env vars, schema y reglas de cambio | `docs/abc-taxonomy.md`, `.env.example` | Doctores Notion/config |
+| `13-coordinacion-multiagente.Rmd` | Chat, memoria, devlog, subagentes, sprints | `AGENTS.md`, `.claude/multiagent.md`, `multiagents/` | `python tools/memory_check.py` |
+| `14-operacion-windows-resets-backups.Rmd` | Lanzadores Windows, backups, resets y cierre operativo | `apps/*.bat`, `tools/reset_*.py` | Dry-run o backup previo segun flujo |
+| `15-catalogo-documentacion.Rmd` | Rutas de lectura y catalogo documental | `docs/`, `memory/`, `playbooks/` | Validador de enlaces locales |
+| `16-roadmap-limitaciones.Rmd` | Limitaciones reales, backlog y criterios de priorizacion | `devlog/DEVLOG.md`, casos abiertos | Auditoria de contradicciones |
+| `17-matriz-cobertura-release.Rmd` | DoD del manual y protocolo de release | Playbook bookdown | Esta matriz + validaciones |
+| `06-faq-y-glosario.Rmd` | Dudas frecuentes y vocabulario minimo | Manual completo | Render HTML |
+
+## Checklist De Release Local
+
+| Check | Estado Esperado | Comando |
+| --- | --- | --- |
+| Fuentes declaradas existen | Todos los `.Rmd` de `_bookdown.yml` presentes | `python bookdown/validate_static_html.py` |
+| HTML generado | `bookdown/_book/index.html` existe localmente | `python bookdown/generate_static_html.py` |
+| Tablas renderizadas | No quedan tablas Markdown como parrafo | `python bookdown/validate_static_html.py` |
+| Enlaces Markdown renderizados | No quedan patrones crudos de enlace Markdown en parrafos | `python bookdown/validate_static_html.py` |
+| Anchors internos | No hay `href="#..."` sin ID destino | `python bookdown/validate_static_html.py` |
+| Enlaces locales | Todo link local apunta a ruta existente | `python bookdown/validate_static_html.py` |
+| IDs HTML | No hay IDs duplicados | `python bookdown/validate_static_html.py` |
+| Mermaid | Hay warning explicito si depende de CDN | `python bookdown/validate_static_html.py` |
+| Test del bookdown | Generador y validador cubiertos por pytest | `python -m pytest tests/test_bookdown_static_html.py -q` |
+| Memoria coherente | `memory/INDEX.md` y `STRUCTURE.md` no rompen enlaces | `python tools/memory_check.py` |
+| TREE actualizado | `memory/STRUCTURE.md` refleja el repo real | `python tools/snapshot_structure.py --check` |
+| Devlog | Cada bloque feature-level tiene entrada | `python tools/devlog.py view --limit 20` |
+
+## Definition Of Done Del Bookdown Coworkia
+
+| Criterio | Estado | Evidencia |
+| --- | --- | --- |
+| Explica objetivo y conceptos | Cubierto | `index.Rmd`, `02-arquitectura-operativa.Rmd` |
+| Permite instalar y arrancar | Cubierto | `01-instalacion-y-arranque.Rmd` |
+| Describe pipelines end-to-end | Cubierto | `03-pipelines-principales.Rmd`, `09-casos-de-uso.Rmd` |
+| Lista carpetas y responsabilidades | Cubierto | `02-arquitectura-operativa.Rmd`, `04-catalogos-maestros.Rmd` |
+| Lista scripts ejecutables principales | Cubierto | `08-tabla-maestra-scripts.Rmd` |
+| Lista tests y coste esperado | Cubierto | `10-validacion-y-acceptance.Rmd` |
+| Lista documentos y perfiles de lectura | Cubierto | `15-catalogo-documentacion.Rmd` |
+| Explica outputs y evidencias | Cubierto | `05-operacion-validacion-y-mantenimiento.Rmd`, `10-validacion-y-acceptance.Rmd` |
+| Distingue real/local/pendiente | Cubierto | `03-pipelines-principales.Rmd`, `16-roadmap-limitaciones.Rmd` |
+| Tiene FAQ y glosario | Cubierto | `06-faq-y-glosario.Rmd` |
+| HTML navegable validado | Cubierto | `bookdown/validate_static_html.py` |
+| Artefacto generado no ensucia Git | Cubierto | `.gitignore` ignora `bookdown/_book/` |
+
+## Protocolo De Cambio
+
+| Si cambia... | Actualizar En Bookdown | Validar |
+| --- | --- | --- |
+| Un flujo de usuario | Capitulo del sistema + `09-casos-de-uso.Rmd` | Validador del caso |
+| Un script CLI o `.bat` | `08-tabla-maestra-scripts.Rmd` | `py_compile` o smoke del script |
+| Una carpeta top-level | `02-arquitectura-operativa.Rmd`, `04-catalogos-maestros.Rmd`, `memory/STRUCTURE.md` | `snapshot_structure.py --check` |
+| Una variable `.env` | `01-instalacion-y-arranque.Rmd`, `12-notion-abc-fuentes-de-verdad.Rmd` | Doctor config |
+| Una regla multiagente | `13-coordinacion-multiagente.Rmd` | `memory_check.py` |
+| El protocolo de inicio/cierre | `13-coordinacion-multiagente.Rmd`, `08-tabla-maestra-scripts.Rmd`, guias de agentes | `python tools/session_protocol.py inicia --no-chat` |
+| Un reset o backup | `14-operacion-windows-resets-backups.Rmd` | Dry-run o evidencia de backup |
+| Una limitacion deja de existir | `16-roadmap-limitaciones.Rmd` | Auditoria `rg` |
+| Un test nuevo relevante | `10-validacion-y-acceptance.Rmd` | `pytest` focalizado |
+
+## Comando De Cierre
+
+```bash
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
+python -m pytest tests/test_bookdown_static_html.py -q
+python tools/snapshot_structure.py --check
+python tools/memory_check.py
+```
+
+Si uno de esos comandos falla, el bookdown no esta listo para cerrar. Si el fallo depende de credenciales externas, debe quedar explicado en el capitulo de validacion o en roadmap.

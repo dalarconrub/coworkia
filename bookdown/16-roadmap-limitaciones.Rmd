@@ -1,0 +1,121 @@
+# Roadmap Y Limitaciones
+
+## Para Que Sirve
+
+Este capitulo separa tres cosas que suelen mezclarse: limitaciones reales del sistema, backlog documentado y mejoras opcionales. No es una promesa de implementacion; es un mapa para decidir el siguiente trabajo.
+
+## Limitaciones Operativas Actuales
+
+| Area | Limitacion | Impacto | Mitigacion |
+| --- | --- | --- | --- |
+| Credenciales | Muchas capacidades dependen de `.env` | Sin tokens no hay sync real | `apps/config_doctor.py` |
+| Notion API | Páginas visibles en UI pueden no estar compartidas | Agentes no ven bases | `apps/notion_doctor.py` y compartir con integracion |
+| Tests globales | No hay suite unica offline que pruebe todo | Validacion por capas | `validate_case_*.py` + doctores |
+| Mermaid | Diagramas del HTML usan CDN | Offline no renderiza diagramas | El texto y tablas siguen visibles |
+| INX | Depende de sync reciente | Auditorias pueden dar falsos rotos | `orchestrator inx-sync` antes de auditar |
+| Obsidian | Renames/borrados pueden dejar huerfanos | `OBSIDIAN_DB` e INX pueden desalinearse | Backfill y validadores |
+| Reset | Restore real completo no siempre es auto-testable | Requiere prudencia operativa | Dry-run, snapshots, `validate_case_14.py` |
+
+## Backlog Por Dominio
+
+| Dominio | Backlog Documentado | Fuente |
+| --- | --- | --- |
+| MAR/ABGD | Batch `--all` para checkboxes Obsidian -> Todoist | Caso 10 |
+| MAR/ABGD | `--project` al capturar tareas desde checkboxes | Caso 10 |
+| INX | Relacion explicita `obsidian:<ruta>` -> `todoist:<id>` | Caso 10 |
+| Timeline | Multi-journal por dia | Caso 11 |
+| Timeline | Preview inline del journal | Caso 11 |
+| Timeline | Script futuro de journal con plantilla | Caso 11 |
+| ABGD/INX | Cleanup de orphan rows de `OBSIDIAN_DB` | Caso 12 |
+| ABGD/INX | Detectar renames por hash o similaridad | Caso 12 |
+| Wikilinks | Subcomando `open` para IDs cross-system | Caso 13 |
+| Wikilinks | Autocomplete desde INX en Obsidian | Caso 13 |
+| Reset | Cycle-test real reset -> restore en workspace de test | Caso 14 |
+| Reset | Cleanup de snapshots dry-run | Caso 14 |
+| Inoreader | Doctor dedicado futuro | Caso 15 |
+| Inoreader | Dedupe por titulo/URL | Caso 15 |
+| Inoreader | Modo `sync --drain-tag` | Caso 15 |
+
+## Mejoras Que Ya No Son Backlog Principal
+
+| Frente | Estado |
+| --- | --- |
+| Caso 07 ABGD -> PTN | Gaps principales cerrados; queda mantenimiento |
+| Caso 08 KIT en INX | Alcance C validado; mejoras futuras son navegacion/dedupe |
+| Caso 09 BIB -> Obsidian | Flujo principal operativo; mejora pendiente: sync inverso BIB -> frontmatter |
+| Caso 14 reset | Bateria no destructiva existe; quedan pruebas manuales o workspace dedicado |
+
+## Priorizacion Recomendada
+
+| Prioridad | Trabajo | Razon |
+| --- | --- | --- |
+| P1 | Auditar contradicciones entre README/docs/bookdown | Primera pasada cerrada: corregidos `pipeline-atlas`, README y politica `_book` |
+| P1 | Decidir politica de versionado de `bookdown/_book/` | Cerrado: `_book/` es regenerable e ignorado por Git |
+| P2 | Doctor dedicado de Inoreader | Cierra diagnostico de una fuente externa nueva |
+| P2 | Cleanup Obsidian orphans con dry-run | Reduce deuda de renames/borrados |
+| P2 | Script de journal con plantilla | Mejora rutina diaria y timeline |
+| P3 | Wikilinks `open` y autocomplete | Mejora ergonomia, no bloquea integridad |
+| P3 | Cycle-test reset en workspace de test | Alta confianza, pero requiere entorno controlado |
+
+## Auditoria De Contradicciones
+
+Comando recomendado:
+
+```bash
+rg -n "pendiente|TODO|blocked|production-ready|simulado|demo|endpoint|REP|github-rep|docs/bookdown|NOTION_DB_REPOS" README.md docs memory bookdown
+```
+
+Revisar especialmente:
+
+| Patron | Riesgo |
+| --- | --- |
+| `REP` | Nombre antiguo antes de GIT |
+| `docs bookdown` | Ruta antigua escrita como carpeta; ahora es `bookdown/` |
+| `NOTION_DB_REPOS` | Env var antigua; ahora `NOTION_DB_GIT` |
+| `production-ready` | Claim que debe tener evidencia |
+| `pendiente` | Puede estar resuelto pero no actualizado |
+
+## Politica Para `bookdown/_book/`
+
+| Opcion | Ventaja | Coste |
+| --- | --- | --- |
+| Versionar HTML generado | David puede abrirlo sin generar | Diffs grandes si cambia mucho |
+| Ignorar HTML generado | Repo mas limpio | Hay que ejecutar generador |
+| Versionar solo en releases | Balance | Requiere disciplina |
+
+Decision actual: `bookdown/_book/` es salida regenerable y queda en `.gitignore`. El HTML local sigue pudiendo generarse con `python bookdown/generate_static_html.py`.
+
+## Definition Of Done Para El Bookdown
+
+| Criterio | Estado |
+| --- | --- |
+| Explica objetivo del proyecto | Cubierto |
+| Instala y arranca | Cubierto |
+| Describe arquitectura y carpetas | Cubierto |
+| Lista scripts y agentes | Cubierto |
+| Lista casos de uso | Cubierto |
+| Explica validacion | Cubierto |
+| Explica INX y Notion/ABC | Cubierto |
+| Explica multiagente | Cubierto |
+| Explica Windows/resets/backups | Cubierto |
+| Cataloga documentacion | Cubierto |
+| Expone roadmap/limitaciones | Cubierto |
+| Auditoria de contradicciones | Primera pasada completada |
+| Politica de HTML generado | Cerrada: `_book/` ignorado |
+
+## Stop Conditions Del Roadmap
+
+| Situacion | Accion |
+| --- | --- |
+| Un backlog requiere mutar datos reales | Crear dry-run o validacion primero |
+| Una mejora no tiene owner ni caso | No implementarla aun |
+| Una doc contradice memoria versionada | Corregir doc y dejar devlog |
+| Un cambio toca `.env` real | Confirmar rutas/IDs antes |
+| Una validacion necesita workspace de test | No ejecutarla contra produccion por atajo |
+
+## Que Debe Recordar Un Usuario
+
+- El roadmap debe nacer de gaps validados, no de ideas sueltas.
+- Las limitaciones no son fallos si estan documentadas y tienen mitigacion.
+- Antes de seguir ampliando funciones, conviene auditar coherencia documental.
+- El siguiente cierre natural del bookdown es mantener la auditoria en cada cambio y tratar el HTML como artefacto regenerable.

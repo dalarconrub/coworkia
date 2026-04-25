@@ -1,0 +1,172 @@
+# Operacion Windows, Resets Y Backups
+
+## Para Que Sirve
+
+Coworkia se opera principalmente en Windows. Esta capa documenta los lanzadores, diagnosticos, backups y resets para que una sesion pueda arrancar, trabajar y cerrar sin recordar todos los comandos internos.
+
+## Arranque En Windows
+
+| Accion | Comando |
+| --- | --- |
+| Preparar entorno | `apps\setup_venv.bat` |
+| Iniciar desde raiz | `INICIAR_COWORKIA.bat` |
+| Abrir sesion | `apps\abrir_sesion.bat` |
+| Abrir hub PTN | `apps\project_hub_gui.bat` |
+| Diagnostico configuracion | `apps\config_doctor.bat` |
+| Diagnostico Notion | `apps\notion_doctor.bat` |
+| Cerrar sesion | `apps\cerrar_sesion.bat` |
+
+`apps\abrir_sesion.bat` resuelve el chat del dia, imprime briefing con memoria y devlog reciente, y valida `memory/`.
+
+`apps\cerrar_sesion.bat` deja al dia memoria derivada, timeline y validacion final.
+
+## Diagnostico Antes De Operar
+
+```bat
+apps\config_doctor.bat
+apps\notion_doctor.bat
+apps\inx_doctor.bat
+```
+
+Si `notion_doctor` tarda demasiado:
+
+```bat
+set NOTION_DOCTOR_FAST=1
+apps\notion_doctor.bat
+```
+
+## Backups
+
+| Script | Fuente | Destino | Uso |
+| --- | --- | --- | --- |
+| `apps\backs_todoist.py` | Todoist | BACK-Todoist en Notion | Backup manual de tareas |
+| `apps\backs_notion.py` | Notion | BACK-Notion | Backup manual de paginas |
+| `apps\backs_obsidian.py` | Vault Obsidian | BACK-Obsidian en Notion | Backup documental |
+| `apps\export_zinbox.py` | Z-INBOX Todoist | Notion | Exportar inbox/cuarenas |
+
+Comandos:
+
+```bash
+python apps/backs_todoist.py --parent <NOTION_PAGE_ID>
+python apps/backs_notion.py --parent <NOTION_PAGE_ID>
+python apps/backs_obsidian.py --parent <NOTION_PAGE_ID>
+python apps/export_zinbox.py --parent <NOTION_PAGE_ID>
+```
+
+## Resets: Principio De Seguridad
+
+Reset no significa destruir. En Coworkia debe significar archivar, rotar o mover con posibilidad de auditoria y restauracion.
+
+| Fase | Sistema | Script | Estrategia |
+| --- | --- | --- | --- |
+| 1 | MAR | `tools/reset_mar.py` | Mover tareas a Z-INBOX con marker reversible |
+| 2 | Notion/PTN | `tools/reset_notion.py` | Checkbox `Archivo=true` + snapshot |
+| 3 | Obsidian | `tools/reset_obsidian.py` | Rotar vault, viejo intacto |
+| 4 | Orquestador | `tools/reset_all.py` | Encadenar fases con abort-on-fail |
+
+## Reset MAR
+
+```bash
+python tools/reset_mar.py reset-all --dry-run
+python tools/reset_mar.py reset-all --limit 10
+python tools/reset_mar.py list-archived
+python tools/reset_mar.py restore <task_id>
+```
+
+Contrato:
+
+- no borra tareas;
+- no toca tareas ya en proyectos `Z-*`;
+- marca descripcion con origen;
+- permite restore por tarea o batch.
+
+## Reset Notion
+
+```bash
+python tools/ensure_archivo_field.py --dry-run
+python tools/ensure_archivo_field.py
+python tools/reset_notion.py reset-ptn-all --snapshot --dry-run
+python tools/reset_notion.py reset-ptn-all --snapshot
+python tools/reset_notion.py list-archived --target all
+python tools/reset_notion.py restore <page_id>
+```
+
+Contrato:
+
+- no sobrescribe `Estado`;
+- usa checkbox `Archivo`;
+- propaga `Archivo` a INX para filas PTN;
+- snapshot recomendado antes de mutar.
+
+## Reset Obsidian
+
+```bash
+python tools/reset_obsidian.py status
+python tools/reset_obsidian.py rotate --dry-run --snapshot
+python tools/reset_obsidian.py rotate --snapshot
+python tools/reset_obsidian.py list-archived
+python tools/reset_obsidian.py restore --from <old-vault-path>
+```
+
+Contrato:
+
+- el vault viejo queda intacto;
+- el vault nuevo replica estructura y `.obsidian/`;
+- INX `obsidian:*` queda marcado como archivado;
+- no edita `.env`, imprime la linea que debe copiarse.
+
+## Reset General
+
+```bash
+python tools/reset_all.py --dry-run
+python tools/reset_all.py --dry-run --mar-limit 10 --notion-limit 5
+python tools/reset_all.py --yes --obsidian-new-vault-path <ruta>
+python tools/validate_case_14.py
+```
+
+Reglas:
+
+- ejecutar `validate_case_14.py` antes de un reset real;
+- empezar siempre con `--dry-run`;
+- usar limites en primera ejecucion;
+- no usar `--yes` hasta entender el plan;
+- si una fase falla, no se ejecutan las siguientes.
+
+## Validacion De Reset
+
+| Validacion | Comando |
+| --- | --- |
+| Bateria no destructiva | `python tools/validate_case_14.py` |
+| Verbose | `python tools/validate_case_14.py --verbose` |
+| Wrapper Windows | `apps\validate_case_14.bat` |
+
+`validate_case_14.py` comprueba happy paths, edge cases, idempotencia y propagacion INX sin mutar datos reales.
+
+## Operacion INX Desde Windows
+
+| Accion | Comando |
+| --- | --- |
+| Sync Todoist -> Notion | `apps\sync_todoist_to_notion.bat 200 --no-pause` |
+| INX desde Todoist | `apps\inx_sync_todoist.bat 200 --no-pause` |
+| Log PTN | `apps\log_ptn_changes.bat --no-pause` |
+| INX desde Notion | `apps\inx_sync_notion.bat 200 --no-pause` |
+| INX desde Obsidian | `apps\inx_sync_obsidian.bat 200 --no-pause` |
+| Report diario | `apps\inx_daily.bat 200` |
+
+## Stop Conditions
+
+| Situacion | No Seguir Hasta |
+| --- | --- |
+| `.env` incompleto | `config_doctor` sin errores criticos |
+| Notion no ve una base | Compartir pagina/base con integracion |
+| Reset sin dry-run | Ejecutar dry-run y leer plan |
+| Backup con parent desconocido | Confirmar pagina destino |
+| INX con duplicados | Resolver antes de sync masivo |
+| Obsidian path dudoso | Confirmar `OBSIDIAN_ABGD_ROOT` y `OBSIDIAN_ALPHA_PATH` |
+
+## Que Debe Recordar Un Usuario
+
+- Los `.bat` son comodidad Windows; la logica real vive en `.py`.
+- Backups y resets deben dejar evidencia: consola, snapshot, devlog o artifact.
+- Reset general es una cirugia operativa: primero `--dry-run`, despues validacion.
+- Cerrar sesion con `apps\cerrar_sesion.bat` mantiene memoria y timeline al dia.

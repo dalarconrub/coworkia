@@ -37,6 +37,7 @@ EXCLUDE_DIRS = {
     ".git", ".venv", "venv", "__pycache__", "node_modules",
     ".idea", ".vscode", ".pytest_cache", ".mypy_cache",
     ".ruff_cache", "build", "dist", ".cache", ".next",
+    "_book",
 }
 EXCLUDE_FILE_SUFFIXES = {".pyc", ".pyo", ".log"}
 EXCLUDE_RELATIVE_FILES = {

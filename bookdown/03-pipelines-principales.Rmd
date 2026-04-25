@@ -1,0 +1,75 @@
+# Pipelines Principales
+
+## MAR Diario
+
+```mermaid
+flowchart LR
+    Inbox[Todoist inbox] --> Dashboard[apps/dashboard.py]
+    Dashboard --> Clasificacion[Idea / Meta / Habito / Tarea / Evento]
+    Clasificacion --> Todoist[Todoist]
+    Todoist --> Sync[tools/sync_todoist_to_notion.py]
+    Sync --> INX[INX]
+```
+
+| Paso | Comando | Salida |
+| --- | --- | --- |
+| Ver foco diario | `python apps/dashboard.py` | Dashboard MAR |
+| Ver estado | `python agents/todoist_agent.py estado` | Resumen del sistema |
+| Listar inbox | `python agents/todoist_agent.py zinbox --limit 20` | Entradas por procesar |
+| Sincronizar a Notion | `python tools/sync_todoist_to_notion.py` | Filas en `TODOIST-TAREAS` |
+
+## PTN Proyectos
+
+| Paso | Comando | Salida |
+| --- | --- | --- |
+| Estado | `python agents/notion_agent.py estado` | Diagnostico PTN |
+| Proyectos | `python agents/notion_agent.py proyectos` | Lista de proyectos |
+| Tareas | `python agents/notion_agent.py tareas` | Lista de tareas |
+| Notas | `python agents/notion_agent.py notas` | Lista de notas |
+
+## KIT, GIT Y BIB
+
+| Sistema | Comando Principal | Validacion Relacionada |
+| --- | --- | --- |
+| KIT | `python agents/kit_agent.py estado` | `python tools/validate_case_08.py --scope c` |
+| GIT | `python agents/github_agent.py estado` | `python tools/validate_case_05.py --scope c` |
+| BIB | `python agents/bib_agent.py estado` | `python tools/validate_case_06.py --scope c` |
+
+## ABGD Obsidian
+
+| Paso | Comando | Salida |
+| --- | --- | --- |
+| Mapa | `python agents/obsidian_agent.py mapa` | Jerarquia del vault |
+| Ultimas notas | `python agents/obsidian_agent.py ultimas --n 15` | Notas recientes |
+| Buscar | `python agents/obsidian_agent.py buscar "termino"` | Coincidencias |
+| Nueva nota | `python agents/obsidian_agent.py nueva-nota A1-INV B12-LAB C125-DAT "Titulo"` | Nota en vault |
+
+## INX Trazabilidad
+
+```mermaid
+flowchart LR
+    MAR[MAR] --> INX[INX-ENLACES]
+    PTN[PTN] --> INX
+    ABGD[ABGD] --> INX
+    GIT[GIT] --> INX
+    BIB[BIB] --> INX
+    KIT[KIT] --> INX
+    INX --> Doctor[apps/inx_doctor.py]
+    Doctor --> Report[artifacts/inx/]
+```
+
+| Paso | Comando | Salida |
+| --- | --- | --- |
+| Sync completo | `python agents/orchestrator_agent.py inx-sync --limit 200` | Upserts INX |
+| Doctor | `python apps/inx_doctor.py` | Diagnostico de enlaces |
+| Report diario | `python apps/inx_daily.py --limit 200` | Markdown en `artifacts/inx/` |
+
+## Criterio De Realidad
+
+| Estado | Significado En Coworkia |
+| --- | --- |
+| Local | Funciona en la maquina con `.env` valido |
+| API externa | Requiere proveedor y permisos |
+| Regenerable | Puede reconstruirse desde fuentes canonicas |
+| Manual | Requiere accion de David en UI externa |
+| Pendiente | Existe diseño o doc, pero no ejecucion validada |

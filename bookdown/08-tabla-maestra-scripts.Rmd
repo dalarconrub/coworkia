@@ -1,0 +1,169 @@
+# Tabla Maestra De Scripts
+
+## Para Que Sirve
+
+Esta tabla ayuda a decidir que comando ejecutar sin recorrer todo el repo. No enumera funciones internas: solo entrypoints utiles para operacion, diagnostico, sincronizacion, mantenimiento o validacion.
+
+## Agentes De Dominio
+
+| Script | Sistema | Objetivo | Comando Base | Cuando Usarlo |
+| --- | --- | --- | --- | --- |
+| `agents/todoist_agent.py` | MAR | Operar Todoist por CLI | `python agents/todoist_agent.py estado` | Tareas, inbox, clasificacion temporal |
+| `agents/notion_agent.py` | PTN | Operar proyectos, tareas y notas | `python agents/notion_agent.py estado` | Direccion formal en Notion |
+| `agents/kit_agent.py` | KIT | Operar catalogo Knowledge/Information/Tool | `python agents/kit_agent.py estado` | Consultar o crear conocimiento |
+| `agents/github_agent.py` | GIT | Importar y catalogar repos | `python agents/github_agent.py estado` | Sincronizar GitHub con Notion |
+| `agents/bib_agent.py` | BIB | Importar y catalogar papers | `python agents/bib_agent.py estado` | Sincronizar Paperpile con Notion |
+| `agents/obsidian_agent.py` | ABGD | Navegar y crear notas | `python agents/obsidian_agent.py estado` | Operar vault local |
+| `agents/inoreader_agent.py` | KIT | Importar articulos Inoreader a KIT | `python agents/inoreader_agent.py estado` | Alimentar KIT desde lectura externa |
+| `agents/orchestrator_agent.py` | MULTIAGENT/INX | Sprints, memoria y sync INX | `python agents/orchestrator_agent.py sync-chat-memory` | Coordinacion y cierres |
+
+## Apps Y Lanzadores
+
+| Script | Objetivo | Salida | Cuando Usarlo |
+| --- | --- | --- | --- |
+| `apps/dashboard.py` | Dashboard diario MAR | Ventana Tkinter o salida visual | Inicio del dia |
+| `apps/pipeline_gui.py` | Atlas interactivo del pipeline | GUI | Navegacion global |
+| `apps/project_hub_gui.py` | Hub PTN | GUI | Gestion visual de proyectos |
+| `apps/github_gui.py` | Catalogacion GIT | GUI | Revisar y editar repos |
+| `apps/bib_gui.py` | Catalogacion BIB | GUI | Revisar y editar papers |
+| `apps/catalogar_repos.py` | Catalogacion masiva de repos | Cambios Notion | Curacion puntual GIT |
+| `apps/config_doctor.py` | Diagnosticar `.env` | Reporte consola | Primer arranque o fallo |
+| `apps/notion_doctor.py` | Diagnosticar acceso Notion | Recursos visibles | Revisar permisos Notion |
+| `apps/inx_doctor.py` | Diagnosticar INX | Reporte consola | Revisar trazabilidad |
+| `apps/inx_daily.py` | Sync y reporte diario INX | `artifacts/inx/` | Cierre o auditoria diaria |
+| `apps/mar_doctor.py` | Doctor MAR sobre Notion | Reporte consola | Revisar TODOIST-TAREAS |
+| `apps/export_zinbox.py` | Exportar inbox Todoist a Notion | Paginas BACK | Backup o auditoria |
+| `apps/backs_todoist.py` | Backup de Todoist | BACK-Todoist | Backup manual |
+| `apps/backs_notion.py` | Backup de Notion | BACK-Notion | Backup manual |
+| `apps/backs_obsidian.py` | Backup de Obsidian | BACK-Obsidian | Backup manual |
+| `apps/*.bat` | Lanzadores Windows | Comando envuelto | Uso sin recordar CLI |
+
+## Herramientas De Memoria, Documentacion Y Operacion
+
+| Script | Objetivo | Entrada | Salida | Cuando Usarlo |
+| --- | --- | --- | --- | --- |
+| `tools/init_chat.py` | Resolver chat activo | Fecha actual | `chats/chat_YYYY-MM-DD.md` | Inicio de sesion |
+| `tools/session_protocol.py` | Inicio/cierre reproducible de sesion | Git + memoria + chat + devlog | Informe y apunte en chat | `inicia sesion`, `sigue`, `cierra sesion` |
+| `tools/devlog.py` | Ver/anadir hito | CLI args | `devlog/DEVLOG.md` | Cierre de feature o bloqueo |
+| `tools/memory_check.py` | Validar memoria | `memory/` | Exit code | Tras tocar memoria/docs |
+| `tools/snapshot_structure.py` | Regenerar TREE | Repo | `memory/STRUCTURE.md` | Cambio de estructura |
+| `tools/timeline.py` | Agregar vista diaria | chats/devlog/artifacts | `artifacts/daily/` | Revision temporal |
+| `tools/fix_chat_mojibake.py` | Reparar mojibake | Chat afectado | Chat corregido | Encoding roto |
+| `bookdown/generate_static_html.py` | Render manual | `.Rmd` | `bookdown/_book/index.html` | Tras editar bookdown |
+| `bookdown/validate_static_html.py` | Auditar HTML | HTML generado | Exit code | Antes de cerrar docs |
+
+## Sincronizacion Y Trazabilidad
+
+| Script | Sistema | Objetivo | Comando Base |
+| --- | --- | --- | --- |
+| `tools/sync_todoist_to_notion.py` | MAR/PTN | Llevar Todoist a Notion | `python tools/sync_todoist_to_notion.py` |
+| `tools/sync_inx_links.py` | INX | Upsert de enlaces por fuente | `python tools/sync_inx_links.py --source all` |
+| `tools/log_ptn_changes.py` | PTN | Registrar cambios PTN | `python tools/log_ptn_changes.py` |
+| `tools/log_obsidian_changes.py` | ABGD | Registrar cambios Obsidian | `python tools/log_obsidian_changes.py` |
+| `tools/backfill_obsidian_to_inx.py` | ABGD/INX | Backfill de notas a INX | `python tools/backfill_obsidian_to_inx.py` |
+| `tools/sync_bib_reading_state.py` | BIB | Sincronizar estado de lectura | `python tools/sync_bib_reading_state.py` |
+| `tools/sync_inoreader_to_kit.py` | KIT | Sync Inoreader via API | `python tools/sync_inoreader_to_kit.py` |
+
+## Importacion Y Catalogacion
+
+| Script | Objetivo | Fuente | Destino |
+| --- | --- | --- | --- |
+| `tools/import_abc_taxonomy.py` | Importar taxonomia ABC | CSV/Notion | Notion ABC |
+| `tools/import_keep_remaining.py` | Completar import Google Keep | Takeout | KIT |
+| `tools/import_inoreader_articles.py` | Importar articulos Inoreader offline/feed | Feed/URLs | KIT |
+| `tools/google_keep_tools.py` | Helpers Google Keep | Takeout | KIT |
+| `tools/inoreader_oauth.py` | OAuth Inoreader | API Inoreader | Tokens locales |
+| `tools/inoreader_tools.py` | Helpers Inoreader | API/feed | KIT |
+| `tools/github_tools.py` | Wrapper GitHub | GitHub API | GIT |
+| `tools/paperpile_tools.py` | Wrapper Paperpile | BibTeX | BIB |
+| `tools/notion_tools.py` | Wrapper Notion | Notion API | PTN/KIT/GIT/BIB/INX |
+| `tools/todoist_tools.py` | Wrapper Todoist | Todoist API | MAR |
+| `tools/obsidian_tools.py` | Wrapper Obsidian | Vault local | ABGD |
+
+## Promociones Cross-System
+
+| Script | Flujo | Objetivo |
+| --- | --- | --- |
+| `tools/promote_obsidian_to_ptn.py` | ABGD -> PTN | Convertir nota en nota formal PTN |
+| `tools/promote_bib_to_obsidian.py` | BIB -> ABGD | Crear nota Obsidian desde paper |
+| `tools/promote_notas_checkboxes_to_todoist.py` | PTN/Notas -> MAR | Convertir checkboxes en tareas |
+| `tools/close_obsidian_checkboxes_to_todoist.py` | ABGD -> MAR | Cerrar tareas originadas en checkboxes |
+| `tools/obsidian_wikilinks.py` | ABGD/INX | Auditar y buscar wikilinks cross-system |
+
+## Schema, Migraciones Y Limpieza
+
+| Script | Objetivo | Riesgo | Uso Normal |
+| --- | --- | --- | --- |
+| `tools/create_abc_taxonomy_dbs.py` | Crear bases ABC | Medio | Setup inicial |
+| `tools/create_inx_links_db.py` | Crear base INX | Medio | Setup inicial |
+| `tools/ensure_todoist_tasks_schema.py` | Asegurar schema TODOIST-TAREAS | Bajo | Tras cambios MAR |
+| `tools/ensure_archivo_field.py` | Asegurar campo Archivo | Bajo | Antes de resets/archivado |
+| `tools/ensure_inx_completed_status.py` | Asegurar estado completado INX | Bajo | Mantenimiento |
+| `tools/ensure_inx_paperpile_citekey_field.py` | Asegurar citekey Paperpile | Bajo | Mantenimiento BIB/INX |
+| `tools/ensure_kit_cross_fields.py` | Asegurar campos cruzados KIT | Bajo | Mantenimiento KIT |
+| `tools/ensure_kit_external_fields.py` | Asegurar campos externos KIT | Bajo | Import Google Keep/Inoreader |
+| `tools/enable_ptn_relations.py` | Activar relaciones PTN | Medio | Setup/migracion |
+| `tools/migrate_ptn.py` | Migrar PTN | Alto | Solo con objetivo claro |
+| `tools/migrate_database.py` | Migrar base Notion | Alto | Solo con backup |
+| `tools/migrate_notas_ptn_relations.py` | Migrar relaciones notas PTN | Medio | Correccion de schema |
+| `tools/migrate_notas_ruta_obsidian.py` | Migrar rutas Obsidian en notas | Medio | Correccion de rutas |
+| `tools/dedupe_notion_db.py` | Dedupe generico Notion | Alto | Tras auditoria |
+| `tools/dedupe_abc_taxonomy.py` | Dedupe ABC | Alto | Limpieza taxonomia |
+| `tools/cleanup_notas_legacy_props.py` | Limpiar props legacy notas | Medio | Post-migracion |
+| `tools/prune_abc_taxonomy.py` | Podar ABC | Alto | Limpieza controlada |
+| `tools/set_ptn_project_area_select.py` | Set area proyecto PTN | Bajo | Correccion puntual |
+| `tools/set_ptn_project_block_context_select.py` | Set bloque/contexto PTN | Bajo | Correccion puntual |
+| `tools/todoist_create_c_sections.py` | Crear secciones C en Todoist | Medio | Alineacion estructura |
+
+## Resets Y Restore
+
+| Script | Objetivo | Stop Condition |
+| --- | --- | --- |
+| `tools/reset_all.py` | Orquestar reset multi-sistema | Requiere entender alcance |
+| `tools/reset_mar.py` | Archivar/restaurar tareas MAR | No usar sin revisar backup |
+| `tools/reset_notion.py` | Archivar/restaurar PTN | No usar sin snapshot |
+| `tools/reset_obsidian.py` | Rotar/restaurar vault ABGD | No usar sin confirmar rutas |
+| `apps/reset_all.bat` | Lanzador Windows reset global | Misma cautela que `reset_all.py` |
+| `apps/reset_mar.bat` | Lanzador Windows reset MAR | Misma cautela que `reset_mar.py` |
+| `apps/reset_notion.bat` | Lanzador Windows reset Notion | Misma cautela que `reset_notion.py` |
+| `apps/reset_obsidian.bat` | Lanzador Windows reset Obsidian | Misma cautela que `reset_obsidian.py` |
+
+## Validadores De Casos
+
+| Script | Scope Principal | Comando Recomendado |
+| --- | --- | --- |
+| `tools/validate_case_02.py` | Tarea Todoist -> PTN -> INX | `python tools/validate_case_02.py` |
+| `tools/validate_case_03.py` | Nota PTN/Obsidian | `python tools/validate_case_03.py` |
+| `tools/validate_case_05.py` | GIT en INX | `python tools/validate_case_05.py --scope c` |
+| `tools/validate_case_06.py` | BIB en INX | `python tools/validate_case_06.py --scope c` |
+| `tools/validate_case_07.py` | Promocion ABGD -> PTN | `python tools/validate_case_07.py` |
+| `tools/validate_case_08.py` | KIT en INX | `python tools/validate_case_08.py --scope c` |
+| `tools/validate_case_09.py` | BIB -> Obsidian | `python tools/validate_case_09.py --scope all` |
+| `tools/validate_case_10.py` | Checkboxes -> Todoist | `python tools/validate_case_10.py --scope all` |
+| `tools/validate_case_11.py` | Journal diario/timeline | `python tools/validate_case_11.py` |
+| `tools/validate_case_12.py` | Backfill INX historico | `python tools/validate_case_12.py` |
+| `tools/validate_case_13.py` | Wikilinks cross-system | `python tools/validate_case_13.py` |
+| `tools/validate_case_14.py` | Reset sistema | `python tools/validate_case_14.py` |
+
+## Scripts De Soporte No Ejecutables Directos
+
+| Archivo | Rol |
+| --- | --- |
+| `tools/env_utils.py` | Carga y resolucion robusta de `.env` |
+| `multiagents/models.py` | Modelos de sprint y ejecucion |
+| `multiagents/planner.py` | Planificacion de sprints |
+| `multiagents/registry.py` | Registro de roles y agentes |
+| `multiagents/chat_memory.py` | Parseo de memoria desde chats |
+| `multiagents/artifacts.py` | Serializacion de artefactos multiagente |
+
+## Criterios De Uso
+
+| Si Necesitas | Empieza Por |
+| --- | --- |
+| Operar un sistema externo | `agents/<sistema>_agent.py` |
+| Diagnosticar configuracion | `apps/config_doctor.py` |
+| Diagnosticar Notion | `apps/notion_doctor.py` |
+| Ver coherencia cross-system | `apps/inx_doctor.py` |
+| Cambiar schema | `tools/ensure_*.py` antes que migraciones |
+| Borrar/archivar masivamente | `reset_*` solo tras leer ayuda y backups |
+| Cerrar documentacion | `bookdown/generate_static_html.py` y `bookdown/validate_static_html.py` |

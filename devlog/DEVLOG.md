@@ -587,3 +587,68 @@ Resumen: David completo los cambios manuales de alineacion en Notion tras el ren
 Estado: DONE
 Chat: chats/chat_2026-04-25.md
 Resumen: Regenerado memory/STRUCTURE.md con tools/snapshot_structure.py para incorporar el chat diario 2026-04-25 en el TREE. memory_check queda OK antes de commit.
+
+## 2026-04-25T14:45Z — Codex — [DOCS] Crear bookdown navegable de Coworkia
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Creada carpeta top-level bookdown/ con _bookdown.yml, capitulos Rmd iniciales, generador HTML estatico, validador, HTML generado y test tests/test_bookdown_static_html.py. README y memory/INDEX.md/STRUCTURE.md actualizados; STRUCTURE TREE regenerado. Validaciones: generate_static_html OK, validate_static_html OK con warning esperado de Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T14:51Z — Codex — [DOCS] Ampliar bookdown con sistemas y scripts
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadidos los capitulos bookdown/07-sistemas-y-agentes.Rmd y bookdown/08-tabla-maestra-scripts.Rmd, enlazados en _bookdown.yml. Regenerado bookdown/_book/index.html y actualizado memory/STRUCTURE.md TREE. Validaciones: generate_static_html OK, validate_static_html OK con warning esperado de Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T14:57Z — Codex — [DOCS] Ampliar bookdown con casos y validation
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadidos bookdown/09-casos-de-uso.Rmd y bookdown/10-validacion-y-acceptance.Rmd, con FAQ reordenado al final en _bookdown.yml. El capitulo 09 mapea los 15 casos canonicos a sistemas y validadores; el 10 documenta capas de validacion, acceptance, evidencias y stop conditions. Regenerado HTML y STRUCTURE TREE. Validaciones: validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T15:07Z — Codex — [DOCS] Ampliar bookdown con INX y Notion ABC
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadidos bookdown/11-inx-arquitectura.Rmd y bookdown/12-notion-abc-fuentes-de-verdad.Rmd, enlazados en _bookdown.yml antes del FAQ. El capitulo 11 documenta claves, fuentes de sync, relaciones curadas, doctores, reportes y stop conditions de INX. El capitulo 12 documenta jerarquia ABC, mapa Notion canonico, data sources, env vars, permisos, schema y reglas de cambio. Regenerado HTML y STRUCTURE TREE. Validaciones: validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T16:59Z — Codex — [DOCS] Ampliar bookdown con multiagente y operacion Windows
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadidos bookdown/13-coordinacion-multiagente.Rmd y bookdown/14-operacion-windows-resets-backups.Rmd, enlazados en _bookdown.yml antes del FAQ. El capitulo 13 documenta memoria curada, chat diario, marcadores, subagentes, devlog, sync-chat-memory, timeline y sprints. El 14 documenta arranque Windows, diagnosticos, backups, resets MAR/Notion/Obsidian/general, validation y stop conditions. Regenerado HTML y STRUCTURE TREE. Validaciones: validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T17:04Z — Codex — [DOCS] Ampliar bookdown con catalogo documental y roadmap
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadidos bookdown/15-catalogo-documentacion.Rmd y bookdown/16-roadmap-limitaciones.Rmd, enlazados en _bookdown.yml antes del FAQ. El capitulo 15 organiza rutas de lectura por perfil, memoria, guias, casos, playbooks y artefactos derivados. El 16 separa limitaciones reales, backlog por dominio, priorizacion, auditoria de contradicciones, politica pendiente de _book y DoD del bookdown. Regenerado HTML y STRUCTURE TREE. Validaciones: validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T17:09Z — Codex — [DOCS] Auditar coherencia documental del bookdown
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Primera pasada de auditoria documental tras crear el bookdown. Corregidos README (ubicacion KIT/GIT/BIB en A4-ARX), docs/pipeline-atlas.md (links de casos obsoletos, 13->15 casos, env labels TODOIST_DB_TAREAS/OBSIDIAN_DB/NOTION_DB) y bookdown/16-roadmap-limitaciones.Rmd. Definida politica: bookdown/_book/ es artefacto regenerable ignorado por Git; snapshot_structure.py excluye _book del TREE. Validaciones: py_compile OK, generate_static_html OK, validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 1 passed, memory_check OK.
+
+## 2026-04-25T17:16Z — Codex — [DOCS] Endurecer validador bookdown con enlaces locales
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Ampliado bookdown/validate_static_html.py para auditar hrefs locales del HTML generado: ignora enlaces externos y anchors, resuelve rutas del proyecto o relativas al bookdown y reporta Broken local link cuando el destino no existe. Anadido test unitario en tests/test_bookdown_static_html.py para cubrir un enlace local inexistente. Validaciones: py_compile OK, generate_static_html OK, validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 2 passed, memory_check OK.
+
+## 2026-04-25T17:31Z — Codex — [DOCS] Cerrar bookdown con matriz de cobertura
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadido bookdown/17-matriz-cobertura-release.Rmd y enlazado en _bookdown.yml antes del FAQ. El capitulo mapea cobertura por capitulo, checklist de release local, Definition of Done del manual y protocolo de cambio para mantenerlo alineado con scripts, casos, env vars, memoria y resets. El nuevo validador detecto un enlace falso generado por texto de ejemplo y se corrigio como texto no enlazado. Validaciones: py_compile OK, generate_static_html OK, validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 2 passed, snapshot_structure --check OK, memory_check OK.
+
+## 2026-04-25T17:37Z — Codex — [DOCS] Auditar rutas inline del bookdown
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Endurecido bookdown/validate_static_html.py para auditar rutas de proyecto escritas en code spans de los .Rmd, ademas de enlaces HTML. La heuristica valida solo rutas inequívocas del repo, ignora globs/placeholders/comandos y reporta missing referenced path. Anadido test unitario para una ruta backticked inexistente. La auditoria detecto rutas aspiracionales en roadmap (journal e Inoreader doctor) y una referencia antigua docs/bookdown; se reformularon como backlog/texto sin fingir ficheros existentes. Validaciones: py_compile OK, generate_static_html OK, validate_static_html OK con warning esperado Mermaid CDN, pytest bookdown 3 passed, snapshot_structure --check OK, memory_check OK.
+
+## 2026-04-25T17:53Z — Codex — [DOCS] Actualizar protocolo portable de sesion
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Reescrito playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md como version portable para repos con memory, chats, devlog, artifacts multiagente y Git. Actualizado playbooks/README.md, regenerado memory/STRUCTURE.md TREE y corregido tools/session_protocol.py para capturar subprocesses en UTF-8. Validaciones: py_compile session_protocol OK, session_protocol inicia --no-chat OK, memory_check OK.
+
+## 2026-04-25T17:57Z — Codex — [DOCS] Crear playbook portable para indice de playbooks
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Anadido playbooks/playbooks-readme-portable-playbook.md para reproducir el patron de playbooks/README.md en cualquier repo, con plantilla, criterios de entrada/salida, integracion multiagente, checklist y antipatrones. Actualizado playbooks/README.md y memory/STRUCTURE.md; TREE regenerado. Validacion: memory_check OK.
+
+## 2026-04-25T18:00Z — Codex — [GIT] Commit y push bookdown y playbooks
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: David autorizo commit y push de los cambios acumulados de la sesion: bookdown del proyecto, validadores y tests, protocolo portable de inicio/cierre, playbook portable para README de playbooks, memoria actualizada, chat/devlog y artefactos multiagente derivados. Validaciones previas: memory_check OK y snapshot_structure --check OK.

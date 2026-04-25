@@ -14,6 +14,16 @@ Antes de responder en una sesión nueva, carga (en orden):
 
 Si detectas desalineación entre `memory/*.md` y el repo real, corrígela en el mismo turno y deja entrada `[DOCS]` en el devlog.
 
+### Inicio, continuación y cierre de sesión
+
+El protocolo portable vive en `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md` y su adaptación local ejecutable en `tools/session_protocol.py`.
+
+- Si David dice `inicia sesión`, ejecuta mental u operativamente `python tools/session_protocol.py inicia`: recupera memoria, chat, devlog, estado Git, diff y punto probable de continuación antes de proponer cambios.
+- Si David dice `sigue`, `continúa` o equivalente, trátalo como variante ligera de inicio: revisa el estado pendiente y continúa la tarea más probable sin revertir cambios.
+- Si David dice `cierra sesión`, usa `python tools/session_protocol.py cierra` para inventariar estado. Solo hagas commit/push con intención explícita o flags equivalentes (`--paths`, `--commit-message`, `--push`).
+
+Este protocolo no sustituye al sistema multiagente: el chat diario, `memory/*.md`, `artifacts/multiagent/` y `devlog/DEVLOG.md` siguen siendo las fuentes locales.
+
 ### Precedencia sobre memories locales
 
 Codex puede mantener memorias locales en `~/.codex/memories/` (user-scoped, gestionadas por el harness). **Nunca sustituyen** a la memoria versionada del repo. Ante conflicto, mandan `AGENTS.md` / `CLAUDE.md`, `memory/*.md`, el chat del día y `devlog/DEVLOG.md`. Si detectas recuerdos locales obsoletos, límpialos o ignóralos (`/memories` en la TUI). Detalle en `.claude/multiagent.md` sección "Precedencia".

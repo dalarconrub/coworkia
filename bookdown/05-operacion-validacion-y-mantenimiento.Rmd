@@ -1,0 +1,66 @@
+# Operacion, Validacion Y Mantenimiento
+
+## Rutina De Inicio
+
+```bash
+python tools/init_chat.py
+python tools/memory_check.py
+```
+
+## Rutina Diaria
+
+| Accion | Comando |
+| --- | --- |
+| Revisar foco | `python apps/dashboard.py` |
+| Revisar MAR | `python agents/todoist_agent.py estado` |
+| Generar timeline | `python tools/timeline.py` |
+| Revisar INX | `python apps/inx_doctor.py` |
+
+## Rutina De Cierre De Hito
+
+```bash
+python tools/devlog.py append --agent Codex --area DOCS --status DONE --title "..." --summary "..."
+python agents/orchestrator_agent.py sync-chat-memory
+python tools/memory_check.py
+```
+
+En Windows, `apps\cerrar_sesion.bat` encadena parte de este cierre operativo.
+
+## Validacion Del Bookdown
+
+```bash
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
+python -m pytest tests/test_bookdown_static_html.py -q
+```
+
+## Contratos Que No Se Deben Romper
+
+| Contrato | Razon |
+| --- | --- |
+| `chats/` es append-only | Fuente viva de coordinacion multiagente |
+| `devlog/DEVLOG.md` es append-only | Hitos auditables |
+| `memory/` manda sobre memorias locales | Evita recuerdos obsoletos |
+| `_bookdown.yml` define el orden del manual | Evita indices divergentes |
+| UTF-8 explicito en chats | Evita mojibake en Windows |
+| No borrar cambios ajenos del working tree | Trabajo compartido |
+
+## Cascada Al Cambiar El Proyecto
+
+| Cambio | Actualizacion Minima |
+| --- | --- |
+| Nueva carpeta top-level | `memory/INDEX.md`, `memory/STRUCTURE.md`, bookdown, devlog |
+| Nuevo script | Tabla de scripts, docs del flujo, test si aplica |
+| Nuevo caso de uso | Capitulo o seccion, validacion, catalogo de docs |
+| Nuevo agente | `agents/`, `tools/`, `docs/`, memoria, bookdown |
+| Cambio de estado operativo | README/docs afectados, bookdown, devlog |
+
+## Limitaciones Actuales
+
+| Area | Limitacion |
+| --- | --- |
+| Dependencias externas | Sin `.env` valido no operan la mayoria de agentes |
+| Notion | Las bases deben estar compartidas con la integracion |
+| Tests | El repo tiene validadores operativos, pero no una suite global amplia |
+| Bookdown | Primera version local; debe crecer con cada flujo nuevo |
+| Estado | Algunas guias antiguas pueden contener comandos superados |

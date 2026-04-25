@@ -14,6 +14,16 @@ Antes de responder cualquier cosa en una sesión nueva, carga (en orden):
 
 Si detectas desalineación entre `memory/*.md` y el repo real, corrígela en el mismo turno y deja entrada `[DOCS]` en el devlog.
 
+### Inicio, continuación y cierre de sesión
+
+El protocolo portable vive en `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md` y su adaptación local ejecutable en `tools/session_protocol.py`.
+
+- `inicia sesión`: recuperar memoria, chat, devlog, estado Git, diff y punto probable de continuación antes de proponer cambios. Comando auxiliar: `python tools/session_protocol.py inicia`.
+- `sigue` / `continúa`: variante ligera de inicio; revisar estado pendiente y continuar sin revertir trabajo ajeno.
+- `cierra sesión`: inventariar estado con `python tools/session_protocol.py cierra`. Commit/push solo con instrucción explícita y selección clara de archivos.
+
+Este protocolo se aplica encima de `.claude/multiagent.md`; no reemplaza chat diario, memoria versionada ni devlog.
+
 ## Contexto del proyecto
 
 Coworkia es un sistema multiagente para gestión personal y conocimiento con esta división canónica:

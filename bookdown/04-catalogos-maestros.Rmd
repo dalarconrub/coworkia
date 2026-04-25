@@ -1,0 +1,67 @@
+# Catalogos Maestros
+
+## Scripts Principales
+
+| Script | Objetivo | Entrada | Salida | Cuando Usarlo |
+| --- | --- | --- | --- | --- |
+| `tools/init_chat.py` | Resolver chat activo y briefing | Fecha actual | `chats/chat_YYYY-MM-DD.md` | Inicio de sesion |
+| `tools/devlog.py` | Ver o registrar hitos | CLI args | `devlog/DEVLOG.md` | Cierre de hito |
+| `tools/memory_check.py` | Validar memoria versionada | `memory/` | Exit code y diagnostico | Tras cambios docs |
+| `tools/snapshot_structure.py` | Regenerar TREE de estructura | Repo | `memory/STRUCTURE.md` | Nueva carpeta o archivo relevante |
+| `tools/sync_inx_links.py` | Sincronizar enlaces INX | Fuente externa | INX Notion | Sync por fuente |
+| `tools/timeline.py` | Agregar vista diaria | chats/devlog/artifacts | `artifacts/daily/` | Revision temporal |
+| `bookdown/generate_static_html.py` | Render HTML del manual | `.Rmd` + `_bookdown.yml` | `bookdown/_book/index.html` | Tras editar manual |
+| `bookdown/validate_static_html.py` | Validar artefacto HTML | HTML generado | Exit code | Antes de cerrar docs |
+
+## Apps Principales
+
+| App | Objetivo | Usuario |
+| --- | --- | --- |
+| `apps/dashboard.py` | Dashboard diario MAR | David |
+| `apps/project_hub_gui.py` | Hub de proyectos PTN | David |
+| `apps/github_gui.py` | Catalogacion GIT | David |
+| `apps/bib_gui.py` | Catalogacion BIB | David |
+| `apps/config_doctor.py` | Diagnostico de configuracion | Operador |
+| `apps/notion_doctor.py` | Diagnostico Notion | Operador |
+| `apps/inx_doctor.py` | Diagnostico INX | Operador |
+
+## Validadores De Casos
+
+| Validador | Caso | Que Comprueba |
+| --- | --- | --- |
+| `tools/validate_case_02.py` | Tarea a proyecto PTN con INX | Relaciones Todoist/PTN/INX |
+| `tools/validate_case_03.py` | Nota Obsidian desde PTN | Trazabilidad PTN/ABGD |
+| `tools/validate_case_05.py` | GIT enlazado a PTN | Cobertura GIT en INX |
+| `tools/validate_case_06.py` | BIB enlazado | Cobertura Paperpile en INX |
+| `tools/validate_case_07.py` | Promocion Obsidian a PTN | Flujo ABGD -> PTN |
+| `tools/validate_case_08.py` | KIT en INX | Cobertura KIT y backrefs |
+| `tools/validate_case_09.py` | BIB a Obsidian | Paper a nota |
+| `tools/validate_case_10.py` | Checkboxes Obsidian a Todoist | Cierre accionable |
+| `tools/validate_case_11.py` | Journal diario | Timeline |
+| `tools/validate_case_12.py` | Backfill INX historico | Cobertura historica |
+| `tools/validate_case_13.py` | Wikilinks cross-system | Links textuales |
+| `tools/validate_case_14.py` | Reset sistema | Seguridad de reset |
+
+## Documentos Clave
+
+| Documento | Cuando Leerlo |
+| --- | --- |
+| `README.md` | Vista publica y comandos principales |
+| `WINDOWS_START.md` | Arranque en Windows |
+| `docs/pipeline-atlas.md` | Mapa visual del pipeline |
+| `docs/guia-rapida.md` | Uso rapido por sistema |
+| `docs/multiagent-system.md` | Arquitectura Scrum interna |
+| `docs/abc-taxonomy.md` | Taxonomia ABC |
+| `docs/casos-de-uso/index.md` | Indice de workflows |
+| `playbooks/bookdown-exhaustive-project-playbook.md` | Como mantener este manual |
+
+## Navegacion Por Intencion
+
+| Quiero | Mira | Ejecuta |
+| --- | --- | --- |
+| Arrancar sesion de agente | `memory/INDEX.md` | `python tools/init_chat.py` |
+| Ver tareas de hoy | `docs/todoist-agent.md` | `python apps/dashboard.py` |
+| Diagnosticar Notion | `README.md` | `python apps/notion_doctor.py` |
+| Ver trazabilidad | `docs/pipeline-atlas.md` | `python apps/inx_doctor.py` |
+| Validar memoria | `memory/STRUCTURE.md` | `python tools/memory_check.py` |
+| Publicar manual local | `bookdown/README.md` | `python bookdown/generate_static_html.py` |

@@ -1,4 +1,4 @@
-# Playbook Para Crear Un Bookdown Exhaustivo De Un Proyecto
+﻿# Playbook Para Crear Un Bookdown Exhaustivo De Un Proyecto
 
 **Fecha:** 2026-04-24
 **Fuente:** extraido del trabajo de ampliacion, auditoria y endurecimiento del bookdown de `ai-system-lab`.
@@ -271,7 +271,7 @@ Validaciones minimas:
 ## 5. Estructura Recomendada De Archivos
 
 ```text
-docs/bookdown/
+bookdown/
   _bookdown.yml
   README.md
   index.Rmd
@@ -470,8 +470,8 @@ Cada vez que se agregue una carpeta, script, test o pipeline:
 Comandos recomendados:
 
 ```bash
-python docs/bookdown/generate_static_html.py
-python docs/bookdown/validate_static_html.py
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
 python -m pytest tests/smoke tests/readiness -q
 python -m pytest tests/test_bookdown_static_html.py -q
 ```
@@ -481,6 +481,251 @@ Antes de release documental:
 ```bash
 python -m pytest -q
 ```
+
+---
+
+## 10.1 Patron Incremental Usado En Este Repo
+
+La practica que mejor funciono en `ai-system-lab` fue tratar cada avance del sistema como una unidad documental cerrada. Cuando se anadio un caso de uso, una fase operativa o una funcionalidad transversal, no se espero a una "fase de documentacion" posterior: se actualizo el bookdown en el mismo bloque de trabajo.
+
+La secuencia reusable fue:
+
+1. implementar o consolidar el cambio en codigo, scripts, tests y artefactos;
+2. identificar que capitulo explica el flujo principal;
+3. actualizar las tablas maestras afectadas;
+4. actualizar los catalogos de scripts, tests, docs y ops;
+5. regenerar el HTML estatico;
+6. validar el HTML y correr los tests relevantes;
+7. revisar documentos de estado para evitar contradicciones.
+
+Esta regla evita que el manual sea una fotografia antigua del repo. El bookdown debe cambiar al mismo ritmo que los entrypoints reales.
+
+### 10.1.1 Cuando Hay Un Nuevo Caso De Uso
+
+Un caso de uso nuevo no debe quedar solo en `examples/`, `ops/` o `data_runtime/`. Debe entrar en el manual como recorrido completo.
+
+En este repo, el caso Centaur/Psych-101 acabo documentado como capitulo propio porque tenia:
+
+- dataset y fuente externa;
+- endpoint real o wrapper local;
+- comandos de diagnostico;
+- fases de ejecucion;
+- scoring;
+- acceptance;
+- evidencias runtime;
+- paper report;
+- publication package;
+- decisiones de escalado.
+
+Criterio practico:
+
+| Senal | Accion en bookdown |
+| --- | --- |
+| El caso tiene mas de un comando | crear seccion de flujo o capitulo propio |
+| Genera evidencias en `data_runtime/` | documentar rutas de salida |
+| Tiene tests dedicados | anadirlo a la tabla maestra de tests |
+| Tiene scripts en `ops/` o `examples/` | anadirlos a la tabla maestra de scripts |
+| Cambia claims del proyecto | actualizar estado, limitaciones y README/bookdown |
+| Requiere credenciales o endpoint externo | separar local/demo/staging/real y anadir stop conditions |
+
+Plantilla minima para un caso de uso:
+
+````markdown
+# Caso: [nombre]
+
+## Objetivo
+
+## Entradas
+
+| Entrada | Ruta | Estado |
+| --- | --- | --- |
+
+## Comandos
+
+```bash
+[comando de diagnostico]
+[comando de ejecucion]
+[comando de validacion]
+```
+
+## Evidencias
+
+| Artefacto | Ruta | Uso |
+| --- | --- | --- |
+
+## Acceptance
+
+## Limitaciones Y Stop Conditions
+
+## Siguiente Decision
+````
+
+### 10.1.2 Cuando Se Anade Una Funcionalidad Transversal
+
+Las funcionalidades transversales suelen tocar varias zonas: API, dashboard, ops, docs, tests y runtime. Si solo se documentan en un capitulo, el usuario no las encontrara desde otros recorridos.
+
+Patron usado:
+
+| Cambio | Donde actualizar |
+| --- | --- |
+| Nuevo endpoint o API | capitulo de plataforma/API, tabla de scripts si hay cliente, tabla de tests |
+| Nuevo dashboard o vista | capitulo dashboard/UX, screenshots o descripcion de flujo, tests relacionados |
+| Nueva herramienta CLI | catalogo de scripts, tabla ops, README si es comando canonico |
+| Nueva fase de acceptance | capitulo ops, tabla de acceptance, guia de produccion si aplica |
+| Nuevo modelo/fitting/evaluation | capitulo del bloque, tabla maestra especifica, tests |
+| Nueva memoria/orquestacion/programa | ecosistema avanzado, tabla de sistema operativo, docs relacionados |
+
+Regla:
+
+> Una funcionalidad transversal necesita al menos una explicacion narrativa y una entrada de tabla maestra.
+
+### 10.1.3 Cuando Se Anade Un Script
+
+Cada script nuevo debe responder a cinco preguntas en el manual:
+
+1. para que sirve;
+2. que entrada espera;
+3. que salida genera;
+4. cuando se ejecuta;
+5. que test lo cubre o que validacion lo sustituye.
+
+En este repo se volvio critico mantener `15a-catalogo-completo-de-ejemplos-y-scripts.Rmd`, `15b-tabla-maestra-de-scripts.Rmd` y `22-tabla-maestra-ops-y-publicacion-resultados.Rmd` sincronizados. La buena practica es no crear scripts "invisibles".
+
+Checklist para script nuevo:
+
+- [ ] aparece en el capitulo de su carpeta;
+- [ ] aparece en la tabla maestra de scripts;
+- [ ] declara entradas y salidas;
+- [ ] enlaza evidencia si escribe en `data_runtime/`;
+- [ ] tiene test o smoke asociado;
+- [ ] el comando esta escrito con rutas reales;
+- [ ] si consume secretos, no imprime ni documenta valores reales.
+
+### 10.1.4 Cuando Se Anade Un Test
+
+Los tests son documentacion ejecutable. Si una suite nueva valida una capacidad importante, debe aparecer en el bookdown.
+
+Practica usada:
+
+| Tipo de test | Como documentarlo |
+| --- | --- |
+| smoke/readiness | capitulo de instalacion, ops y tabla de tests |
+| test de script `ops/` | tabla de scripts y tabla de tests |
+| test de caso real | capitulo del caso y acceptance |
+| test de render bookdown | README de bookdown y seccion de validacion |
+| test de produccion/staging | guias de activacion y tabla ops |
+
+Cada entrada util de test debe incluir:
+
+- que valida;
+- cuando correrlo;
+- coste esperado;
+- que fallo indica;
+- que archivo o artefacto protege.
+
+### 10.1.5 Cuando Se Anaden Evidencias Runtime
+
+`data_runtime/` crece rapido. No conviene listar todo, pero si explicar las familias de evidencia que un operador debe mirar.
+
+Patron usado:
+
+- el capitulo del caso explica las rutas concretas;
+- las tablas maestras de ops enlazan validadores, acceptance y publication package;
+- el README/bookdown solo menciona los artefactos canonicos;
+- los detalles exhaustivos viven en tablas o capitulos especializados.
+
+Buena practica:
+
+| Evidencia | Debe aparecer en |
+| --- | --- |
+| run archivado | capitulo del caso, tabla ops, publication/report |
+| acceptance report | capitulo ops, criterios de cierre |
+| readiness/status | capitulo operativo del caso |
+| handoff/resume packet | capitulo del caso y stop conditions |
+| publication package | capitulo publication, tabla ops, README si es entrega principal |
+| validation report | seccion de validacion y tests |
+
+### 10.1.6 Cuando Cambia El Estado Del Proyecto
+
+Una de las mejores practicas fue auditar los documentos de estado despues de cambios grandes. Si el bookdown dice que algo esta completo, pero `COORDINATION_STATUS.md`, README o una guia de produccion dicen otra cosa, el repo queda incoherente.
+
+Despues de cada bloque grande:
+
+```bash
+rg -n "pendiente|blocked|TODO|production-ready|staging|demo|simulado|phase-|endpoint|next_action" README.md docs sprints
+```
+
+Busca:
+
+- entrypoints antiguos;
+- fases ya completadas que siguen como pendientes;
+- comandos sustituidos por otros;
+- claims de produccion sin evidencia;
+- nombres de runs o fases obsoletos;
+- rutas `data_runtime/` que cambiaron;
+- instrucciones de endpoint que ya no son seguras.
+
+### 10.1.7 Como Decidir Si Crear Capitulo Nuevo O Ampliar Uno Existente
+
+No todo cambio merece capitulo propio. El criterio es de navegacion, no de importancia interna.
+
+| Situacion | Decision |
+| --- | --- |
+| Es un flujo end-to-end con entradas, comandos, evidencias y acceptance | capitulo propio |
+| Es una tabla de referencia grande | capitulo-tabla propio |
+| Es una funcion dentro de un bloque ya explicado | ampliar capitulo existente |
+| Es una variacion de un pipeline ya documentado | subseccion dentro del pipeline |
+| Es una fase operativa con stop conditions | capitulo o seccion ops dedicada |
+| Es una mejora interna sin superficie de usuario | mencionar solo si afecta tests/scripts/limitaciones |
+
+Regla practica:
+
+> Si una persona preguntaria "donde esta todo lo de X?", X probablemente necesita capitulo o tabla propia.
+
+### 10.1.8 Mantener `_bookdown.yml` Como Contrato
+
+Cada capitulo nuevo debe agregarse a `_bookdown.yml` en el mismo cambio. La posicion importa:
+
+- conceptos antes de comandos;
+- instalacion antes de operacion;
+- pipelines antes de catalogos;
+- carpetas antes de tablas maestras;
+- ops antes de casos reales complejos;
+- FAQ/glosario al final.
+
+Despues de tocar `_bookdown.yml`:
+
+```bash
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
+python -m pytest -q tests/test_bookdown_static_html.py
+```
+
+### 10.1.9 Actualizacion En Cascada
+
+Cada cambio documental debe revisar esta cascada:
+
+| Cambio | Cascada minima |
+| --- | --- |
+| nuevo caso de uso | capitulo caso -> scripts -> tests -> ops -> navegacion -> README si es canonico |
+| nuevo script | tabla scripts -> capitulo carpeta -> tests -> ops si escribe evidencias |
+| nuevo test | capitulo tests -> tabla relacionada -> README si entra en quickstart |
+| nuevo artefacto runtime | capitulo caso/ops -> publication/report si aplica |
+| nuevo capitulo | `_bookdown.yml` -> README bookdown -> validacion HTML |
+| cambio de estado | capitulo afectado -> docs de coordinacion -> changelog/release si aplica |
+
+Esta cascada evita que el bookdown crezca por acumulacion desordenada.
+
+### 10.1.10 DevLog Documental Recomendado
+
+Cuando el cambio documental sea grande, deja una nota de cierre en el sistema de memoria o devlog si existe. En este repo, tras integrar el toolkit multiagente, esto deberia registrar:
+
+- que se anadio o actualizo;
+- que comandos de validacion pasaron;
+- que limitaciones quedan;
+- donde esta la siguiente decision.
+
+El objetivo no es burocracia. Es que la siguiente sesion sepa que el bookdown ya fue actualizado junto con el codigo.
 
 ---
 
@@ -523,7 +768,7 @@ Este playbook se extrajo aplicando la metodologia de `sprints/meta-methodology-e
 
 Material fuente usado:
 
-- ampliacion de capitulos `docs/bookdown/*.Rmd`;
+- ampliacion de capitulos `bookdown/*.Rmd`;
 - creacion de tablas maestras de carpetas, scripts, tests, docs, ops y navegacion;
 - adicion de diagramas por pipeline;
 - auditoria del HTML generado;
@@ -538,3 +783,4 @@ Material fuente usado:
 La leccion mas transferible es simple:
 
 > Un bookdown exhaustivo debe tratarse como software: tiene arquitectura, fuente de verdad, validacion, regresiones y criterios de release.
+

@@ -26,6 +26,7 @@ artifacts/sprints/*.md
 
 # Regenerable outputs (each run produces a new file)
 artifacts/inx/
+bookdown/_book/
 
 # Nota: los cursores de sync (artifacts/*_log_state.json) SI se versionan
 # para poder retomar el trabajo en otra maquina sin reprocesar desde cero.

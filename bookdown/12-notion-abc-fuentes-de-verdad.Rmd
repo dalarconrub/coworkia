@@ -1,0 +1,159 @@
+# Notion, ABC Y Fuentes De Verdad
+
+## Para Que Sirve
+
+Notion es la capa directora y catalogadora de Coworkia. La taxonomia `ABC` le da una estructura comun a proyectos, tareas, notas, conocimiento, bibliografia, repositorios y trazabilidad.
+
+La regla practica es: si algo necesita direccion formal, catalogacion o relacion entre objetos, vive o se refleja en Notion. Si algo necesita ejecucion diaria, vive en Todoist. Si algo necesita escritura larga o archivo estable, vive en Obsidian.
+
+## Jerarquia ABC
+
+```text
+Area -> Bloque -> Contexto
+```
+
+| Nivel | Ejemplo | Funcion |
+| --- | --- | --- |
+| Area | `A0-GTD` | Dominio mayor |
+| Bloque | `B0C-PLA` | Familia operativa dentro del area |
+| Contexto | `C0C7-PROYECTOS` | Ubicacion concreta de sistema o flujo |
+
+## Mapa Notion Canonico
+
+| Ubicacion | Contenido | Sistema |
+| --- | --- | --- |
+| `A0-GTD / B00-GTD` | Ejecucion Todoist reflejada | MAR |
+| `A0-GTD / B0A-INX` | Integracion y trazabilidad | INX |
+| `A0-GTD / B0B-ABC` | Bases de taxonomia | ABC |
+| `A0-GTD / B0C-PLA` | Proyectos, tareas y notas | PTN |
+| `A4-ARX / B4X-BIB` | Catalogo bibliografico | BIB |
+| `A4-ARX / B4Y-KIT` | Knowledge, Information, Tool | KIT |
+| `A4-ARX / B4Z-GIT` | Repositorios y software | GIT |
+
+## Bases ABC
+
+| Base | Contenido | Relaciones |
+| --- | --- | --- |
+| `ABC-Areas` | Areas `A0..A4` | Fuente superior |
+| `ABC-Bloques` | Bloques por area | `Area Rel` hacia areas |
+| `ABC-Contextos` | Contextos por bloque | `Bloque Rel` hacia bloques, rollup de area |
+
+Los CSV legados viven en `Sistemas/ABC/`. Son material de referencia; si hay conflicto con la memoria versionada y la operativa actual, se audita antes de importar.
+
+## PTN: Direccion Formal
+
+| Data Source | Env | Rol |
+| --- | --- | --- |
+| `PTN-Proyectos` | `NOTION_DS_PROYECTOS` | Unidad formal de direccion |
+| `PTN-Tareas` | `NOTION_DS_TAREAS` | Trabajo planificado dentro de proyectos |
+| `PTN-Notas` | `NOTION_DS_NOTAS` | Seguimiento y decisiones ligadas a tareas/proyectos |
+
+Modelo:
+
+```text
+Proyecto -> Tarea -> Nota
+```
+
+Reglas:
+
+- un proyecto tiene tareas;
+- una tarea pertenece a un proyecto;
+- una nota debe pertenecer a una tarea o proyecto cuando entra en PTN;
+- Obsidian no sustituye este modelo, solo almacena pensamiento y archivo.
+
+## Catalogos En A4-ARX
+
+| Catalogo | Env | Bloque | Clave INX |
+| --- | --- | --- | --- |
+| BIB | `NOTION_DB_BIB` | `B4X-BIB` | `paperpile:<citekey>` |
+| KIT | `NOTION_DB_KIT` | `B4Y-KIT` | `kit:<page_id>` |
+| GIT | `NOTION_DB_GIT` | `B4Z-GIT` | `github:<nombre>` |
+
+Estos catalogos tienen entidad propia. No son subtablas de PTN, aunque pueden relacionarse con proyectos PTN mediante INX o vistas enlazadas.
+
+## Variables De Entorno Notion
+
+| Variable | Uso |
+| --- | --- |
+| `NOTION_TOKEN` | Token comun de integracion |
+| `NOTION_PTN_PARENT_PAGE` | Pagina padre PTN |
+| `NOTION_DS_PROYECTOS` | Data source de proyectos |
+| `NOTION_DS_TAREAS` | Data source de tareas |
+| `NOTION_DS_NOTAS` | Data source de notas |
+| `NOTION_DB` | Log de cambios PTN para INX |
+| `NOTION_DB_INX` | Base puente INX |
+| `NOTION_DB_KIT` | Catalogo KIT |
+| `NOTION_DB_GIT` | Catalogo GIT |
+| `NOTION_DB_BIB` | Catalogo BIB |
+| `TODOIST_DB_TAREAS` | Espejo Todoist en Notion |
+| `OBSIDIAN_DB` | Log/catalogo Obsidian en Notion |
+
+## Permisos Y Acceso API
+
+Notion puede mostrar una pagina en UI pero ocultarla a la API si no esta compartida con la integracion.
+
+| Sintoma | Causa Probable | Accion |
+| --- | --- | --- |
+| `not accessible` | Pagina o base no compartida | Compartir con la integracion |
+| ID correcto pero query falla | Data source vs database legacy | Revisar agente y API usada |
+| Base duplicada visualmente | Vista/enlace duplicado, no base nueva | Confirmar ID antes de archivar |
+| Agente crea base nueva | ID ausente o inaccesible | Verificar `.env` antes de aceptar |
+
+## Comandos De Diagnostico
+
+```bash
+python apps/notion_doctor.py
+python agents/notion_agent.py recursos
+python agents/notion_agent.py estado
+python agents/notion_agent.py db <NOTION_DS_PROYECTOS>
+python tools/memory_check.py
+```
+
+## Schema Y Migraciones
+
+| Objetivo | Script |
+| --- | --- |
+| Crear bases ABC | `tools/create_abc_taxonomy_dbs.py` |
+| Importar taxonomia ABC | `tools/import_abc_taxonomy.py` |
+| Crear INX | `tools/create_inx_links_db.py` |
+| Asegurar Archivo | `tools/ensure_archivo_field.py` |
+| Asegurar TODOIST-TAREAS | `tools/ensure_todoist_tasks_schema.py` |
+| Asegurar campos KIT externos | `tools/ensure_kit_external_fields.py` |
+| Asegurar campos KIT cross-system | `tools/ensure_kit_cross_fields.py` |
+| Migrar PTN | `tools/migrate_ptn.py` |
+| Migrar relaciones de notas PTN | `tools/migrate_notas_ptn_relations.py` |
+| Migrar ruta Obsidian en notas | `tools/migrate_notas_ruta_obsidian.py` |
+
+## Reglas De Cambio
+
+| Cambio | Regla |
+| --- | --- |
+| Renombrar sistema | Mantener claves INX si describen fuente externa |
+| Mover catalogo Notion | Actualizar docs, memoria y validar con casos |
+| Cambiar ABC | Actualizar `docs/abc-taxonomy.md`, README y bookdown |
+| Crear nueva base | Registrar env var y documentar autoridad |
+| Archivar base o vista | Confirmar ID canonico antes |
+| Reset Notion | Usar `reset_notion.py` con snapshot y dry-run |
+
+## Estado Alineado Reciente
+
+El 2026-04-25 David completo la alineacion manual tras el rename GIT y el realineamiento A4-ARX. Las bases canonicas verificadas son:
+
+| Sistema | Base Canonica |
+| --- | --- |
+| GIT | `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` |
+| KIT | `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee` |
+
+Validaciones post-ajuste:
+
+```bash
+python tools/validate_case_05.py --scope c
+python tools/validate_case_08.py --scope c
+```
+
+## Que Debe Recordar Un Usuario
+
+- Notion dirige y cataloga; Todoist ejecuta; Obsidian almacena.
+- ABC es estructura transversal, no decoracion.
+- Antes de cambiar IDs, confirma si estas viendo una base real o una vista duplicada.
+- Si un documento antiguo contradice la memoria actual, se corrige el documento y se deja devlog.

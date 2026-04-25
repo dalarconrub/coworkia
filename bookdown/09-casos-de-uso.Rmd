@@ -1,0 +1,106 @@
+# Casos De Uso Canonicos
+
+## Para Que Sirve
+
+Los casos de uso en `docs/casos-de-uso/` son la fuente de requisitos operativa de Coworkia. Este capitulo no reemplaza esos documentos; los convierte en mapa navegable para decidir que flujo ejecutar, que comando valida el caso y que sistema queda implicado.
+
+## Regla De Autoridad
+
+| Dominio | Fuente De Verdad | Papel En El Caso |
+| --- | --- | --- |
+| MAR | Todoist | Captura y ejecucion accionable |
+| PTN | Notion | Direccion formal de proyectos, tareas y notas |
+| KIT | Notion | Catalogo Knowledge/Information/Tool |
+| GIT | GitHub + Notion | Catalogo tecnico de repos |
+| BIB | Paperpile + Notion | Catalogo bibliografico |
+| ABGD | Obsidian | Archivo vivo y notas |
+| INX | Notion `INX-ENLACES` | Trazabilidad entre sistemas |
+
+## Tabla Maestra De Casos
+
+| Caso | Documento | Sistemas | Comando De Validacion | Estado Operativo |
+| --- | --- | --- | --- | --- |
+| 01 | `docs/casos-de-uso/01-captura-todoist-zinbox.md` | MAR, PTN | `apps\mar_check.bat 200 --no-pause` | Cubierto por doctor MAR |
+| 02 | `docs/casos-de-uso/02-tarea-a-proyecto-ptn-con-inx.md` | MAR, PTN, INX | `apps\validate_case_02.bat --no-pause` | Validador existente |
+| 03 | `docs/casos-de-uso/03-nota-obsidian-desde-ptn.md` | PTN, ABGD, INX | `apps\validate_case_03.bat --no-pause` | Validador existente |
+| 04 | `docs/casos-de-uso/04-sync-diario-inx.md` | INX | `apps\inx_daily.bat 200` | Validacion por doctor/reporte |
+| 05 | `docs/casos-de-uso/05-git-enlazado-a-ptn.md` | GIT, PTN, INX | `python tools/validate_case_05.py --scope c` | Validador alcance C |
+| 06 | `docs/casos-de-uso/06-paperpile-bib-enlazado.md` | BIB, PTN, ABGD, INX | `python tools/validate_case_06.py --scope c` | Validador alcance C |
+| 07 | `docs/casos-de-uso/07-promocion-obsidian-a-ptn.md` | ABGD, PTN, INX | `apps\validate_case_07.bat --no-pause` | Validador existente |
+| 08 | `docs/casos-de-uso/08-kit-en-inx.md` | KIT, ABGD, INX | `python tools/validate_case_08.py --scope c` | Validador alcance C |
+| 09 | `docs/casos-de-uso/09-bib-a-obsidian.md` | BIB, ABGD, INX | `python tools/validate_case_09.py --scope all` | Validador completo |
+| 10 | `docs/casos-de-uso/10-checkboxes-obsidian-a-todoist.md` | ABGD, MAR, INX | `python tools/validate_case_10.py --scope all` | Validador completo |
+| 11 | `docs/casos-de-uso/11-journal-diario-en-timeline.md` | ABGD, artifacts | `apps\validate_case_11.bat --no-pause` | Validador existente |
+| 12 | `docs/casos-de-uso/12-backfill-inx-historico.md` | ABGD, INX | `apps\validate_case_12.bat --no-pause` | Validador existente |
+| 13 | `docs/casos-de-uso/13-wikilinks-cross-system.md` | ABGD, INX | `apps\validate_case_13.bat --no-pause` | Audit de wikilinks |
+| 14 | `docs/casos-de-uso/14-reset-sistema.md` | MAR, PTN, ABGD, INX | `python tools/validate_case_14.py` | Bateria no destructiva |
+| 15 | `docs/casos-de-uso/15-inoreader-a-kit.md` | Inoreader, KIT, PTN, INX | Sin validador dedicado aun | Operativo con gaps |
+
+## Flujos Por Familia
+
+| Familia | Casos | Objetivo |
+| --- | --- | --- |
+| Captura y ejecucion | 01, 02, 10 | Convertir entradas en tareas trazables |
+| Direccion formal | 02, 03, 07 | Conectar PTN con acciones y notas |
+| Catalogos | 05, 06, 08, 09, 15 | Llevar repos, papers, conocimiento y articulos a Notion/Obsidian |
+| Trazabilidad | 04, 08, 12, 13 | Mantener INX completo y auditable |
+| Diario y memoria | 11 | Integrar notas diarias en timeline |
+| Seguridad operativa | 14 | Reset reversible, idempotente y no destructivo |
+
+## Recorridos Ejecutables
+
+### Captura MAR A PTN E INX
+
+```bash
+apps\sync_todoist_to_notion.bat 200 --no-pause
+apps\inx_sync_todoist.bat 200 --no-pause
+apps\validate_case_02.bat --no-pause
+```
+
+### Nota Obsidian A PTN
+
+```bash
+python tools/promote_obsidian_to_ptn.py "<nombre-nota>" --sync
+apps\validate_case_07.bat --no-pause
+```
+
+### KIT En INX Con Cruce A Obsidian
+
+```bash
+python tools/sync_inx_links.py --source kit --limit 200
+python tools/ensure_kit_cross_fields.py
+python tools/backfill_obsidian_to_inx.py --sync
+python tools/validate_case_08.py --scope c
+```
+
+### Paper BIB A Ficha Obsidian
+
+```bash
+python tools/promote_bib_to_obsidian.py <citekey> --sync
+python tools/sync_bib_reading_state.py
+python tools/validate_case_09.py --scope all
+```
+
+### Wikilinks Cross-System
+
+```bash
+python tools/obsidian_wikilinks.py audit
+python tools/obsidian_wikilinks.py find ptn:<uuid>
+apps\validate_case_13.bat --no-pause
+```
+
+## Gaps Recurrentes
+
+| Gap | Donde Aparece | Accion Recomendada |
+| --- | --- | --- |
+| Falta comando unico para algunas tareas compuestas | Casos 03, 11, 15 | Crear tool dedicada solo si reduce friccion real |
+| Notion puede responder lento o con timeout | Casos 02, 10 | Reintentar sync, validar despues con caso especifico |
+| Algunas validaciones dependen de datos reales | Casos 01, 04, 15 | Marcar como doctor/reporte si no hay assertion estable |
+| Resets reales requieren prudencia | Caso 14 | Usar dry-run, limits y snapshots antes de mutar |
+
+## Que Debe Recordar Un Usuario
+
+- Un caso de uso cerrado debe tener comando, evidencia y criterio de aceptacion.
+- Los `.bat` son wrappers Windows; el contrato real suele estar en `tools/*.py`.
+- Los casos 05, 06 y 08 tienen alcance C para detectar duplicados, huerfanas y cruces.
+- Si se anade un caso nuevo, debe entrar en `docs/casos-de-uso/index.md`, este capitulo, la tabla de scripts si crea comandos y el devlog.

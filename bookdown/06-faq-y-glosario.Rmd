@@ -1,0 +1,33 @@
+# FAQ Y Glosario
+
+## FAQ
+
+| Pregunta | Respuesta |
+| --- | --- |
+| Donde vive el manual generado? | En `bookdown/_book/index.html`. |
+| Donde se cambia el orden de capitulos? | En `bookdown/_bookdown.yml`. |
+| Hay que usar R para este manual? | No para el render local minimo; `generate_static_html.py` genera HTML estatico. |
+| Que fuente manda si README y memory discrepan? | `AGENTS.md` / `CLAUDE.md`, `memory/*.md`, chat del dia y devlog. |
+| INX es una base fuente? | No. Es trazabilidad derivada o sincronizada entre fuentes. |
+| Por que hay docs y bookdown? | `docs/` contiene guias atomicas; `bookdown/` ofrece recorrido navegable y validable. |
+
+## Glosario
+
+| Termino | Definicion |
+| --- | --- |
+| `ABC` | Taxonomia Area -> Bloque -> Contexto |
+| `ABGD` | Sistema documental en Obsidian |
+| `BIB` | Catalogo bibliografico Paperpile -> Notion |
+| `GIT` | Catalogo de repositorios GitHub -> Notion |
+| `INX` | Capa de enlaces cross-system |
+| `KIT` | Catalogo Knowledge / Information / Tool |
+| `MAR` | Capa ejecutiva en Todoist |
+| `PTN` | Capa directora en Notion |
+| `DevLog` | Registro append-only de hitos |
+| `MEMORIA:` | Marcador de hecho duradero en chat |
+| `BLOQUEO:` | Marcador de impedimento concreto |
+| `SIGUIENTE:` | Marcador de proxima accion recomendada |
+
+## Lectura Final
+
+Un cambio esta documentalmente cerrado cuando el comando existe, el flujo esta descrito, la tabla maestra esta actualizada, el HTML se genera y el validador pasa.

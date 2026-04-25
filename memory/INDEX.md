@@ -86,7 +86,9 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | [docs/obsidian-agent.md](../docs/obsidian-agent.md)               | ABGD — guía del agente Obsidian             |
 | [docs/extract-portable-toolkit.md](../docs/extract-portable-toolkit.md) | Cómo exportar herramientas agnósticas      |
 | [docs/casos-de-uso/](../docs/casos-de-uso/)                       | Workflows paso a paso                       |
+| [bookdown/](../bookdown/)                                           | Manual navegable y validable del proyecto   |
 | [playbooks/](../playbooks/)                                       | Metodologías reutilizables extraídas de trabajos cerrados |
+| [playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md](../playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md) | Protocolo portable para inicio, continuación y cierre de sesión |
 
 ## 7. Arranque y entorno
 

@@ -89,6 +89,7 @@ coworkia/
 ├── tools/      # wrappers de APIs y filesystem
 ├── apps/       # GUIs, dashboards y scripts auxiliares
 ├── docs/       # documentación funcional
+├── bookdown/   # manual navegable y validable del proyecto
 ├── Sistemas/   # repos/documentación de referencia
 ├── CLAUDE.md   # contexto interno del proyecto
 └── requirements.txt
@@ -382,6 +383,34 @@ Documentación:
 - `multiagents/registry.py`
 - `multiagents/planner.py`
 
+### Inicio Y Cierre De Sesion
+
+David puede usar dos comandos naturales:
+
+- `inicia sesion`: recuperar memoria, chat diario, devlog, estado Git, diff y siguiente paso probable.
+- `cierra sesion`: inventariar estado final; commit/push solo si se pide explicitamente y con archivos seleccionados.
+
+Helper local:
+
+```bash
+python tools/session_protocol.py inicia
+python tools/session_protocol.py cierra
+```
+
+El protocolo portable esta en `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md`. La adaptacion local respeta `memory/`, `chats/`, `artifacts/multiagent/` y `devlog/DEVLOG.md`.
+
+## Manual Bookdown
+
+El manual navegable vive en `bookdown/`.
+
+```bash
+python bookdown/generate_static_html.py
+python bookdown/validate_static_html.py
+python -m pytest tests/test_bookdown_static_html.py -q
+```
+
+El HTML generado queda en `bookdown/_book/index.html`. El orden de capitulos se define solo en `bookdown/_bookdown.yml`.
+
 ## Estado Actual Del Proyecto
 
 El repositorio ya es útil como conjunto de CLIs y utilidades de integración, pero conviene tener en cuenta estas limitaciones:
@@ -429,7 +458,7 @@ Los agentes deben asumir lo siguiente:
 
 - Si un ID en `.env` no responde, el agente debe recrear la base en el contenedor correcto y sobrescribir el ID.
 - `PTN` vive en `B0C-PLA`
-- `KIT/GIT/BIB` viven en `B0A-KIT`
+- `KIT/GIT/BIB` viven en `A4-ARX` bajo `B4Y-KIT`, `B4Z-GIT` y `B4X-BIB`.
 
 ## Archivos Clave
 

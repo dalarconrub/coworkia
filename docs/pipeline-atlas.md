@@ -13,7 +13,7 @@
   - [MAR — Todoist](#mar--todoist)
   - [PTN — Notion proyectos/tareas/notas](#ptn--notion-proyectostareasnotas)
   - [KIT — Notion knowledge/information/tools](#kit--notion-knowledgeinformationtools)
-  - [GIT — GitHub → Notion](#rep--github--notion)
+  - [GIT — GitHub → Notion](#git--github--notion)
   - [BIB — Paperpile → GitHub → Notion → Obsidian](#bib--paperpile--github--notion--obsidian)
   - [ABGD — Obsidian vault](#abgd--obsidian-vault)
   - [INX — Trazabilidad cross-system](#inx--trazabilidad-cross-system)
@@ -86,7 +86,7 @@ flowchart TD
     MAR_T --> DASH[Dashboard diario]
     MAR_E --> DASH
     DASH --> SYNC[sync_todoist_to_notion.py]
-    SYNC --> TODOIST_TAREAS[(NOTION_DB_TODOIST_TAREAS)]
+    SYNC --> TODOIST_TAREAS[(TODOIST_DB_TAREAS)]
     TODOIST_TAREAS --> INX[INX-ENLACES]
 ```
 
@@ -94,7 +94,7 @@ flowchart TD
 - **Apps:** [apps/dashboard.py](../apps/dashboard.py), [apps/backs_todoist.py](../apps/backs_todoist.py), [apps/mar_doctor.py](../apps/mar_doctor.py).
 - **Sync:** [tools/sync_todoist_to_notion.py](../tools/sync_todoist_to_notion.py) → espejo en Notion para que INX pueda referenciarlo.
 - **Escalación inversa:** [tools/promote_notas_checkboxes_to_todoist.py](../tools/promote_notas_checkboxes_to_todoist.py) (desde Obsidian, caso 10).
-- **Casos de uso:** [01 captura](casos-de-uso/01-captura-todoist.md), [04 sync](casos-de-uso/04-sync-inx-diario.md), [10 checkboxes→Todoist](casos-de-uso/10-checkboxes-obsidian-a-todoist.md).
+- **Casos de uso:** [01 captura](casos-de-uso/01-captura-todoist-zinbox.md), [04 sync](casos-de-uso/04-sync-diario-inx.md), [10 checkboxes→Todoist](casos-de-uso/10-checkboxes-obsidian-a-todoist.md).
 - **Env:** `TODOIST_API_KEY`.
 
 ### PTN — Notion proyectos/tareas/notas
@@ -111,7 +111,7 @@ flowchart LR
     DS_T -.relation.-> DS_N
     DS_P -.relation.-> DS_N
 
-    LOG[log_ptn_changes.py] -->|detecta nuevo/update| INX_DB[(NOTION_DB_INX)]
+    LOG[log_ptn_changes.py] -->|detecta nuevo/update| INX_DB[(NOTION_DB)]
     DS_P --> LOG
     DS_T --> LOG
     DS_N --> LOG
@@ -122,8 +122,8 @@ flowchart LR
 - **CLI:** [agents/notion_agent.py](../agents/notion_agent.py) — `estado`, `proyectos`, `tareas`, `notas`, `nuevo-proyecto/tarea/nota`.
 - **Apps:** [apps/project_hub_gui.py](../apps/project_hub_gui.py), [apps/notion_doctor.py](../apps/notion_doctor.py), [apps/backs_notion.py](../apps/backs_notion.py).
 - **Tools:** [tools/log_ptn_changes.py](../tools/log_ptn_changes.py), [tools/migrate_ptn.py](../tools/migrate_ptn.py), [tools/migrate_notas_ptn_relations.py](../tools/migrate_notas_ptn_relations.py), [tools/cleanup_notas_legacy_props.py](../tools/cleanup_notas_legacy_props.py), [tools/promote_obsidian_to_ptn.py](../tools/promote_obsidian_to_ptn.py).
-- **Casos de uso:** [02 captura→PTN](casos-de-uso/02-captura-a-ptn.md), [03 Obsidian↔PTN](casos-de-uso/03-obsidian-a-ptn.md), [07 migración Tarea→Ruta](casos-de-uso/07-migracion-tarea-a-ruta.md).
-- **Env:** `NOTION_TOKEN`, `NOTION_DS_PROYECTOS`, `NOTION_DS_TAREAS`, `NOTION_DS_NOTAS`, `NOTION_DB_INX`.
+- **Casos de uso:** [02 captura→PTN](casos-de-uso/02-tarea-a-proyecto-ptn-con-inx.md), [03 Obsidian↔PTN](casos-de-uso/03-nota-obsidian-desde-ptn.md), [07 promoción Obsidian→PTN](casos-de-uso/07-promocion-obsidian-a-ptn.md).
+- **Env:** `NOTION_TOKEN`, `NOTION_DS_PROYECTOS`, `NOTION_DS_TAREAS`, `NOTION_DS_NOTAS`, `NOTION_DB`, `NOTION_DB_INX`.
 
 ### KIT — Notion knowledge/information/tools
 
@@ -161,7 +161,7 @@ flowchart LR
 
 - **CLI:** [agents/github_agent.py](../agents/github_agent.py) — `importar`, `sincronizar`, `catalogar`, `listar`, `estado`.
 - **Apps:** [apps/github_gui.py](../apps/github_gui.py), [apps/catalogar_repos.py](../apps/catalogar_repos.py).
-- **Casos de uso:** [05 catálogo GitHub](casos-de-uso/05-catalogo-github.md).
+- **Casos de uso:** [05 catálogo GitHub](casos-de-uso/05-git-enlazado-a-ptn.md).
 - **Env:** `GITHUB_TOKEN`, `NOTION_DB_GIT`, `NOTION_GIT_PARENT_PAGE`.
 
 ### BIB — Paperpile → GitHub → Notion → Obsidian
@@ -184,7 +184,7 @@ flowchart LR
 - **CLI:** [agents/bib_agent.py](../agents/bib_agent.py) — `crear-db`, `importar`, `sincronizar`, `catalogar`, `listar`, `estado`.
 - **Apps:** [apps/bib_gui.py](../apps/bib_gui.py), [apps/promote_bib_to_obsidian.bat](../apps/promote_bib_to_obsidian.bat).
 - **Tools:** [tools/paperpile_tools.py](../tools/paperpile_tools.py) — parse BibTeX + Authorization Bearer para repos privados. [tools/promote_bib_to_obsidian.py](../tools/promote_bib_to_obsidian.py).
-- **Casos de uso:** [06 catálogo Paperpile](casos-de-uso/06-catalogo-paperpile.md), [09 ficha lectura Obsidian](casos-de-uso/09-bib-a-obsidian.md).
+- **Casos de uso:** [06 catálogo Paperpile](casos-de-uso/06-paperpile-bib-enlazado.md), [09 ficha lectura Obsidian](casos-de-uso/09-bib-a-obsidian.md).
 - **Env:** `PAPERPILE_BIBTEX_URL` (raw URL del repo), `GITHUB_TOKEN`, `NOTION_DB_BIB`, `NOTION_BIB_PARENT_PAGE`, `OBSIDIAN_ALPHA_PATH`.
 
 ### ABGD — Obsidian vault
@@ -200,7 +200,7 @@ flowchart LR
     MAPA[mapa] --> VAULT
 
     VAULT --> LOG[log_obsidian_changes.py]
-    LOG --> OBS_DB[(NOTION_OBSIDIAN_DB)]
+    LOG --> OBS_DB[(OBSIDIAN_DB)]
     OBS_DB --> SYNC_OBS[sync_inx_links.py --source obsidian]
     SYNC_OBS --> INX[(INX)]
 
@@ -213,7 +213,7 @@ flowchart LR
 - **CLI:** [agents/obsidian_agent.py](../agents/obsidian_agent.py) — `mapa`, `listar --area`, `ultimas`, `buscar`, `nueva-nota`, `estado`.
 - **Apps:** [apps/backs_obsidian.py](../apps/backs_obsidian.py), [apps/promote_obsidian_to_ptn.bat](../apps/promote_obsidian_to_ptn.bat).
 - **Tools:** [tools/obsidian_tools.py](../tools/obsidian_tools.py), [tools/log_obsidian_changes.py](../tools/log_obsidian_changes.py), [tools/backfill_obsidian_to_inx.py](../tools/backfill_obsidian_to_inx.py), [tools/obsidian_wikilinks.py](../tools/obsidian_wikilinks.py), [tools/migrate_notas_*.py](../tools/).
-- **Casos de uso:** [03](casos-de-uso/03-obsidian-a-ptn.md), [07](casos-de-uso/07-migracion-tarea-a-ruta.md), [09](casos-de-uso/09-bib-a-obsidian.md), [10](casos-de-uso/10-checkboxes-obsidian-a-todoist.md), [11](casos-de-uso/11-journal-diario-en-timeline.md), [12](casos-de-uso/12-backfill-inx-historico.md), [13](casos-de-uso/13-wikilinks-cross-system.md).
+- **Casos de uso:** [03](casos-de-uso/03-nota-obsidian-desde-ptn.md), [07](casos-de-uso/07-promocion-obsidian-a-ptn.md), [09](casos-de-uso/09-bib-a-obsidian.md), [10](casos-de-uso/10-checkboxes-obsidian-a-todoist.md), [11](casos-de-uso/11-journal-diario-en-timeline.md), [12](casos-de-uso/12-backfill-inx-historico.md), [13](casos-de-uso/13-wikilinks-cross-system.md).
 - **Env:** `OBSIDIAN_ABGD_ROOT`, `OBSIDIAN_ALPHA_PATH`.
 
 ### INX — Trazabilidad cross-system
@@ -246,7 +246,7 @@ flowchart LR
 
 - **Apps:** [apps/inx_daily.py](../apps/inx_daily.py), [apps/inx_doctor.py](../apps/inx_doctor.py), [apps/inx_sync_*.bat](../apps/).
 - **Tool central:** [tools/sync_inx_links.py](../tools/sync_inx_links.py) — dispatcher por `--source`.
-- **Casos de uso:** [04 sync diario](casos-de-uso/04-sync-inx-diario.md), [12 backfill histórico](casos-de-uso/12-backfill-inx-historico.md), [13 wikilinks cross-system](casos-de-uso/13-wikilinks-cross-system.md).
+- **Casos de uso:** [04 sync diario](casos-de-uso/04-sync-diario-inx.md), [12 backfill histórico](casos-de-uso/12-backfill-inx-historico.md), [13 wikilinks cross-system](casos-de-uso/13-wikilinks-cross-system.md).
 - **Env:** heredadas de los dominios fuente + `NOTION_DB_INX`.
 
 ---
@@ -535,7 +535,7 @@ Convención `Root/Sub` donde `Root ∈ {Claude, Copilot, Codex}`. Ejemplos: `Cla
 
 ## Flujos cross-dominio (casos de uso)
 
-Los 13 casos en [docs/casos-de-uso/](casos-de-uso/) son los **flujos reales** que cruzan varios dominios:
+Los 15 casos en [docs/casos-de-uso/](casos-de-uso/) son los **flujos reales** que cruzan varios dominios:
 
 | # | Título | Dominios implicados |
 | --- | --- | --- |
@@ -545,15 +545,17 @@ Los 13 casos en [docs/casos-de-uso/](casos-de-uso/) son los **flujos reales** qu
 | 04 | Sync INX diario | MAR + PTN + ABGD + INX |
 | 05 | Catálogo GitHub | GIT |
 | 06 | Catálogo Paperpile | BIB |
-| 07 | Migración Tarea → Ruta en PTN-Notas | PTN + ABGD |
+| 07 | Promoción Obsidian → PTN-Notas | PTN + ABGD |
 | 08 | KIT primera clase en INX | KIT + INX |
 | 09 | BIB → ficha de lectura Obsidian | BIB + ABGD + INX |
 | 10 | Checkboxes Obsidian → Todoist | ABGD + MAR + INX |
 | 11 | Journal diario Obsidian en timeline | ABGD + Coordinación |
 | 12 | Backfill INX histórico | ABGD + INX |
 | 13 | Wikilinks cross-system con auditoría INX | ABGD + INX + KIT + BIB + PTN |
+| 14 | Reset seguro del sistema | MAR + PTN + ABGD + INX |
+| 15 | Inoreader → KIT | Inoreader + KIT + PTN + INX |
 
-Cada caso tiene su propio doc con DoD, gaps, mejoras y validador en [tools/validate_case_<N>.py](../tools/) más wrapper Windows en [apps/validate_case_<N>.bat](../apps/).
+Cada caso tiene su propio doc con DoD, gaps y mejoras. La mayoría tiene validador en [tools/validate_case_<N>.py](../tools/) más wrapper Windows en [apps/validate_case_<N>.bat](../apps/); cuando no lo tiene, el documento indica el doctor o comando operativo equivalente.
 
 ---
 

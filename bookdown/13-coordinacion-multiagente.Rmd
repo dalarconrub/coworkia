@@ -1,0 +1,189 @@
+# Coordinacion Multiagente
+
+## Para Que Sirve
+
+Coworkia no solo coordina sistemas externos. Tambien coordina trabajo entre David y agentes IA. Esta capa evita que cada sesion arranque desde cero y convierte conversaciones en memoria, devlog, decisiones y artefactos regenerables.
+
+## Las Cuatro Capas
+
+| Capa | Ruta | Funcion |
+| --- | --- | --- |
+| Memoria curada | `memory/*.md` | Define que es el proyecto hoy |
+| Chat diario | `chats/chat_YYYY-MM-DD.md` | Conversacion viva append-only |
+| DevLog | `devlog/DEVLOG.md` | Hitos feature-level |
+| Orquestacion Scrum | `multiagents/`, `agents/orchestrator_agent.py` | Sprints, memoria derivada y estado |
+
+## Orden De Lectura De Todo Agente
+
+```text
+memory/INDEX.md
+memory/PURPOSE.md
+memory/STRUCTURE.md
+archivo de identidad de la raiz
+.claude/multiagent.md
+chat del dia
+devlog reciente
+```
+
+Comando de arranque:
+
+```bash
+python tools/init_chat.py
+python tools/devlog.py view --limit 20
+```
+
+## Chat Diario
+
+| Regla | Detalle |
+| --- | --- |
+| Un fichero por dia | `chats/chat_YYYY-MM-DD.md` |
+| Append-only | No se edita ni borra pasado |
+| UTF-8 estricto | En PowerShell usar `-Encoding utf8` |
+| Plantilla | `multiagents/chat_template.md` |
+| Reparacion | `python tools/fix_chat_mojibake.py chats/chat_YYYY-MM-DD.md` |
+
+Formato:
+
+```md
+**David [@Codex]:** mensaje
+**Codex:** respuesta
+```
+
+## Marcadores Canónicos
+
+| Marcador | Uso |
+| --- | --- |
+| `MEMORIA:` | Hecho o acuerdo duradero |
+| `BLOQUEO:` | Impedimento concreto |
+| `SIGUIENTE:` | Accion u owner recomendado |
+
+Estos marcadores alimentan `artifacts/multiagent/` y `memory/SNAPSHOT.md` cuando se ejecuta `sync-chat-memory`.
+
+## Modos De Decision
+
+| Modo | Formato | Uso |
+| --- | --- | --- |
+| Voto | `🗳️ VOTO #N: ✅/❌ razon` | Decision binaria |
+| Evaluacion | `🔍 EVAL #N desde ...` | Ranking de alternativas |
+| Especialidad | `✅ CERRADO: decision` | David delega cierre |
+| Creatividad | Formato libre | Propuestas abiertas |
+
+## Subagentes
+
+| Subagente | Raiz | Foco |
+| --- | --- | --- |
+| `Claude/ABGD` | Claude | Vault Obsidian y jerarquia ABPC |
+| `Codex/ABGD` | Codex | Implementacion tecnica ABGD y validadores Obsidian |
+
+Directorio canonico:
+
+```text
+memory/ROSTER.md
+```
+
+Reglas:
+
+- un subagente hereda el protocolo de su raiz;
+- solo responde si David o un agente lo mencionan;
+- si el tema sale de su foco, hace handoff con `SIGUIENTE: @Root`;
+- en devlog se atribuye con `--agent Root/Sub`.
+
+## DevLog
+
+| Cuando Es Obligatorio | Ejemplo |
+| --- | --- |
+| Cierre de decision | `✅ CERRADO #N` |
+| MEMORIA operativa | Cambio que debe sobrevivir a la sesion |
+| Feature completada | Codigo, docs o tooling con impacto |
+| Bloqueo abierto/cerrado | `BLOCKED` / `UNBLOCKED` |
+| Revert | Rollback o deshacer cambio relevante |
+
+Comandos:
+
+```bash
+python tools/devlog.py view --limit 20
+python tools/devlog.py append --agent Codex --area DOCS --status DONE --title "..." --summary "..."
+```
+
+Areas validas:
+
+| Area | Dominio |
+| --- | --- |
+| `MAR` | Todoist |
+| `PTN` | Notion proyectos |
+| `KIT` | Knowledge/Information/Tool |
+| `GIT` | Repositorios |
+| `BIB` | Bibliografia |
+| `ABGD` | Obsidian |
+| `INX` | Trazabilidad |
+| `MULTIAGENT` | Coordinacion IA |
+| `TOOLING` | Herramientas |
+| `DOCS` | Documentacion |
+| `INFRA` | Infraestructura |
+
+## Memoria Derivada
+
+```bash
+python agents/orchestrator_agent.py sync-chat-memory
+```
+
+Genera:
+
+| Artefacto | Uso |
+| --- | --- |
+| `artifacts/multiagent/conversation_records.jsonl` | Log estructurado |
+| `artifacts/multiagent/decision_log.json` | Decisiones |
+| `artifacts/multiagent/agent_state.json` | Estado por agente |
+| `artifacts/multiagent/memory_records.json` | MEMORIA/BLOQUEO/SIGUIENTE del chat |
+| `artifacts/multiagent/chat_memory.md` | Snapshot legible |
+| `memory/SNAPSHOT.md` | Agregado historico del proyecto |
+
+## Timeline
+
+```bash
+python tools/timeline.py
+python tools/timeline.py --date 2026-04-18
+python tools/timeline.py --days 7
+```
+
+Cruza:
+
+| Fuente | Que Aporta |
+| --- | --- |
+| `chats/` | Mensajes y decisiones |
+| `devlog/` | Hitos del dia |
+| `artifacts/inx/` | Runs INX |
+| `artifacts/sprints/` | Sprints activos |
+| Obsidian journal | Nota diaria si existe |
+
+## Sprints
+
+```bash
+python agents/orchestrator_agent.py plan-sprint "Objetivo" --nombre "Sprint X" --guardar
+python agents/orchestrator_agent.py status "Sprint X"
+python agents/orchestrator_agent.py run-task "Sprint X" ST-003
+python agents/orchestrator_agent.py run-sprint "Sprint X"
+```
+
+Los planes y runtime viven en `artifacts/sprints/`.
+
+## Rutina De Apertura Y Cierre
+
+| Momento | Comando |
+| --- | --- |
+| Inicia sesion | `python tools/session_protocol.py inicia` |
+| Abrir chat puntual | `python tools/init_chat.py` |
+| Validar memoria | `python tools/memory_check.py` |
+| Cerrar memoria | `python agents/orchestrator_agent.py sync-chat-memory` |
+| Cierra sesion | `python tools/session_protocol.py cierra` |
+| Generar timeline | `python tools/timeline.py` |
+| Cierre Windows | `apps\cerrar_sesion.bat` |
+
+El protocolo portable base vive en `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md`. En Coworkia no reemplaza al sistema multiagente: `tools/session_protocol.py` usa la memoria versionada, el chat diario, el devlog y Git como fuentes.
+
+## Que Debe Recordar Un Usuario
+
+- La memoria versionada manda sobre recuerdos locales del harness.
+- El chat diario es fuente viva; el snapshot es derivado.
+- DevLog no reemplaza al chat ni a Git: registra hitos.
+- Si se marca `MEMORIA:` operativa, debe existir devlog o cierre de memoria.

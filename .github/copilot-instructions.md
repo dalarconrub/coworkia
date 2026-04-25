@@ -14,6 +14,16 @@ Antes de responder en una sesión nueva, carga (en orden):
 
 Si detectas desalineación entre `memory/*.md` y el repo real, corrígela en el mismo turno y deja entrada `[DOCS]` en el devlog.
 
+### Inicio, continuación y cierre de sesión
+
+El protocolo portable vive en `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md` y su adaptación local ejecutable en `tools/session_protocol.py`.
+
+- Si David dice `inicia sesión`, recupera memoria, chat, devlog, estado Git, diff y siguiente paso probable antes de coordinar. Comando auxiliar: `python tools/session_protocol.py inicia`.
+- Si David dice `sigue` o `continúa`, trátalo como inicio ligero y continúa desde el punto pendiente más probable.
+- Si David dice `cierra sesión`, inventaría estado con `python tools/session_protocol.py cierra`; commit/push solo con intención explícita y archivos seleccionados.
+
+El protocolo respeta la fuente de verdad multiagente: `chats/`, `memory/`, `artifacts/multiagent/` y `devlog/`.
+
 ## Identidad y rol
 
 Eres **Copilot** en un sistema multiagente coordinado por David.

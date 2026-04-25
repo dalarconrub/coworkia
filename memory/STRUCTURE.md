@@ -13,7 +13,7 @@ Coworkia separa por **responsabilidad operativa**, no por tecnología:
 - **Lo vivo** (hilos, logs, memoria operativa) → `chats/`, `devlog/`, `artifacts/`.
 - **Lo curado** (identidad, propósito, estructura) → `memory/`, raíz (`README.md`, `CLAUDE.md`, `AGENTS.md`).
 - **Lo ejecutable** (lógica del sistema) → `agents/`, `tools/`, `apps/`, `multiagents/`.
-- **La documentación de uso** (guías para humanos) → `docs/`, `playbooks/`.
+- **La documentación de uso** (guías para humanos) → `docs/`, `bookdown/`, `playbooks/`.
 
 ## Carpetas top-level
 
@@ -83,10 +83,17 @@ Guías para humanos. No es memoria del sistema.
 - `extract-portable-toolkit.md` — exportar herramientas agnósticas.
 - `casos-de-uso/` — workflows paso a paso.
 
+### `bookdown/` — manual navegable y validable
+Manual operativo del proyecto en formato bookdown ligero. Usa `_bookdown.yml` como fuente canónica del orden de capítulos, `.Rmd` como fuentes del manual y `generate_static_html.py` / `validate_static_html.py` para generar y auditar el HTML local en `bookdown/_book/index.html`.
+
+Regla: si cambia un flujo, script, carpeta o test relevante, actualizar el capítulo y la tabla maestra correspondiente en el mismo bloque de trabajo.
+
 ### `playbooks/` — metodologías reutilizables
 Guías operativas extraídas de trabajos ya ejecutados en otros proyectos o frentes. No son memoria canónica de Coworkia ni documentación de usuario por sistema; son patrones transferibles que pueden aplicarse a proyectos futuros.
 
 - `bookdown-exhaustive-project-playbook.md` — método para crear un bookdown exhaustivo, navegable y validable de un proyecto complejo.
+- `PROTOCOLO_INICIO_CIERRE_SESION.md` — protocolo portable para interpretar `inicia sesión`, `sigue` y `cierra sesión`; en Coworkia se adapta con `tools/session_protocol.py` respetando memoria, chat y devlog.
+- `playbooks-readme-portable-playbook.md` — método para crear y mantener un índice `playbooks/README.md` portable en cualquier repo.
 
 ### `.claude/`, `.github/`
 Protocolo y configuración de agentes:
@@ -113,12 +120,13 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 4. **Nuevo MD top-level en raíz** → actualizar `memory/INDEX.md` y `memory/STRUCTURE.md`.
 5. **Nuevo tipo de artefacto derivado** → bajo `artifacts/<nombre>/`, documentar qué script lo regenera.
 6. **Nuevo playbook reutilizable** → bajo `playbooks/`, con propósito, fuentes, criterios de cierre y referencia en `memory/INDEX.md` si inaugura una nueva familia.
+7. **Nuevo capítulo bookdown** → añadir `.Rmd`, actualizar `bookdown/_bookdown.yml`, regenerar HTML y validar con `bookdown/validate_static_html.py`.
 
 ## Árbol actual
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T07:33Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -206,6 +214,29 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T07:33Z. No editar 
     - sprint-multiagent-sync.md
   - obsidian_log_state.json
   - ptn_log_state.json
+- bookdown/
+  - 01-instalacion-y-arranque.Rmd
+  - 02-arquitectura-operativa.Rmd
+  - 03-pipelines-principales.Rmd
+  - 04-catalogos-maestros.Rmd
+  - 05-operacion-validacion-y-mantenimiento.Rmd
+  - 06-faq-y-glosario.Rmd
+  - 07-sistemas-y-agentes.Rmd
+  - 08-tabla-maestra-scripts.Rmd
+  - 09-casos-de-uso.Rmd
+  - 10-validacion-y-acceptance.Rmd
+  - 11-inx-arquitectura.Rmd
+  - 12-notion-abc-fuentes-de-verdad.Rmd
+  - 13-coordinacion-multiagente.Rmd
+  - 14-operacion-windows-resets-backups.Rmd
+  - 15-catalogo-documentacion.Rmd
+  - 16-roadmap-limitaciones.Rmd
+  - 17-matriz-cobertura-release.Rmd
+  - _bookdown.yml
+  - generate_static_html.py
+  - index.Rmd
+  - README.md
+  - validate_static_html.py
 - chats/
   - chat_2026-04-17.md
   - chat_2026-04-18.md
@@ -266,6 +297,8 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T07:33Z. No editar 
   - registry.py
 - playbooks/
   - bookdown-exhaustive-project-playbook.md
+  - playbooks-readme-portable-playbook.md
+  - PROTOCOLO_INICIO_CIERRE_SESION.md
   - README.md
 - Sistemas/
   - ABC/
@@ -314,6 +347,9 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T07:33Z. No editar 
     - README.md
     - requirements.txt
     - vercel.json
+- tests/
+  - test_bookdown_static_html.py
+  - test_session_protocol.py
 - tools/
   - backfill_obsidian_to_inx.py
   - cleanup_notas_legacy_props.py
@@ -355,7 +391,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T07:33Z. No editar 
   - paperpile_tools.py
   - promote_bib_to_obsidian.py
   - promote_notas_checkboxes_to_todoist.py
-  - ... (28 mas)
+  - ... (29 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

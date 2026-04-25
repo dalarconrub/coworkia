@@ -1,0 +1,118 @@
+# Catalogo De Documentacion
+
+## Para Que Sirve
+
+Este capitulo es el indice de lectura humano. `memory/INDEX.md` esta optimizado para agentes; este catalogo esta optimizado para decidir que documento abrir segun una tarea concreta.
+
+## Rutas Por Perfil
+
+| Perfil | Ruta De Lectura |
+| --- | --- |
+| Usuario nuevo | `README.md` -> `bookdown/index.Rmd` -> `bookdown/01-instalacion-y-arranque.Rmd` -> `docs/guia-rapida.md` |
+| Operador diario | `bookdown/03-pipelines-principales.Rmd` -> `bookdown/14-operacion-windows-resets-backups.Rmd` -> `docs/pipeline-atlas.md` |
+| Desarrollador | `memory/STRUCTURE.md` -> `bookdown/08-tabla-maestra-scripts.Rmd` -> `bookdown/10-validacion-y-acceptance.Rmd` |
+| Agente IA | `memory/INDEX.md` -> `AGENTS.md`/`CLAUDE.md` -> `.claude/multiagent.md` -> `chats/chat_YYYY-MM-DD.md` |
+| Revisor | `bookdown/09-casos-de-uso.Rmd` -> `bookdown/16-roadmap-limitaciones.Rmd` -> `devlog/DEVLOG.md` |
+| Operador Notion | `bookdown/12-notion-abc-fuentes-de-verdad.Rmd` -> `docs/abc-taxonomy.md` -> `docs/notion-ptn-agent.md` |
+
+## Documentos Raiz
+
+| Documento | Objetivo | Cuando Leerlo |
+| --- | --- | --- |
+| `README.md` | Vista publica y comandos principales | Primer contacto |
+| `AGENTS.md` | Identidad y protocolo Codex | Sesiones Codex |
+| `CLAUDE.md` | Identidad y protocolo Claude | Sesiones Claude |
+| `.github/copilot-instructions.md` | Identidad y protocolo Copilot | Sesiones Copilot |
+| `.claude/multiagent.md` | Protocolo compartido | Coordinacion multiagente |
+| `WINDOWS_START.md` | Arranque rapido en Windows | Uso local |
+
+## Memoria Curada
+
+| Documento | Objetivo | Mantenimiento |
+| --- | --- | --- |
+| `memory/INDEX.md` | Meta-indice de recursos | Actualizar si nace recurso relevante |
+| `memory/PURPOSE.md` | Vision y principios | Actualizar si cambia el modelo del proyecto |
+| `memory/STRUCTURE.md` | Carpetas y arbol actual | Regenerar TREE con `snapshot_structure.py` |
+| `memory/ROSTER.md` | Subagentes activos | Editar al activar/retirar subagente |
+| `memory/SNAPSHOT.md` | Memoria agregada derivada | Regenerar con `sync-chat-memory` |
+
+## Guias Por Sistema
+
+| Guia | Sistema | Uso |
+| --- | --- | --- |
+| `docs/todoist-agent.md` | MAR | Tareas, inbox, clasificacion |
+| `docs/notion-ptn-agent.md` | PTN | Proyectos, tareas, notas |
+| `docs/notion-kit-agent.md` | KIT | Knowledge/Information/Tool |
+| `docs/inoreader-agent.md` | Inoreader -> KIT | RSS y articulos |
+| `docs/git-agent.md` | GIT | Repositorios GitHub |
+| `docs/bib-agent.md` | BIB | Paperpile y bibliografia |
+| `docs/obsidian-agent.md` | ABGD | Vault, notas y promocion |
+
+## Guias Transversales
+
+| Documento | Uso |
+| --- | --- |
+| `docs/pipeline-atlas.md` | Mapa global de datos y coordinacion |
+| `docs/guia-rapida.md` | Comandos principales por sistema |
+| `docs/multiagent-system.md` | Arquitectura multiagente Scrum |
+| `docs/abc-taxonomy.md` | Taxonomia ABC |
+| `docs/extract-portable-toolkit.md` | Exportar toolkit multiagente a otros proyectos |
+
+## Casos De Uso
+
+| Documento | Flujo |
+| --- | --- |
+| `docs/casos-de-uso/01-captura-todoist-zinbox.md` | Captura MAR |
+| `docs/casos-de-uso/02-tarea-a-proyecto-ptn-con-inx.md` | Tarea -> PTN -> INX |
+| `docs/casos-de-uso/03-nota-obsidian-desde-ptn.md` | Nota Obsidian desde PTN |
+| `docs/casos-de-uso/04-sync-diario-inx.md` | Sync diario INX |
+| `docs/casos-de-uso/05-git-enlazado-a-ptn.md` | GIT -> PTN |
+| `docs/casos-de-uso/06-paperpile-bib-enlazado.md` | BIB -> PTN/Obsidian |
+| `docs/casos-de-uso/07-promocion-obsidian-a-ptn.md` | ABGD -> PTN |
+| `docs/casos-de-uso/08-kit-en-inx.md` | KIT en INX |
+| `docs/casos-de-uso/09-bib-a-obsidian.md` | BIB -> ficha Obsidian |
+| `docs/casos-de-uso/10-checkboxes-obsidian-a-todoist.md` | Checkboxes -> Todoist |
+| `docs/casos-de-uso/11-journal-diario-en-timeline.md` | Journal en timeline |
+| `docs/casos-de-uso/12-backfill-inx-historico.md` | Backfill Obsidian historico |
+| `docs/casos-de-uso/13-wikilinks-cross-system.md` | Wikilinks cross-system |
+| `docs/casos-de-uso/14-reset-sistema.md` | Reset seguro |
+| `docs/casos-de-uso/15-inoreader-a-kit.md` | Inoreader -> KIT |
+
+## Playbooks
+
+| Documento | Uso |
+| --- | --- |
+| `playbooks/README.md` | Indice de metodologias reutilizables |
+| `playbooks/bookdown-exhaustive-project-playbook.md` | Metodo para construir y mantener este manual |
+
+## Artefactos Que Se Consultan Pero No Se Editan A Mano
+
+| Artefacto | Generador |
+| --- | --- |
+| `bookdown/_book/index.html` | `python bookdown/generate_static_html.py` |
+| `artifacts/multiagent/*` | `python agents/orchestrator_agent.py sync-chat-memory` |
+| `artifacts/daily/YYYY-MM-DD.md` | `python tools/timeline.py` |
+| `artifacts/inx/inx-daily-*.md` | `python apps/inx_daily.py` |
+| `memory/SNAPSHOT.md` | `sync-chat-memory` |
+
+## Mapa De Intencion
+
+| Quiero | Abrir |
+| --- | --- |
+| Saber que es Coworkia | `memory/PURPOSE.md` |
+| Saber donde vive algo | `memory/STRUCTURE.md` |
+| Ejecutar un flujo | `docs/casos-de-uso/index.md` |
+| Validar una capacidad | `bookdown/10-validacion-y-acceptance.Rmd` |
+| Hacer reset seguro | `docs/casos-de-uso/14-reset-sistema.md` |
+| Entender INX | `bookdown/11-inx-arquitectura.Rmd` |
+| Entender Notion/ABC | `bookdown/12-notion-abc-fuentes-de-verdad.Rmd` |
+| Revisar cambios recientes | `devlog/DEVLOG.md` |
+
+## Regla De Mantenimiento
+
+Si se crea, renombra o retira un documento que cambie la navegacion real, actualiza:
+
+1. este capitulo;
+2. `memory/INDEX.md` si es recurso canónico;
+3. `memory/STRUCTURE.md` si cambia el arbol relevante;
+4. el devlog si el cambio es feature-level.

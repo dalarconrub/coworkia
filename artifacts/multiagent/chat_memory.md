@@ -1,8 +1,8 @@
 # Chat Memory Snapshot
 
-- Generated: `2026-04-25T06:54:49Z`
+- Generated: `2026-04-25T17:59:21Z`
 - Source: `C:\Users\David\Desktop\AI-Generators\coworkia\chats\chat_2026-04-25.md`
-- Messages: `12`
+- Messages: `29`
 - Last actor: `Codex`
 
 ## Open Decisions
@@ -17,7 +17,7 @@
   pending_mentions: []
   pending_decisions: []
 - `Codex`
-  last_message_index: 12
+  last_message_index: 29
   last_direct_mention_index: None
   pending_mentions: []
   pending_decisions: []
@@ -30,16 +30,18 @@
 ## Structured Memory
 
 - `MEMORIA` `Codex` [12] David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`.
+- `MEMORIA` `Codex` [16] el manual navegable del proyecto Coworkia vive en `bookdown/`; el orden de capitulos se define en `bookdown/_bookdown.yml`, el HTML se genera con `python bookdown/generate_static_html.py` y se valida con `python bookdown/validate_static_html.py`.
+- `MEMORIA` `Codex` [23] `bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`.
 
 ## Recent Messages
 
-- `3` `Codex` -> Listo para continuar. No hay acción pendiente en el hilo; espero siguiente instrucción de David.
-- `4` `Codex` -> Pendiente manual en Notion para alinear últimos cambios: renombrar en ABC-BLOQUE `B4X-LIB -> B4X-BIB`, `B4Y-MED -> B4Y-KIT`, `B4Z-APP -> B4Z-GIT`; en ABC-CONTEX
-- `5` `Codex` -> Diagnóstico GIT Notion: la base canónica activa es `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` bajo `NOTION_GIT_PARENT_PAGE=117622cf-315b-802f-b190-fd5
-- `6` `Codex` -> Aclaración Notion GIT: si las tres entradas visibles tienen el mismo ID `340622cf-315b-814f-91a9-f90539fba200`, no son tres bases reales; son tres apariciones/v
-- `7` `Codex` -> Fila de prueba creada en `NOTION_DB_GIT`: `esta es la buena` (`page_id=34d622cf-315b-81c0-96ae-dd72bd8a0ad1`). Sirve solo para identificar visualmente la aparic
-- `8` `Codex` -> Fila de prueba `esta es la buena` archivada tras la comprobación; `NOTION_DB_GIT` queda limpia de esa marca temporal.
-- `9` `Codex` -> Localización KIT: la base canónica activa es `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`, título Notion `KIT`, parent configurado `NOTION_KIT_PARENT_PA
-- `10` `Codex` -> Fila de prueba creada en `NOTION_DB_KIT`: `Esta es la buena` (`page_id=34d622cf-315b-81d3-8b18-d599804cf0e8`). Temporal para identificar visualmente la aparició
-- `11` `Codex` -> Fila temporal KIT `Esta es la buena` archivada. Validación post-ajustes manuales: `validate_case_05 --scope c` PASS (GIT 113/113 en INX, 0 duplicados, 0 huérfan
-- `12` `Codex` -> MEMORIA: David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_
+- `20` `Codex` -> Continuacion bookdown: anadidos `13-coordinacion-multiagente.Rmd` y `14-operacion-windows-resets-backups.Rmd`, enlazados antes del FAQ. Regenerado HTML y TREE; 
+- `21` `Codex` -> Continuacion bookdown: anadidos `15-catalogo-documentacion.Rmd` y `16-roadmap-limitaciones.Rmd`, enlazados antes del FAQ. Regenerado HTML y TREE; validaciones O
+- `22` `Codex` -> Auditoria bookdown/docs completada en primera pasada: corregidos `README.md` (KIT/GIT/BIB en A4-ARX), `docs/pipeline-atlas.md` (links de casos, 15 casos, labels
+- `23` `Codex` -> MEMORIA: `bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`.
+- `24` `Codex` -> Endurecido el validador del bookdown: ahora comprueba enlaces locales rotos en el HTML generado, además de tablas, anchors e IDs. Validaciones OK: generate_stat
+- `25` `Codex` -> Continuacion bookdown: anadido 17-matriz-cobertura-release.Rmd, enlazado antes del FAQ. Cierra el manual con matriz de cobertura por capitulo, checklist de rele
+- `26` `Codex` -> Continuacion bookdown: el validador ahora audita rutas de proyecto escritas en backticks dentro de los .Rmd, no solo enlaces HTML. Detecto rutas aspiracionales 
+- `27` `Codex` -> Actualizado `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md` a version portable para repos con `memory/`, `chats/`, `devlog/`, artefactos multiagente y Git. Ajusta
+- `28` `Codex` -> Creado `playbooks/playbooks-readme-portable-playbook.md` para reproducir el patron de `playbooks/README.md` en cualquier repo: incluye objetivo, semantica de ca
+- `29` `Codex` -> Cierre de sesion ejecutado. Validaciones OK: `memory_check`, `snapshot_structure.py --check`, `bookdown/generate_static_html.py`, `bookdown/validate_static_html
