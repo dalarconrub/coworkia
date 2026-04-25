@@ -577,3 +577,13 @@ Estado: DONE
 Chat: chats/chat_2026-04-24.md
 Commits: dfff81d
 Resumen: Publicado en origin/main el commit dfff81d Document playbooks and align Inoreader workflow. main queda alineada con origin/main.
+
+## 2026-04-25T06:54Z — Codex — [DOCS] Confirmar alineacion manual Notion GIT/KIT
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: David completo los cambios manuales de alineacion en Notion tras el rename GIT y el realineamiento A4-ARX. Se archivo la fila temporal KIT 'Esta es la buena'. Validaciones post-ajuste: validate_case_05 --scope c PASS (GIT 113/113 en INX, 0 duplicados/huerfanas) y validate_case_08 --scope c PASS (KIT 828/828 en INX, 0 mismatches/backrefs faltantes).
+
+## 2026-04-25T07:33Z — Codex — [DOCS] Regenerar STRUCTURE tras chat 2026-04-25
+Estado: DONE
+Chat: chats/chat_2026-04-25.md
+Resumen: Regenerado memory/STRUCTURE.md con tools/snapshot_structure.py para incorporar el chat diario 2026-04-25 en el TREE. memory_check queda OK antes de commit.

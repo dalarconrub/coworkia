@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-24T14:47:08Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-25T06:54:49Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).
@@ -71,6 +71,8 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-04-19.md` (msg #27)
 - **[2026-04-19]** `Codex` — `.env` ya apunta al vault nuevo tras el reset de Obsidian. Se actualizaron `OBSIDIAN_ABGD_ROOT=C:/GDrive/dalarconrub/ABGD/ABGD-260419` y `OBSIDIAN_ALPHA_PATH=C:/GDrive/dalarconrub/ABGD/ABGD-260419/1.ALPHA` para dejar consistente la sesi?n operativa con el vault rotado. SIGUIENTE: @David abre `ABGD-260419` en Obsidian desktop para continuar trabajando sobre el vault nuevo.
   - origen: `chats/chat_2026-04-19.md` (msg #36)
+- **[2026-04-25]** `Codex` — David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`.
+  - origen: `chats/chat_2026-04-25.md` (msg #12)
 - **[archive_2026-04-17]** `Codex` — los marcadores canónicos del hilo son `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)
 - **[archive_2026-04-17]** `Codex` — la causa de los acentos rotos en chat.md es el uso de Windows PowerShell 5.1 sobre un archivo UTF-8 sin indicar codificación explícita. Regla fija del sistema: cualquier lectura/escritura manual de chat.md en PowerShell debe usar -Encoding utf8.

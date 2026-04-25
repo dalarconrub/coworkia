@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 12,
+    "value": "David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`."
+  }
+]

@@ -118,7 +118,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-24T12:41Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T07:33Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -214,6 +214,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-24T12:41Z. No editar 
   - chat_2026-04-22.md
   - chat_2026-04-23.md
   - chat_2026-04-24.md
+  - chat_2026-04-25.md
   - chat_archive_2026-04-17.md
 - devlog/
   - DEVLOG.md
