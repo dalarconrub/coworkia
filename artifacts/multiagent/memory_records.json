@@ -2,19 +2,7 @@
   {
     "kind": "MEMORIA",
     "actor": "Codex",
-    "message_index": 12,
-    "value": "David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex",
-    "message_index": 16,
-    "value": "el manual navegable del proyecto Coworkia vive en `bookdown/`; el orden de capitulos se define en `bookdown/_bookdown.yml`, el HTML se genera con `python bookdown/generate_static_html.py` y se valida con `python bookdown/validate_static_html.py`."
-  },
-  {
-    "kind": "MEMORIA",
-    "actor": "Codex",
-    "message_index": 23,
-    "value": "`bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`."
+    "message_index": 3,
+    "value": "En MAR/Todoist, excluir siempre proyectos/carpetas `Z*` del flujo operativo normal salvo peticion explicita de David para consultarlos. Implementado filtro dinamico por nombre de proyecto `Z*`; estado operativo actual sin `Z*`: 26 acciones activas."
   }
 ]

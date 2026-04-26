@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-04-25T17:59:21Z",
-  "source_path": "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\chats\\chat_2026-04-25.md",
-  "message_count": 29,
+  "generated_at": "2026-04-26T07:04:26Z",
+  "source_path": "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\chats\\chat_2026-04-26.md",
+  "message_count": 4,
   "last_actor": "Codex",
   "decisions_open": [],
   "decisions_all": [],
@@ -15,7 +15,7 @@
     },
     {
       "name": "Codex",
-      "last_message_index": 29,
+      "last_message_index": 4,
       "last_direct_mention_index": null,
       "pending_mentions": [],
       "pending_decisions": []
@@ -32,20 +32,8 @@
     {
       "kind": "MEMORIA",
       "actor": "Codex",
-      "message_index": 12,
-      "value": "David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`."
-    },
-    {
-      "kind": "MEMORIA",
-      "actor": "Codex",
-      "message_index": 16,
-      "value": "el manual navegable del proyecto Coworkia vive en `bookdown/`; el orden de capitulos se define en `bookdown/_bookdown.yml`, el HTML se genera con `python bookdown/generate_static_html.py` y se valida con `python bookdown/validate_static_html.py`."
-    },
-    {
-      "kind": "MEMORIA",
-      "actor": "Codex",
-      "message_index": 23,
-      "value": "`bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`."
+      "message_index": 3,
+      "value": "En MAR/Todoist, excluir siempre proyectos/carpetas `Z*` del flujo operativo normal salvo peticion explicita de David para consultarlos. Implementado filtro dinamico por nombre de proyecto `Z*`; estado operativo actual sin `Z*`: 26 acciones activas."
     }
   ],
   "messages": [
@@ -54,7 +42,7 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Sesión iniciada. Memoria, chat del día y devlog reciente cargados; sin decisiones abiertas pendientes para Codex.",
+      "body": "Inicio de sesion ejecutado con `python tools/session_protocol.py inicia`; contexto Git, memoria, chat y devlog revisados.",
       "mentions": [],
       "mode": null,
       "mode_number": null
@@ -64,7 +52,7 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Sesión iniciada. Memoria versionada, chat del día y devlog reciente cargados; no hay decisiones abiertas ni menciones pendientes para Codex.",
+      "body": "Continuacion ejecutada sobre pipeline MAR diario: `todoist_agent.py estado` reporto 108 acciones activas; `sync_todoist_to_notion.py --limit 200` sincronizo 108 tareas; `sync_inx_links.py --source todoist --limit 200` sincronizo 200 enlaces INX desde Todoist. Devlog actualizado.",
       "mentions": [],
       "mode": null,
       "mode_number": null
@@ -74,7 +62,7 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Listo para continuar. No hay acción pendiente en el hilo; espero siguiente instrucción de David.",
+      "body": "MEMORIA: En MAR/Todoist, excluir siempre proyectos/carpetas `Z*` del flujo operativo normal salvo peticion explicita de David para consultarlos. Implementado filtro dinamico por nombre de proyecto `Z*`; estado operativo actual sin `Z*`: 26 acciones activas.",
       "mentions": [],
       "mode": null,
       "mode_number": null
@@ -84,257 +72,7 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Pendiente manual en Notion para alinear últimos cambios: renombrar en ABC-BLOQUE `B4X-LIB -> B4X-BIB`, `B4Y-MED -> B4Y-KIT`, `B4Z-APP -> B4Z-GIT`; en ABC-CONTEXTO dejar `C4X*`, `C4Y*`, `C4Z*` en mayúsculas y aplicar `C4Y6-MP3 -> C4Y6-WEB`, `C4Z7-MOC -> C4Z7-COD`, `C4Z8-WEB -> C4Z8-AGI`; mover las páginas/entradas Notion de BIB, KIT y GIT bajo sus nuevos bloques; si la base de repos aún aparece como `REP-Repositorios`, renombrarla visualmente a `GIT-Repositorios`. No cambiar claves INX `github:*` ni IDs de bases.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 5,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Diagnóstico GIT Notion: la base canónica activa es `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` bajo `NOTION_GIT_PARENT_PAGE=117622cf-315b-802f-b190-fd57c122630f`. `validate_case_05 --scope c` pasa: 113 repos, 0 duplicados por Nombre/URL, 113/113 en INX, 0 huérfanas. Las otras entradas visibles de repos en Notion no son la base activa de Coworkia.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 6,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Aclaración Notion GIT: si las tres entradas visibles tienen el mismo ID `340622cf-315b-814f-91a9-f90539fba200`, no son tres bases reales; son tres apariciones/vistas/enlaces del mismo data source. Se puede borrar de la página la vista/bloque duplicado que moleste, pero no archivar/borrar la base en sí. La canónica sigue siendo ese ID.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 7,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Fila de prueba creada en `NOTION_DB_GIT`: `esta es la buena` (`page_id=34d622cf-315b-81c0-96ae-dd72bd8a0ad1`). Sirve solo para identificar visualmente la aparición/vista canónica en Notion; no es un repo real.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 8,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Fila de prueba `esta es la buena` archivada tras la comprobación; `NOTION_DB_GIT` queda limpia de esa marca temporal.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 9,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Localización KIT: la base canónica activa es `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`, título Notion `KIT`, parent configurado `NOTION_KIT_PARENT_PAGE=117622cf-315b-802f-b190-fd57c122630f`. La API confirma propiedades KIT (`Area`, `Etiquetas`, `Subtipo`, `Fuente / Autor`, `Google Keep ID`, `Inoreader Tags`, etc.).",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 10,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Fila de prueba creada en `NOTION_DB_KIT`: `Esta es la buena` (`page_id=34d622cf-315b-81d3-8b18-d599804cf0e8`). Temporal para identificar visualmente la aparición/vista correcta de KIT.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 11,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Fila temporal KIT `Esta es la buena` archivada. Validación post-ajustes manuales: `validate_case_05 --scope c` PASS (GIT 113/113 en INX, 0 duplicados, 0 huérfanas); `validate_case_08 --scope c` PASS (KIT 828/828 en INX, 0 mismatch textual/relation, 0 backrefs faltantes). MEMORIA: David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas quedan `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 12,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "MEMORIA: David completó los cambios manuales de alineación Notion tras el rename GIT y el realineamiento A4-ARX; las bases canónicas verificadas son `NOTION_DB_GIT=340622cf-315b-814f-91a9-f90539fba200` y `NOTION_DB_KIT=340622cf-315b-81b6-a22e-000be28f5cee`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 13,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "El bookdown del proyecto como tal no existe todavía en Coworkia: no hay `docs/bookdown/`, `_bookdown.yml`, `_output.yml` ni `.Rmd` en el repo. Lo que sí existe es el playbook para construirlo: `playbooks/bookdown-exhaustive-project-playbook.md`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 14,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Revisión adicional: en el historial Git de Coworkia tampoco aparece un `docs/bookdown/`, `_bookdown.yml` ni `.Rmd`. La referencia al bookdown existente viene del playbook y apunta al proyecto `ai-system-lab`, no a Coworkia.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 15,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Creado el bookdown inicial de Coworkia en `bookdown/`: `_bookdown.yml`, capitulos `.Rmd`, generador HTML, validador, HTML generado y test `tests/test_bookdown_static_html.py`. Actualizados `README.md`, `memory/INDEX.md` y `memory/STRUCTURE.md`; validaciones OK (`generate_static_html`, `validate_static_html`, pytest bookdown, `memory_check`). MEMORIA: el manual navegable del proyecto vive en `bookdown/` y se renderiza con `python bookdown/generate_static_html.py`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 16,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "MEMORIA: el manual navegable del proyecto Coworkia vive en `bookdown/`; el orden de capitulos se define en `bookdown/_bookdown.yml`, el HTML se genera con `python bookdown/generate_static_html.py` y se valida con `python bookdown/validate_static_html.py`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 17,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Ampliado el bookdown con `07-sistemas-y-agentes.Rmd` y `08-tabla-maestra-scripts.Rmd`, ambos enlazados en `_bookdown.yml`. Regenerado `bookdown/_book/index.html`; validaciones OK (`validate_static_html`, pytest bookdown, `memory_check`).",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 18,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Continuacion bookdown: anadidos `09-casos-de-uso.Rmd` y `10-validacion-y-acceptance.Rmd`; FAQ movido al final del orden en `_bookdown.yml`. Regenerado HTML y TREE; validaciones OK (`validate_static_html`, pytest bookdown, `memory_check`).",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 19,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Continuacion bookdown: anadidos `11-inx-arquitectura.Rmd` y `12-notion-abc-fuentes-de-verdad.Rmd`, enlazados antes del FAQ. Regenerado HTML y TREE; validaciones OK (`validate_static_html`, pytest bookdown, `memory_check`).",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 20,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Continuacion bookdown: anadidos `13-coordinacion-multiagente.Rmd` y `14-operacion-windows-resets-backups.Rmd`, enlazados antes del FAQ. Regenerado HTML y TREE; validaciones OK (`validate_static_html`, pytest bookdown, `memory_check`).",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 21,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Continuacion bookdown: anadidos `15-catalogo-documentacion.Rmd` y `16-roadmap-limitaciones.Rmd`, enlazados antes del FAQ. Regenerado HTML y TREE; validaciones OK (`validate_static_html`, pytest bookdown, `memory_check`).",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 22,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Auditoria bookdown/docs completada en primera pasada: corregidos `README.md` (KIT/GIT/BIB en A4-ARX), `docs/pipeline-atlas.md` (links de casos, 15 casos, labels env) y `bookdown/16-roadmap-limitaciones.Rmd`. MEMORIA: `bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 23,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "MEMORIA: `bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 24,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Endurecido el validador del bookdown: ahora comprueba enlaces locales rotos en el HTML generado, además de tablas, anchors e IDs. Validaciones OK: generate_static_html, alidate_static_html, pytest bookdown 2 passed, memory_check.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 25,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Continuacion bookdown: anadido 17-matriz-cobertura-release.Rmd, enlazado antes del FAQ. Cierra el manual con matriz de cobertura por capitulo, checklist de release local, DoD y protocolo de cambio; el validador detecto y se corrigio un enlace falso de ejemplo. Validaciones OK: generate_static_html, alidate_static_html, pytest bookdown 2 passed, snapshot_structure.py --check, memory_check.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 26,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Continuacion bookdown: el validador ahora audita rutas de proyecto escritas en backticks dentro de los .Rmd, no solo enlaces HTML. Detecto rutas aspiracionales en roadmap (journal/doctor Inoreader) y una referencia antigua docs bookdown; quedaron reformuladas como backlog/texto. Validaciones OK: generate_static_html, alidate_static_html, pytest bookdown 3 passed, snapshot_structure.py --check, memory_check.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 27,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Actualizado `playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md` a version portable para repos con `memory/`, `chats/`, `devlog/`, artefactos multiagente y Git. Ajustado `playbooks/README.md`, regenerado `memory/STRUCTURE.md` y corregido `tools/session_protocol.py` para capturar salidas UTF-8 sin mojibake. Validaciones OK: py_compile, `session_protocol.py inicia --no-chat`, `memory_check`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 28,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Creado `playbooks/playbooks-readme-portable-playbook.md` para reproducir el patron de `playbooks/README.md` en cualquier repo: incluye objetivo, semantica de carpeta, plantilla minima, criterios de entrada/salida, integracion multiagente, checklist y antipatrones. Actualizados `playbooks/README.md` y `memory/STRUCTURE.md`; validacion OK: `memory_check`.",
-      "mentions": [],
-      "mode": null,
-      "mode_number": null
-    },
-    {
-      "index": 29,
-      "actor": "Codex",
-      "actor_type": "agent",
-      "target": null,
-      "body": "Cierre de sesion ejecutado. Validaciones OK: `memory_check`, `snapshot_structure.py --check`, `bookdown/generate_static_html.py`, `bookdown/validate_static_html.py` con warning esperado de Mermaid CDN, `py_compile` de scripts/tests tocados y pytest `tests/test_bookdown_static_html.py tests/test_session_protocol.py` (5 passed). No hice commit ni push. SIGUIENTE: revisar `git status` y preparar commit selectivo de los cambios de bookdown, protocolos de sesion/playbooks, tests y memoria cuando David lo autorice.",
+      "body": "Inicio de sesion ejecutado con `python tools/session_protocol.py inicia`; contexto Git, memoria, chat y devlog revisados.",
       "mentions": [],
       "mode": null,
       "mode_number": null

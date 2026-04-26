@@ -687,3 +687,13 @@ Resumen: Documentado el pipeline operativo validado: Inbox real de Todoist (proj
 Estado: DONE
 Chat: chats/chat_2026-04-25.md
 Resumen: David establecio la politica local: cuando dice cierra sesion, Coworkia debe validar, hacer commit y push por defecto de los cambios de la sesion, salvo omision explicita. Actualizados AGENTS.md, README.md, playbook portable y tools/session_protocol.py. El adaptador ahora auto-detecta cambios, genera mensaje de cierre por defecto, hace push salvo --no-push y permite --no-commit para inventario sin commit.
+
+## 2026-04-26T05:02Z — Codex — [MAR] Continuar pipeline MAR diario
+Estado: DONE
+Chat: chats/chat_2026-04-26.md
+Resumen: Tras orden continua, revisado estado MAR con agents/todoist_agent.py estado: 108 acciones activas. Ejecutado tools/sync_todoist_to_notion.py --limit 200 con acceso de red autorizado tras bloqueo de sandbox: Tareas sincronizadas 108. Ejecutado tools/sync_inx_links.py --source todoist --limit 200 con acceso de red autorizado tras bloqueo de sandbox: INX enlaces sincronizados todoist=200.
+
+## 2026-04-26T07:04Z — Codex — [MAR] Excluir proyectos Z del flujo MAR por defecto
+Estado: DONE
+Chat: chats/chat_2026-04-26.md
+Resumen: David fijo la regla operativa: excluir siempre carpetas/proyectos Todoist Z* salvo peticion explicita. Ajustado tools/todoist_tools.py para calcular exclusiones dinamicas por nombre de proyecto con prefijo Z, no solo IDs historicos Z_PROJECTS; agents/todoist_agent.py acepta cualquier Z dinamico para zinbox. Anadidos tests/test_todoist_tools.py. Validaciones: py_compile OK, pytest test_todoist_tools 2 passed, estado real MAR excluyendo Z*: 26 acciones activas.

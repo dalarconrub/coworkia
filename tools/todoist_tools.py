@@ -34,6 +34,25 @@ def _headers() -> dict:
     return {"Authorization": f"Bearer {TODOIST_API_KEY}"}
 
 
+def _is_z_project_name(name: str | None) -> bool:
+    """Detecta proyectos de cuarentena/staging por prefijo operativo Z."""
+    return (name or "").strip().upper().startswith("Z")
+
+
+def get_excluded_project_ids() -> set[str]:
+    """Devuelve proyectos excluidos por defecto: lista histórica + nombres Z*."""
+    excluded = set(PROYECTOS_EXCLUIDOS)
+    for project in get_projects():
+        if _is_z_project_name(project.get("name")):
+            excluded.add(project["id"])
+    return excluded
+
+
+def is_excluded_project_id(project_id: str | None) -> bool:
+    """Indica si un proyecto queda fuera del flujo operativo normal."""
+    return bool(project_id) and project_id in get_excluded_project_ids()
+
+
 # ─── TAREAS ───────────────────────────────────────────────────────────────────
 
 def get_tasks(filter_str: str = None, project_id: str = None, include_excluded: bool = False) -> list[dict]:
@@ -61,16 +80,19 @@ def get_tasks(filter_str: str = None, project_id: str = None, include_excluded: 
     if include_excluded:
         return tareas
 
-    # Filtro por ID como salvaguarda por si algún proyecto Z- no tiene prefijo "Z-"
-    return [t for t in tareas if t.get("project_id") not in PROYECTOS_EXCLUIDOS]
+    excluded_project_ids = get_excluded_project_ids()
+    return [t for t in tareas if t.get("project_id") not in excluded_project_ids]
 
 
 def get_z_tasks(project_id: str = None) -> list[dict]:
     """Obtiene tareas de los proyectos Z-* excluidos del flujo operativo normal."""
     if project_id:
+        if not is_excluded_project_id(project_id):
+            return []
         return [t for t in get_tasks(project_id=project_id, include_excluded=True) if t.get("project_id") == project_id]
 
-    return [t for t in get_tasks(include_excluded=True) if t.get("project_id") in PROYECTOS_EXCLUIDOS]
+    excluded_project_ids = get_excluded_project_ids()
+    return [t for t in get_tasks(include_excluded=True) if t.get("project_id") in excluded_project_ids]
 
 
 def create_task(

@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-25T17:59:21Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-26T07:04:26Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).
@@ -77,6 +77,12 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-04-25.md` (msg #16)
 - **[2026-04-25]** `Codex` — `bookdown/_book/` es artefacto regenerable local e ignorado por Git; el HTML se recrea con `python bookdown/generate_static_html.py`.
   - origen: `chats/chat_2026-04-25.md` (msg #23)
+- **[2026-04-25]** `Codex` — En operativa MAR, "inbox" significa el proyecto real de Todoist `Inbox` (`project_id=6Crfvj4MWg6GfVq6`). Los proyectos `Z-*` son backs/staging y no se consultan en arranque normal salvo petición explícita de David.
+  - origen: `chats/chat_2026-04-25.md` (msg #32)
+- **[2026-04-25]** `Codex` — En Coworkia, cuando David dice `cierra sesion`, el cierre incluye commit y push por defecto de los cambios de la sesión. Solo se omite si David lo pide explícitamente.
+  - origen: `chats/chat_2026-04-25.md` (msg #39)
+- **[2026-04-26]** `Codex` — En MAR/Todoist, excluir siempre proyectos/carpetas `Z*` del flujo operativo normal salvo peticion explicita de David para consultarlos. Implementado filtro dinamico por nombre de proyecto `Z*`; estado operativo actual sin `Z*`: 26 acciones activas.
+  - origen: `chats/chat_2026-04-26.md` (msg #3)
 - **[archive_2026-04-17]** `Codex` — los marcadores canónicos del hilo son `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)
 - **[archive_2026-04-17]** `Codex` — la causa de los acentos rotos en chat.md es el uso de Windows PowerShell 5.1 sobre un archivo UTF-8 sin indicar codificación explícita. Regla fija del sistema: cualquier lectura/escritura manual de chat.md en PowerShell debe usar -Encoding utf8.

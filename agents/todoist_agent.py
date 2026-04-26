@@ -24,6 +24,7 @@ from tools.todoist_tools import (
     get_tasks_by_horizon,
     get_tasks_by_mar_type,
     get_z_tasks,
+    is_excluded_project_id,
     move_task,
     update_task,
 )
@@ -214,7 +215,7 @@ def listar_proyectos() -> str:
 
 def listar_zinbox(project_id: str | None = None, limit: int = 30) -> str:
     """Lista tareas capturadas en proyectos Z-* para triage."""
-    if project_id and project_id not in Z_PROJECTS:
+    if project_id and not is_excluded_project_id(project_id):
         raise ValueError(f"Proyecto Z desconocido: {project_id}")
 
     tareas = get_z_tasks(project_id=project_id)
