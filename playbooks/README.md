@@ -9,6 +9,7 @@ Metodologias reutilizables extraidas de trabajos ya ejecutados. Un playbook no e
 | [bookdown-exhaustive-project-playbook.md](bookdown-exhaustive-project-playbook.md) | Crear o ampliar un bookdown exhaustivo, navegable y validable de un proyecto complejo. |
 | [PROTOCOLO_INICIO_CIERRE_SESION.md](PROTOCOLO_INICIO_CIERRE_SESION.md) | Protocolo portable para interpretar `inicia sesion`, `sigue` y `cierra sesion` en repos con `memory/`, `chats/`, `devlog/`, artefactos multiagente y Git. |
 | [playbooks-readme-portable-playbook.md](playbooks-readme-portable-playbook.md) | Crear un indice `playbooks/README.md` portable para cualquier repo. |
+| [secure-env-secrets-portable-playbook.md](secure-env-secrets-portable-playbook.md) | Gestion segura y automatizable de secretos `.env` (tokens/API keys) portable a cualquier proyecto. |
 
 ## Criterios
 

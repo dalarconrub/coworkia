@@ -61,12 +61,19 @@ Un agente no debe responder dos veces a la misma decisión abierta salvo que:
 
 ```md
 **David [@Destinatario]:** mensaje
+**Cursor:** mensaje
 **Copilot:** mensaje
 **Claude:** mensaje
 **Codex:** mensaje
 ```
 
 `Destinatario` puede ser una raíz (`Claude`/`Copilot`/`Codex`) o un subagente (`Claude/KIT`, `Codex/INX`, ...). Las menciones laterales `@Root` y `@Root/Sub` funcionan igual.
+
+### Identidad `Cursor`
+
+`Cursor` es una identidad operativa para cuando el asistente está actuando desde el IDE Cursor en esta repo.
+
+Regla: **si no hay una petición explícita de firmar como `Claude`/`Copilot`/`Codex`, la firma por defecto en `chats/` será `**Cursor:**`** para evitar confusión entre el rol del harness y el rol multiagente del proyecto.
 
 Regla de estilo:
 

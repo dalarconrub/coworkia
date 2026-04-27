@@ -46,7 +46,8 @@ DEVLOG_PATH = _ROOT / "devlog" / "DEVLOG.md"
 CHATS_DIR = _ROOT / "chats"
 
 ROOT_AGENTS = {"Claude", "Copilot", "Codex"}
-VALID_AGENTS = {"David"} | ROOT_AGENTS  # raices + director; subagentes admitidos como Root/Sub
+# `Cursor` es una identidad operativa adicional (no tiene subagentes Root/Sub).
+VALID_AGENTS = {"David", "Cursor"} | ROOT_AGENTS  # raices + director + cursor; subagentes admitidos como Root/Sub
 _SUBAGENT_RE = re.compile(r"^(?P<root>Claude|Copilot|Codex)/(?P<sub>[A-Za-z0-9_\-]+)$")
 VALID_STATUSES = {"START", "PROGRESS", "BLOCKED", "UNBLOCKED", "DONE", "REVERT"}
 VALID_AREAS = {

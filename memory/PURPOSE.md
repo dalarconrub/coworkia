@@ -88,6 +88,7 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
 ## Roles y agentes IA
 
 - **David** — director único del sistema. Única autoridad para delegar `🎯 ESPECIALIDAD` y cerrar decisiones definitivas.
+- **Cursor** — asistente operando desde el IDE Cursor en esta repo. Firma por defecto en el chat del día salvo petición explícita de usar `Claude`/`Copilot`/`Codex`.
 - **Claude** — análisis profundo, revisión crítica, evaluación de alternativas, coherencia lógica.
 - **Copilot** — orquestación, síntesis, integración en VS Code, visión de conjunto.
 - **Codex** — generación de código, refactoring, tests, implementación técnica.

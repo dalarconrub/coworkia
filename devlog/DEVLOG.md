@@ -697,3 +697,13 @@ Resumen: Tras orden continua, revisado estado MAR con agents/todoist_agent.py es
 Estado: DONE
 Chat: chats/chat_2026-04-26.md
 Resumen: David fijo la regla operativa: excluir siempre carpetas/proyectos Todoist Z* salvo peticion explicita. Ajustado tools/todoist_tools.py para calcular exclusiones dinamicas por nombre de proyecto con prefijo Z, no solo IDs historicos Z_PROJECTS; agents/todoist_agent.py acepta cualquier Z dinamico para zinbox. Anadidos tests/test_todoist_tools.py. Validaciones: py_compile OK, pytest test_todoist_tools 2 passed, estado real MAR excluyendo Z*: 26 acciones activas.
+
+## 2026-04-27T15:10Z — Cursor — [MULTIAGENT] Definir firma por defecto como Cursor
+Estado: DONE
+Chat: chats/chat_2026-04-27.md
+Resumen: A peticion de David, se institucionaliza Cursor como firma por defecto en chats/ cuando el asistente opera desde el IDE Cursor (salvo peticion explicita de firmar como Claude/Copilot/Codex). Actualizados .claude/multiagent.md (formato + regla), multiagents/chat_template.md (participantes) y memory/PURPOSE.md (roles).
+
+## 2026-04-27T20:45Z — Cursor — [DOCS] Playbook portable: secretos .env
+Estado: DONE
+Chat: chats/chat_2026-04-27.md
+Resumen: Creado playbooks/secure-env-secrets-portable-playbook.md con una metodologia agnostica para almacenar y cargar secretos .env (tokens/API keys) de forma segura y automatizable (gestor de contrasenas, cifrado en repo, keychain del SO, secret managers/CI). Actualizado playbooks/README.md para incluirlo.

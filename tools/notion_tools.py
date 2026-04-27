@@ -32,6 +32,23 @@ def _latest_headers() -> dict:
     return _headers(NOTION_VERSION_DATA_SOURCES)
 
 
+def _http_timeout_seconds() -> float:
+    """
+    Timeout de red para requests a Notion.
+
+    Sin timeout, algunos comandos pueden quedar aparentemente colgados si hay
+    problemas de red/proxy o un request no responde (por ejemplo sync INX).
+    """
+    raw = (os.getenv("NOTION_HTTP_TIMEOUT") or "").strip()
+    if not raw:
+        return 60.0
+    try:
+        val = float(raw)
+        return val if val > 0 else 60.0
+    except Exception:
+        return 60.0
+
+
 def normalize_notion_id(raw_id: str) -> str:
     """Normaliza IDs de Notion a formato UUID con guiones cuando aplica."""
     if not raw_id:
@@ -426,7 +443,7 @@ def _post_paginated(url: str, data: dict | None = None, headers: dict | None = N
         if next_cursor:
             body["start_cursor"] = next_cursor
 
-        resp = requests.post(url, headers=headers or _headers(), json=body)
+        resp = requests.post(url, headers=headers or _headers(), json=body, timeout=_http_timeout_seconds())
         resp.raise_for_status()
         page = resp.json()
 
@@ -446,7 +463,11 @@ def _resolve_data_source_id(database_or_data_source_id: str) -> tuple[str | None
     database_or_data_source_id = normalize_notion_id(database_or_data_source_id)
     candidates: list[str] = []
     try:
-        resp = requests.get(f"{BASE_URL}/data_sources/{database_or_data_source_id}", headers=_latest_headers())
+        resp = requests.get(
+            f"{BASE_URL}/data_sources/{database_or_data_source_id}",
+            headers=_latest_headers(),
+            timeout=_http_timeout_seconds(),
+        )
         if resp.status_code == 200:
             data_source_id = normalize_notion_id(resp.json().get("id", database_or_data_source_id))
             return data_source_id, [data_source_id]
@@ -454,7 +475,11 @@ def _resolve_data_source_id(database_or_data_source_id: str) -> tuple[str | None
         pass
 
     try:
-        resp = requests.get(f"{BASE_URL}/databases/{database_or_data_source_id}", headers=_latest_headers())
+        resp = requests.get(
+            f"{BASE_URL}/databases/{database_or_data_source_id}",
+            headers=_latest_headers(),
+            timeout=_http_timeout_seconds(),
+        )
         if resp.status_code == 200:
             data = resp.json()
             data_sources = data.get("data_sources", [])

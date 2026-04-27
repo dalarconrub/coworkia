@@ -126,7 +126,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-27T15:02Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -145,12 +145,14 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
   - todoist_agent.py
 - apps/
   - abrir_sesion.bat
+  - abrir_sesion_1password.bat
   - backs_notion.py
   - backs_obsidian.py
   - backs_todoist.py
   - bib_gui.py
   - catalogar_repos.py
   - cerrar_sesion.bat
+  - cerrar_sesion_1password.bat
   - close_obsidian_checkboxes_to_todoist.bat
   - config_doctor.bat
   - config_doctor.py
@@ -158,6 +160,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
   - dashboard.py
   - ensure_todoist_tasks_schema.bat
   - export_zinbox.py
+  - generar_env_desde_json.bat
   - github_gui.py
   - inx_daily.bat
   - inx_daily.py
@@ -181,10 +184,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
   - promote_obsidian_to_ptn.bat
   - reset_all.bat
   - reset_mar.bat
-  - reset_notion.bat
-  - reset_obsidian.bat
-  - setup_venv.bat
-  - ... (12 mas)
+  - ... (15 mas)
 - artifacts/
   - daily/
     - 2026-04-17.md
@@ -246,7 +246,13 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
   - chat_2026-04-23.md
   - chat_2026-04-24.md
   - chat_2026-04-25.md
+  - chat_2026-04-26.md
+  - chat_2026-04-27.md
   - chat_archive_2026-04-17.md
+- config/
+  - env.1password.example
+  - secrets.1p.json
+  - secrets.1p.json.example
 - devlog/
   - DEVLOG.md
 - docs/
@@ -350,6 +356,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
 - tests/
   - test_bookdown_static_html.py
   - test_session_protocol.py
+  - test_todoist_tools.py
 - tools/
   - backfill_obsidian_to_inx.py
   - cleanup_notas_legacy_props.py
@@ -369,6 +376,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
   - env_utils.py
   - find_notion_page.py
   - fix_chat_mojibake.py
+  - generate_env_from_json.py
   - github_tools.py
   - google_keep_tools.py
   - import_abc_taxonomy.py
@@ -390,12 +398,12 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-25T17:57Z. No editar 
   - obsidian_wikilinks.py
   - paperpile_tools.py
   - promote_bib_to_obsidian.py
-  - promote_notas_checkboxes_to_todoist.py
-  - ... (29 mas)
+  - ... (30 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md
 - INICIAR_COWORKIA.bat
+- INICIAR_COWORKIA_1PASSWORD.bat
 - README.md
 - requirements.txt
 - WINDOWS_START.md

@@ -15,6 +15,8 @@ Uso:
 from __future__ import annotations
 
 import argparse
+import os
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -33,6 +35,35 @@ MEMORY_DIR = ROOT / "memory"
 DEVLOG_PATH = ROOT / "devlog" / "DEVLOG.md"
 PLAYBOOK_PATH = ROOT / "playbooks" / "PROTOCOLO_INICIO_CIERRE_SESION.md"
 CHAT_TEMPLATE = "chats/chat_{day}.md"
+OP_ENV_FILE = ROOT / "config" / "env.1password"
+OP_ENV_FILE_EXAMPLE = ROOT / "config" / "env.1password.example"
+
+
+def _op_available() -> bool:
+    return shutil.which("op") is not None
+
+
+def _should_try_op_reexec(argv: list[str]) -> bool:
+    # Evita bucles (este flag lo ponemos solo en la re-ejecución).
+    if os.environ.get("COWORKIA_OP_REEXEC") == "1":
+        return False
+    # Solo tiene sentido si el usuario ha creado el env file local.
+    if not OP_ENV_FILE.exists():
+        return False
+    # Si no existe el CLI, no intentamos nada.
+    if not _op_available():
+        return False
+    # Re-ejecutamos para cualquier comando (inicia/cierra); es seguro e idempotente.
+    return True
+
+
+def _reexec_with_op(argv: list[str]) -> int:
+    env = dict(os.environ)
+    env["COWORKIA_OP_REEXEC"] = "1"
+    # Importante: ejecutamos el mismo Python, mismo script y mismos args.
+    cmd = ["op", "run", f"--env-file={str(OP_ENV_FILE)}", "--", sys.executable, *argv]
+    proc = subprocess.run(cmd, cwd=ROOT, text=True, encoding="utf-8", errors="replace", env=env, capture_output=False, check=False)
+    return proc.returncode
 
 
 @dataclass
@@ -126,12 +157,28 @@ def render_start() -> str:
     )
     manifests = existing(["requirements.txt", ".env.example", "pyproject.toml", "package.json", "Makefile"])
 
+    env_hints: list[str] = []
+    if (ROOT / ".env").exists():
+        env_hints.append("- `.env` detectado (local, gitignored).")
+    if OP_ENV_FILE.exists():
+        env_hints.append("- `config/env.1password` detectado (referencias a 1Password).")
+    elif OP_ENV_FILE_EXAMPLE.exists():
+        env_hints.append("- `config/env.1password` no existe (usa `config/env.1password.example` como plantilla).")
+    if _op_available():
+        env_hints.append("- `op` (1Password CLI) disponible en PATH.")
+    else:
+        env_hints.append("- `op` (1Password CLI) NO detectado en PATH.")
+
     lines = [
         "# Inicio De Sesion Coworkia",
         "",
         f"- Chat activo: `{chat_path}`",
         f"- Rama: `{branch}`",
         f"- Ultimo commit: `{last_commit}`",
+        "",
+        "## Entorno (secrets)",
+        "",
+        "\n".join(env_hints) or "- (sin datos)",
         "",
         "## Estado Git",
         "",
@@ -271,6 +318,22 @@ def render_close(
 
 
 def main() -> int:
+    # Si el usuario preparó 1Password (config/env.1password) re-ejecutamos bajo `op run`
+    # para que este protocolo también herede automáticamente el entorno, incluso cuando
+    # se ejecuta fuera de los .bat del repo.
+    if _should_try_op_reexec(sys.argv[1:]):
+        rc = _reexec_with_op(sys.argv[1:])
+        if rc == 0:
+            return 0
+        # Si falla (p. ej. sin `op signin`), seguimos sin abortar: el protocolo de sesión
+        # no necesita secretos para imprimir Git/memoria/devlog, pero dejamos el warning.
+        print(
+            "[WARN] No se pudo ejecutar bajo 1Password CLI (`op run`). "
+            "Continuo sin inyeccion de secretos. "
+            "Tip: ejecuta `op signin` o revisa `config/env.1password`.",
+            file=sys.stderr,
+        )
+
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="cmd", required=True)
 

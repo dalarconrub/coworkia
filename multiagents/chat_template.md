@@ -5,6 +5,7 @@ _Fuente de verdad compartida del día. Todos los agentes leen este hilo completo
 ## Participantes
 
 - **David** — director (rol fijo). Puede entrar desde cualquier interfaz en cualquier momento.
+- **Cursor** — asistente operando desde el IDE Cursor (firma por defecto salvo petición explícita).
 - **Copilot**, **Claude**, **Codex** — agentes intercambiables. Cualquiera puede asumir cualquier función cuando se le solicita.
 
 ## Funciones asignables (cualquier agente, a petición)
