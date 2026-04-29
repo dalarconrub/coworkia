@@ -1,0 +1,13 @@
+---
+description: Gates estrictos de calidad para commits, docs y tests
+alwaysApply: true
+---
+
+# Strict quality gates
+
+- No dar por terminado un cambio de código sin validar, como mínimo, checks relevantes (tests/lint/tipos) o explicar explícitamente por qué no se pudieron ejecutar.
+- Tras cambios sustantivos, reportar qué se verificó y qué riesgo residual queda.
+- Si se modifica estructura del repo o convenciones operativas, actualizar documentación estructural correspondiente (por ejemplo `README`, `memory/INDEX.md`, `memory/STRUCTURE.md`) o justificar por qué no aplica.
+- No crear commits ni push sin instrucción explícita del usuario.
+- Si el usuario pide commit, preparar mensaje claro y verificar que el estado final de git no dejó cambios inesperados.
+- Evitar cerrar tareas con "hecho" si faltan validaciones mínimas o si hay bloqueos no resueltos.

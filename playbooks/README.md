@@ -11,6 +11,7 @@ Metodologias reutilizables extraidas de trabajos ya ejecutados. Un playbook no e
 | [playbooks-readme-portable-playbook.md](playbooks-readme-portable-playbook.md) | Crear un indice `playbooks/README.md` portable para cualquier repo. |
 | [secure-env-secrets-portable-playbook.md](secure-env-secrets-portable-playbook.md) | Gestion segura y automatizable de secretos `.env` (tokens/API keys) portable a cualquier proyecto. |
 | [iterative-multi-agent-review-playbook.md](iterative-multi-agent-review-playbook.md) | Revision multiagente iterativa (director + ejecutor + revisor) para entregables de alto riesgo bajo deadline. |
+| [cursor-global-rules-portable-playbook.md](cursor-global-rules-portable-playbook.md) | Crear e integrar reglas globales de Cursor (`.cursor/rules/*.mdc`) de forma portable en cualquier repo y ordenador. |
 
 ## Criterios
 

@@ -15,6 +15,7 @@ Coworkia separa por **responsabilidad operativa**, no por tecnología:
 - **Lo ejecutable** (lógica del sistema) → `agents/`, `tools/`, `apps/`, `multiagents/`.
 - **La documentación de uso** (guías para humanos) → `docs/`, `bookdown/`, `playbooks/`.
 - **Kits portables** (artefactos listos para copiar a otros repos) → `toolkits/`.
+- **Prompts y skills portables para agentes** (comandos `/` y paquetes bajo `.ai/skills/`) → `.ai/`.
 
 ## Carpetas top-level
 
@@ -99,11 +100,16 @@ Guías operativas extraídas de trabajos ya ejecutados en otros proyectos o fren
 ### `toolkits/` — kits portables (ZIP + prompts)
 Artefactos empaquetados para **reutilizar en otros proyectos** sin acoplarlos al núcleo de Coworkia: ZIPs de kits (MCP, multiagente, comandos, etc.) y prompts de integración en markdown. No son código ejecutado por el repo salvo que los copies explícitamente a otro sitio.
 
-### `.claude/`, `.github/`
+### `.ai/` — comandos `/` y skills portables para agentes
+- **Comandos**: Markdown bajo `.ai/commands/` e invocaciones tipo `/<comando> ...`; índice en `.ai/COMMANDS.md`. Debe mantenerse en la **raíz** del repo (no dentro de `src/` u otras carpetas).
+- **Skills**: paquetes completos bajo `.ai/skills/` (p. ej. `.ai/skills/obsidian-skills/` con su carpeta interna `skills/<nombre>/SKILL.md`). No aplastar la estructura del paquete copiando solo los `SKILL.md` sueltos a `.ai/skills/`.
+
+### `.claude/`, `.cursor/`, `.github/`
 Protocolo y configuración de agentes:
 
 - `.claude/multiagent.md` — protocolo compartido (append-only, formatos, marcadores, devlog obligatorio).
 - `.claude/hooks/`, `.claude/settings.local.json` — config local de Claude Code.
+- `.cursor/rules/` — reglas persistentes de Cursor para complementar (sin contradecir) la memoria versionada y los archivos de identidad.
 - `.github/copilot-instructions.md` — identidad/protocolo para Copilot.
 
 ### Raíz
@@ -130,12 +136,40 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:14Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar a mano dentro de este bloque._
 
 ```
+- .ai/
+  - commands/
+    - architecture.md
+    - base.md
+    - canvas.md
+    - debug.md
+    - decision.md
+    - deep-think.md
+    - docs.md
+    - handoff.md
+    - obsidian.md
+    - plan.md
+    - refactor.md
+    - research.md
+    - review.md
+    - security.md
+    - test.md
+    - think.md
+    - vault.md
+  - skills/
+    - obsidian-skills/
+  - COMMANDS.md
+  - README.md
 - .claude/
   - multiagent.md
   - settings.local.json
+- .cursor/
+  - rules/
+    - 00-priority.mdc
+    - 10-ai-commands-skills.mdc
+    - 20-docs-memory-devlog.mdc
 - .github/
   - copilot-instructions.md
 - agents/
@@ -252,6 +286,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:14Z. No editar 
   - chat_2026-04-25.md
   - chat_2026-04-26.md
   - chat_2026-04-27.md
+  - chat_2026-04-29.md
   - chat_archive_2026-04-17.md
 - config/
   - env.1password.example
@@ -308,6 +343,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:14Z. No editar 
 - playbooks/
   - bookdown-exhaustive-project-playbook.md
   - extract-portable-toolkit.md
+  - iterative-multi-agent-review-playbook.md
   - meta-methodology-extracting-playbooks-from-projects.md
   - methodology-systematic-research-with-AI-agents.md
   - playbooks-readme-portable-playbook.md
@@ -371,9 +407,11 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:14Z. No editar 
   - consensus-mcp-kit.zip
   - inoreader-mcp-kit.zip
   - multiagent-toolkit.zip
+  - obsidian-skills-main.zip
   - prompt_integracion_consensus_mcp_kit.md
   - prompt_integracion_inoreader_mcp_kit.md
   - prompt_integracion_multiagent_toolkit.md
+  - promt_integracion_obsidian-skills-kit.md
   - promt_integration_commands-kit.md
 - tools/
   - backfill_obsidian_to_inx.py

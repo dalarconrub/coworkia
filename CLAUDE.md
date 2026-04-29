@@ -67,6 +67,66 @@ Ese protocolo define:
 - sincronización de memoria con `python agents/orchestrator_agent.py sync-chat-memory`
 - regla de codificación: todos los chats siempre en `UTF-8` estricto
 
+## Interpretación de comandos `/` (`.ai/commands`)
+
+Cuando un mensaje comience por `/`, interpreta la **primera palabra** como nombre de comando (sin incluir la `/`).
+
+Ejemplo:
+
+```text
+/debug error al validar JWT
+```
+
+Procedimiento:
+
+1. Extrae el comando (`debug`) y el resto del mensaje como contexto/tarea.
+2. Localiza el fichero:
+
+```text
+.ai/commands/<comando>.md
+```
+
+3. Lee su contenido y **aplica sus instrucciones** al resto del mensaje.
+4. Usa herramientas cuando aporten evidencia; prioriza análisis y riesgos.
+5. No inventes archivos ni resultados; declara limitaciones si no puedes completar una acción.
+
+Si el comando **no existe**:
+
+- Informa al usuario.
+- Muestra los comandos disponibles desde `.ai/COMMANDS.md`.
+
+## Uso de skills portables (`.ai/skills`)
+
+Este repo incluye paquetes de skills bajo `.ai/skills/`. Cada paquete se conserva **completo** (no mover solo la subcarpeta interna `skills/` al nivel superior de `.ai/skills/`).
+
+Paquete **obsidian-skills**: raíz en `.ai/skills/obsidian-skills/`. Cada skill en:
+
+```text
+.ai/skills/obsidian-skills/skills/<nombre-skill>/SKILL.md
+```
+
+Rutas principales:
+
+```text
+.ai/skills/obsidian-skills/skills/obsidian-markdown/SKILL.md
+.ai/skills/obsidian-skills/skills/obsidian-bases/SKILL.md
+.ai/skills/obsidian-skills/skills/json-canvas/SKILL.md
+.ai/skills/obsidian-skills/skills/obsidian-cli/SKILL.md
+.ai/skills/obsidian-skills/skills/defuddle/SKILL.md
+```
+
+Activación orientativa:
+
+| Contexto de tarea | Skill |
+| --- | --- |
+| Markdown de Obsidian; wikilinks, embeds, callouts o properties | `obsidian-markdown` |
+| Ficheros `.base` | `obsidian-bases` |
+| Ficheros `.canvas` | `json-canvas` |
+| Vault vía CLI; plugins o temas (según cubra el skill) | `obsidian-cli` |
+| Flujo de lectura/limpieza HTML cubierto por defuddle | `defuddle` |
+
+Lee el `SKILL.md` indicado **antes** de crear, modificar o revisar archivos afectados. Si ninguna encaja, sigue las reglas generales del repo.
+
 ## Regla operativa
 
 Cuando respondas en el hilo compartido:

@@ -35,6 +35,22 @@ Reglas de trabajo:
 - Las exportaciones de Todoist a Notion no sustituyen a `MAR`.
 - `ABGD` debe entenderse como taxonomía estructural compartida, no como sinónimo de “todo vive en Obsidian”.
 
+## Comandos `/` para agentes (`.ai/commands`)
+
+Este repo incluye prompts portables bajo `.ai/commands/` (ver `.ai/COMMANDS.md`).
+
+Convención:
+
+```text
+/<comando> <objetivo o problema>
+```
+
+Los agentes deben cargar `.ai/commands/<comando>.md` y seguir sus instrucciones cuando el mensaje empiece por `/`.
+
+## Skills de Obsidian (`.ai/skills`)
+
+Paquete portable completo en `.ai/skills/obsidian-skills/` (estructura upstream: `skills/<nombre>/SKILL.md`, README y licencia en la raíz del paquete). Para tareas de notas Markdown, wikilinks, embeds, callouts, properties, `.base`, `.canvas` o CLI de Obsidian, los agentes deben leer primero el `SKILL.md` que corresponda (detalle en `AGENTS.md` / `CLAUDE.md`). Atajos vía comandos `/`: `obsidian`, `base`, `canvas`, `vault` (índice en `.ai/COMMANDS.md`).
+
 Ubicación operativa recomendada en Notion:
 
 - `PTN`: sistema director en `A0-GTD / B0C-PLA`, dividido en:

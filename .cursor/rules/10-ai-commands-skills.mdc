@@ -1,0 +1,16 @@
+---
+description: Uso de /commands y skills portables en .ai
+alwaysApply: true
+---
+
+# Comandos y skills portables
+
+- Si un mensaje empieza por `/`, interpretar el token como comando y cargar `.ai/commands/<comando>.md`.
+- Si el comando no existe, informar y listar comandos disponibles desde `.ai/COMMANDS.md`.
+- Para tareas de Obsidian, cargar primero la skill aplicable en `.ai/skills/obsidian-skills/skills/<skill>/SKILL.md`.
+- Activación recomendada:
+  - Markdown/wikilinks/embeds/callouts/properties -> `obsidian-markdown`
+  - `.base` -> `obsidian-bases`
+  - `.canvas` -> `json-canvas`
+  - Vault/CLI/plugins/temas -> `obsidian-cli`
+  - Limpieza HTML cuando aplique -> `defuddle`

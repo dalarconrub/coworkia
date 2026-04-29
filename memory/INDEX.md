@@ -90,6 +90,8 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | [playbooks/](../playbooks/)                                       | Metodologías reutilizables extraídas de trabajos cerrados |
 | [playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md](../playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md) | Protocolo portable para inicio, continuación y cierre de sesión |
 | [toolkits/](../toolkits/)                                         | Kits portables (ZIP) y prompts de integración para otros repos |
+| [.ai/](../.ai/)                                                   | Comandos `/` (`commands/`, `COMMANDS.md`) y paquete portable [obsidian-skills](https://github.com/kepano/obsidian-skills) en `skills/obsidian-skills/` |
+| [.cursor/rules/](../.cursor/rules/)                               | Reglas persistentes de Cursor (complementarias a `AGENTS.md`, `CLAUDE.md` y `.github/copilot-instructions.md`) |
 
 ## 7. Arranque y entorno
 

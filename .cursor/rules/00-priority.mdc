@@ -1,0 +1,10 @@
+---
+description: Precedencia de fuentes y alcance de reglas Cursor
+alwaysApply: true
+---
+
+# Precedencia y alcance
+
+- Estas reglas complementan, no sustituyen, `AGENTS.md`, `CLAUDE.md` y `.github/copilot-instructions.md`.
+- Ante conflicto, prevalece la memoria versionada del repo (`memory/*`) y las reglas de identidad del agente.
+- Mantener cambios pequeños y alineados con el protocolo multiagente del proyecto.

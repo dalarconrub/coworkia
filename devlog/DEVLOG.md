@@ -717,3 +717,38 @@ Resumen: Anadida carpeta toolkits/ con ZIPs de kits portables y prompts de integ
 Estado: DONE
 Chat: chats/chat_2026-04-29.md
 Resumen: Versionado playbooks/iterative-multi-agent-review-playbook.md y enlazado en playbooks/README.md.
+
+## 2026-04-29T05:23Z — Codex — [DOCS] Integrar starter kit .ai/commands
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Descomprimido kit en .ai/; regla global / en AGENTS.md, CLAUDE.md, copilot-instructions; README y memory (INDEX, STRUCTURE narrativa); COMMANDS con deep-think; snapshot_structure incluye .ai en TREE.
+
+## 2026-04-29T05:29Z — Codex — [DOCS] Mejorar prompt integración .ai/commands
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: promt_integration_commands-kit: checklist (gitignore, ZIP anidado, comandos extra, Windows), token→fichero, puntos anclaje agentes, árbol/snapshots y .ai allowlist, devlog README memory.
+
+## 2026-04-29T05:44Z — Codex — [DOCS] Integrar obsidian-skills (.ai/skills)
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: ZIP obsidian-skills-main extraído a .ai/skills/obsidian-skills/; regla global y tabla de activación en AGENTS, CLAUDE, copilot; comandos /obsidian /base /canvas /vault; README, INDEX, STRUCTURE+narrativa; TREE regenerado; limpieza footer prompt integración.
+
+## 2026-04-29T05:46Z — Codex — [DOCS] Mejorar prompt integración obsidian-skills
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Reescritura de promt_integracion_obsidian-skills-kit con aprendizaje real: ZIP root obsidian-skills-main, verificación defuddle, regla global robusta, wrappers /, checklist de aceptación, notas de README/memory/TREE y .gitignore.
+
+## 2026-04-29T05:50Z — Codex — [DOCS] Crear reglas .cursor/rules
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Añadidas reglas 00-priority, 10-ai-commands-skills, 20-docs-memory-devlog; actualizado snapshot_structure para incluir .cursor en TREE; memoria INDEX/STRUCTURE actualizada y TREE regenerado.
+
+## 2026-04-29T05:52Z — Codex — [DOCS] Añadir playbook portable para reglas globales de Cursor
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Creado playbooks/cursor-global-rules-portable-playbook.md siguiendo patrón meta-methodology; incluye triggers, prerrequisitos, pipeline, plantillas .mdc, anti-patrones, DoD y maintenance. Actualizado playbooks/README.md con nueva entrada.
+
+## 2026-04-29T05:55Z — Codex — [DOCS] Añadir perfil estricto de reglas Cursor
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Creada .cursor/rules/30-strict-quality-gates.mdc con gates de validación, docs y disciplina de commit/push. Actualizado playbook cursor-global-rules-portable-playbook con estructura 00/10/20/30, plantilla strict y DoD reforzado.

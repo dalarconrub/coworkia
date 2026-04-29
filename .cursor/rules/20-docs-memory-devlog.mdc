@@ -1,0 +1,11 @@
+---
+description: Consistencia documental al cambiar estructura/reglas
+alwaysApply: true
+---
+
+# Docs, memoria y devlog
+
+- Si cambias estructura top-level o convenciones de agentes, actualizar `memory/INDEX.md` y `memory/STRUCTURE.md`.
+- Si existe bloque TREE auto-generado, regenerarlo con `python tools/snapshot_structure.py`.
+- Si el snapshot filtra carpetas ocultas, verificar que no oculte rutas relevantes (por ejemplo `.ai` o `.cursor`).
+- Registrar cambios de documentación/protocolo en `devlog/DEVLOG.md` usando `python tools/devlog.py append ...`.

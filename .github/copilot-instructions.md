@@ -46,6 +46,66 @@ Puedes operar como subagente con firma `**Copilot/Sub:**` cuando David lo active
 - En `Windows PowerShell 5.1`, cualquier acceso manual a los ficheros de `chats/` debe usar `-Encoding utf8`.
 - Si aparece mojibake, repara con `python tools/fix_chat_mojibake.py chats/chat_YYYY-MM-DD.md`.
 
+### Interpretación de comandos `/` (`.ai/commands`)
+
+Cuando un mensaje comience por `/`, interpreta la **primera palabra** como nombre de comando (sin incluir la `/`).
+
+Ejemplo:
+
+```text
+/plan añadir sistema de login
+```
+
+Procedimiento:
+
+1. Extrae el comando (`plan`) y el resto del mensaje como contexto/tarea.
+2. Localiza el fichero:
+
+```text
+.ai/commands/<comando>.md
+```
+
+3. Lee su contenido y **aplica sus instrucciones** al resto del mensaje.
+4. Usa herramientas cuando aporten evidencia; coordina con otros agentes si el alcance lo requiere.
+5. No inventes archivos ni resultados.
+
+Si el comando **no existe**:
+
+- Informa al usuario.
+- Muestra los comandos disponibles desde `.ai/COMMANDS.md`.
+
+### Uso de skills portables (`.ai/skills`)
+
+Este repo incluye paquetes de skills bajo `.ai/skills/`. Cada paquete se conserva **completo** (no mover solo la subcarpeta interna `skills/` al nivel superior de `.ai/skills/`).
+
+Paquete **obsidian-skills**: raíz en `.ai/skills/obsidian-skills/`. Cada skill en:
+
+```text
+.ai/skills/obsidian-skills/skills/<nombre-skill>/SKILL.md
+```
+
+Rutas principales:
+
+```text
+.ai/skills/obsidian-skills/skills/obsidian-markdown/SKILL.md
+.ai/skills/obsidian-skills/skills/obsidian-bases/SKILL.md
+.ai/skills/obsidian-skills/skills/json-canvas/SKILL.md
+.ai/skills/obsidian-skills/skills/obsidian-cli/SKILL.md
+.ai/skills/obsidian-skills/skills/defuddle/SKILL.md
+```
+
+Activación orientativa:
+
+| Contexto de tarea | Skill |
+| --- | --- |
+| Markdown de Obsidian; wikilinks, embeds, callouts o properties | `obsidian-markdown` |
+| Ficheros `.base` | `obsidian-bases` |
+| Ficheros `.canvas` | `json-canvas` |
+| Vault vía CLI; plugins o temas (según cubra el skill) | `obsidian-cli` |
+| Flujo de lectura/limpieza HTML cubierto por defuddle | `defuddle` |
+
+Lee el `SKILL.md` indicado **antes** de crear, modificar o revisar archivos afectados. Si ninguna encaja, sigue las reglas generales del repo.
+
 ### Cuándo responder
 
 Responde solo si se cumple alguna:

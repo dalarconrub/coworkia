@@ -61,7 +61,7 @@ def _should_skip(p: Path) -> bool:
         return True
     if p.is_file() and p.suffix in EXCLUDE_FILE_SUFFIXES:
         return True
-    if p.name.startswith(".") and p.name not in {".claude", ".github", ".env.example"}:
+    if p.name.startswith(".") and p.name not in {".ai", ".claude", ".cursor", ".github", ".env.example"}:
         return True
     return False
 
