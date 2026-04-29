@@ -712,3 +712,8 @@ Resumen: Creado playbooks/secure-env-secrets-portable-playbook.md con una metodo
 Estado: DONE
 Chat: chats/chat_2026-04-29.md
 Resumen: Anadida carpeta toolkits/ con ZIPs de kits portables y prompts de integracion. Actualizados memory/INDEX.md y memory/STRUCTURE.md (narrativa + TREE regenerado) para reflejar el nuevo top-level.
+
+## 2026-04-29T05:17Z — Cursor — [DOCS] Playbook: revision multiagente iterativa
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Versionado playbooks/iterative-multi-agent-review-playbook.md y enlazado en playbooks/README.md.
