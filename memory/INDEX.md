@@ -89,6 +89,7 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | [bookdown/](../bookdown/)                                           | Manual navegable y validable del proyecto   |
 | [playbooks/](../playbooks/)                                       | Metodologías reutilizables extraídas de trabajos cerrados |
 | [playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md](../playbooks/PROTOCOLO_INICIO_CIERRE_SESION.md) | Protocolo portable para inicio, continuación y cierre de sesión |
+| [toolkits/](../toolkits/)                                         | Kits portables (ZIP) y prompts de integración para otros repos |
 
 ## 7. Arranque y entorno
 

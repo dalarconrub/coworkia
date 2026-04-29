@@ -14,6 +14,7 @@ Coworkia separa por **responsabilidad operativa**, no por tecnología:
 - **Lo curado** (identidad, propósito, estructura) → `memory/`, raíz (`README.md`, `CLAUDE.md`, `AGENTS.md`).
 - **Lo ejecutable** (lógica del sistema) → `agents/`, `tools/`, `apps/`, `multiagents/`.
 - **La documentación de uso** (guías para humanos) → `docs/`, `bookdown/`, `playbooks/`.
+- **Kits portables** (artefactos listos para copiar a otros repos) → `toolkits/`.
 
 ## Carpetas top-level
 
@@ -95,6 +96,9 @@ Guías operativas extraídas de trabajos ya ejecutados en otros proyectos o fren
 - `PROTOCOLO_INICIO_CIERRE_SESION.md` — protocolo portable para interpretar `inicia sesión`, `sigue` y `cierra sesión`; en Coworkia se adapta con `tools/session_protocol.py` respetando memoria, chat y devlog.
 - `playbooks-readme-portable-playbook.md` — método para crear y mantener un índice `playbooks/README.md` portable en cualquier repo.
 
+### `toolkits/` — kits portables (ZIP + prompts)
+Artefactos empaquetados para **reutilizar en otros proyectos** sin acoplarlos al núcleo de Coworkia: ZIPs de kits (MCP, multiagente, comandos, etc.) y prompts de integración en markdown. No son código ejecutado por el repo salvo que los copies explícitamente a otro sitio.
+
 ### `.claude/`, `.github/`
 Protocolo y configuración de agentes:
 
@@ -126,7 +130,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-27T15:02Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:14Z. No editar a mano dentro de este bloque._
 
 ```
 - .claude/
@@ -303,9 +307,14 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-27T15:02Z. No editar 
   - registry.py
 - playbooks/
   - bookdown-exhaustive-project-playbook.md
+  - extract-portable-toolkit.md
+  - meta-methodology-extracting-playbooks-from-projects.md
+  - methodology-systematic-research-with-AI-agents.md
   - playbooks-readme-portable-playbook.md
+  - protocol-playbook-for-any-command.md
   - PROTOCOLO_INICIO_CIERRE_SESION.md
   - README.md
+  - secure-env-secrets-portable-playbook.md
 - Sistemas/
   - ABC/
     - ABC 2a5622cf315b8044a83feb2033f661d1_ABC-AREA 2a5622cf315b813faa22000be68a3416.csv
@@ -357,6 +366,15 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-27T15:02Z. No editar 
   - test_bookdown_static_html.py
   - test_session_protocol.py
   - test_todoist_tools.py
+- toolkits/
+  - ai_commands_starter_kit.zip
+  - consensus-mcp-kit.zip
+  - inoreader-mcp-kit.zip
+  - multiagent-toolkit.zip
+  - prompt_integracion_consensus_mcp_kit.md
+  - prompt_integracion_inoreader_mcp_kit.md
+  - prompt_integracion_multiagent_toolkit.md
+  - promt_integration_commands-kit.md
 - tools/
   - backfill_obsidian_to_inx.py
   - cleanup_notas_legacy_props.py
@@ -404,6 +422,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-27T15:02Z. No editar 
 - CLAUDE.md
 - INICIAR_COWORKIA.bat
 - INICIAR_COWORKIA_1PASSWORD.bat
+- Notion
 - README.md
 - requirements.txt
 - WINDOWS_START.md

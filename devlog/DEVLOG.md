@@ -707,3 +707,8 @@ Resumen: A peticion de David, se institucionaliza Cursor como firma por defecto 
 Estado: DONE
 Chat: chats/chat_2026-04-27.md
 Resumen: Creado playbooks/secure-env-secrets-portable-playbook.md con una metodologia agnostica para almacenar y cargar secretos .env (tokens/API keys) de forma segura y automatizable (gestor de contrasenas, cifrado en repo, keychain del SO, secret managers/CI). Actualizado playbooks/README.md para incluirlo.
+
+## 2026-04-29T05:15Z — Cursor — [DOCS] Versionar carpeta toolkits
+Estado: DONE
+Chat: chats/chat_2026-04-29.md
+Resumen: Anadida carpeta toolkits/ con ZIPs de kits portables y prompts de integracion. Actualizados memory/INDEX.md y memory/STRUCTURE.md (narrativa + TREE regenerado) para reflejar el nuevo top-level.
