@@ -752,3 +752,13 @@ Resumen: Creado playbooks/cursor-global-rules-portable-playbook.md siguiendo pat
 Estado: DONE
 Chat: chats/chat_2026-04-29.md
 Resumen: Creada .cursor/rules/30-strict-quality-gates.mdc con gates de validación, docs y disciplina de commit/push. Actualizado playbook cursor-global-rules-portable-playbook con estructura 00/10/20/30, plantilla strict y DoD reforzado.
+
+## 2026-05-06T02:40Z — Codex — [MAR] Sincronizar Todoist con Notion
+Estado: DONE
+Chat: chats/chat_2026-05-06.md
+Resumen: Ejecutado tools/sync_todoist_to_notion.py --limit 200 por peticion de David. Primer intento bloqueado por sandbox/red; reintento autorizado finalizo OK con Tareas sincronizadas: 37.
+
+## 2026-05-06T02:49Z — Codex — [MAR] Actualizar cambios de Todoist en Notion
+Estado: DONE
+Chat: chats/chat_2026-05-06.md
+Resumen: Ejecutado tools/sync_todoist_to_notion.py --limit 200 por peticion de David para reflejar cambios actuales de Todoist. Resultado OK: Tareas sincronizadas: 27.
