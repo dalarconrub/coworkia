@@ -2,9 +2,50 @@
 
 Agente para el vault **ABGD** en Obsidian.
 
-**Vault:** `G:/Mi unidad/ABGD/ABGD-25.09.05/1.ALPHA`
+**Vault activo:** definido por `.env` en `OBSIDIAN_ABGD_ROOT`.
+
+Política vigente desde 2026-05-09: el vault primario debe estar en disco local del PC. Google Drive, otros servicios de nube y discos externos se usan como réplicas/backups sincronizados, no como ruta operativa principal.
+
+Referencia actual validada en la sesión 2026-05-09:
+
+```text
+OBSIDIAN_ABGD_ROOT=C:/Users/David/Documents/ABGD/ABGD-260509
+OBSIDIAN_ALPHA_PATH=C:/Users/David/Documents/ABGD/ABGD-260509/1.ALPHA
+```
+
+Convención vigente: Obsidian Desktop abre `OBSIDIAN_ABGD_ROOT` (el vault real). Las herramientas de Coworkia que operan sobre conocimiento vivo usan `OBSIDIAN_ALPHA_PATH`, que apunta a la subcarpeta `1.ALPHA`.
+
+Si se rota el vault con `tools/reset_obsidian.py rotate`, estas rutas deben actualizarse en `.env`; la guía no debe apuntar a rutas históricas como fuente de verdad.
+
+Ruta local propuesta para la siguiente rotación:
+
+```text
+C:/Users/David/Documents/ABGD/ABGD-260509
+```
 
 ---
+
+## Capas internas del vault
+
+```text
+ABGD-260509/
+├── .obsidian/
+├── 1.ALPHA/
+├── 2.BETA/
+├── 3.GAMMA/
+├── 4.DELTA/
+└── 5.EPSILON/
+```
+
+| Carpeta | Rol | Regla operativa |
+| --- | --- | --- |
+| `1.ALPHA` | Trabajo vivo | Notas, proyectos, tareas intelectuales, journals, fichas trabajadas, MOCs y material enlazable/promovible. Coworkia la indexa por defecto. |
+| `2.BETA` | Staging / inbox | Importaciones, capturas brutas, notas sueltas y material pendiente de clasificar. No debe ser almacenamiento permanente. |
+| `3.GAMMA` | Productos generados | Informes, HTML, PDF, presentaciones, exports limpios y artefactos para entregar. |
+| `4.DELTA` | Archivos y media | PDFs, datasets, imágenes, audios, vídeos, adjuntos y documentos externos pesados. |
+| `5.EPSILON` | Histórico frío | Legacy, snapshots, material cerrado o congelado que se conserva pero no se opera. |
+
+Regla: las integraciones automáticas de Coworkia deben operar sobre `1.ALPHA` salvo que un flujo especifique explícitamente otra capa.
 
 ## Jerarquía ABGD
 
@@ -60,7 +101,7 @@ python agents/obsidian_agent.py ultimas --n 5 --area A1-INV
 
 # Ver contenido de una nota (por nombre o path)
 python agents/obsidian_agent.py ver "N260316-Reunión con Enrique"
-python agents/obsidian_agent.py ver "G:/Mi unidad/ABGD/.../nota.md"
+python agents/obsidian_agent.py ver "C:/Users/David/Documents/ABGD/ABGD-260509/1.ALPHA/.../nota.md"
 
 # Buscar texto en las notas
 python agents/obsidian_agent.py buscar "análisis GLM"
@@ -122,5 +163,6 @@ python agents/obsidian_agent.py nueva-nota A1-INV B12-LAB C126-DIR "Análisis da
 
 ## Configuración
 
-- Vault path en `.env` → `OBSIDIAN_ALPHA_PATH`
-- ABGD root en `.env` → `OBSIDIAN_ABGD_ROOT`
+- Vault Obsidian real en `.env` → `OBSIDIAN_ABGD_ROOT`
+- Carpeta viva de notas ABPC en `.env` → `OBSIDIAN_ALPHA_PATH`
+- Ruta primaria recomendada: local (`C:/Users/David/Documents/ABGD/...` o equivalente).

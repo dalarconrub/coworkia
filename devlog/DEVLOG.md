@@ -762,3 +762,63 @@ Resumen: Ejecutado tools/sync_todoist_to_notion.py --limit 200 por peticion de D
 Estado: DONE
 Chat: chats/chat_2026-05-06.md
 Resumen: Ejecutado tools/sync_todoist_to_notion.py --limit 200 por peticion de David para reflejar cambios actuales de Todoist. Resultado OK: Tareas sincronizadas: 27.
+
+## 2026-05-09T16:04Z — Codex — [DOCS] Regenerar arbol de memoria
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Regenerado el bloque TREE auto-generado de memory/STRUCTURE.md durante inicio de sesion 2026-05-09 para alinear la memoria con el repo real: reglas Cursor recientes, chats de mayo y playbook cursor-global-rules-portable-playbook.
+
+## 2026-05-09T16:15Z — Codex — [MULTIAGENT] Revisar sistema Coworkia
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Revision integral 2026-05-09: memoria validada, TREE al dia, tests globales 7 passed, bookdown generado/validado, config_doctor OK, MAR doctor OK en 503 filas, Todoist/MAR con 31 acciones activas, Notion accesible, KIT tools vacio, INX con 3582 enlaces sin duplicados ni huerfanos GIT/BIB. Hallazgos: 71 Paperpile sin URL en INX, filas INX mayoritariamente sin relacion PTN y .venv sin pytest.
+
+## 2026-05-09T16:28Z — Codex — [DOCS] Actualizar guia Obsidian al vault activo
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Actualizada docs/obsidian-agent.md para eliminar la ruta historica G:/Mi unidad/ABGD/ABGD-25.09.05/1.ALPHA y documentar que la fuente de verdad es .env; referencia actual validada: C:/GDrive/dalarconrub/ABGD/ABGD-260419/1.ALPHA.
+
+## 2026-05-09T16:33Z — Codex — [ABGD] Planear rotacion Obsidian a vault local
+Estado: PROGRESS
+Chat: chats/chat_2026-05-09.md
+Resumen: David fija nueva politica ABGD: vault primario local en el PC; Google Drive/nube y discos externos pasan a replicas/backups. Verificado estado actual en C:/GDrive/dalarconrub/ABGD/ABGD-260419. Dry-run hacia C:/Users/David/Documents/ABGD/ABGD-260509: 35 dirs replicadas, .obsidian copiable (6825.8 KB), INX obsidian:* chequeadas=36, cambiadas=0, ya_estaban Archivo=true=36. Actualizadas memory/PURPOSE.md y docs/obsidian-agent.md con la politica.
+
+## 2026-05-09T17:03Z — Codex — [ABGD] Fijar ruta de vault ABGD
+Estado: PROGRESS
+Chat: chats/chat_2026-05-09.md
+Resumen: David decide simplificar la logica: el vault real de Obsidian debe ser ABGD-<fecha>/, no 1.ALPHA. 1.ALPHA queda como carpeta interna de conocimiento vivo usada por Coworkia mediante OBSIDIAN_ALPHA_PATH. Actualizada docs/obsidian-agent.md y registrado MEMORIA en chat.
+
+## 2026-05-09T17:05Z — Codex — [ABGD] Definir capas internas del vault ABGD
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Aprobada y documentada la semantica de carpetas internas del vault: 1.ALPHA trabajo vivo indexable, 2.BETA staging/inbox, 3.GAMMA productos generados, 4.DELTA archivos/media/documentos pesados, 5.EPSILON historico frio/legacy. Coworkia opera por defecto sobre 1.ALPHA. Actualizados memory/PURPOSE.md y docs/obsidian-agent.md.
+
+## 2026-05-09T17:10Z — Codex — [ABGD] Crear vault Obsidian local
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Ejecutada rotacion real de Obsidian a C:/Users/David/Documents/ABGD/ABGD-260509. Resultado: 35 directorios replicados, .obsidian copiada (6825.8 KB), INX obsidian:* chequeadas=36/cambiadas=0/ya archivadas=36. Actualizado .env para OBSIDIAN_ABGD_ROOT y OBSIDIAN_ALPHA_PATH locales; docs/obsidian-agent.md actualizado a la referencia actual.
+
+## 2026-05-09T17:13Z — Codex — [ABGD] Alinear area A4 del nuevo vault
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Tras crear el vault local, la estructura replicada contenia A4-REF heredado del vault anterior. Como la convencion canonica documentada es A4-ARX, se renombro en el nuevo vault local C:/Users/David/Documents/ABGD/ABGD-260509/1.ALPHA/A4-REF -> A4-ARX antes de incorporar notas. obsidian_agent.py estado confirma A4-ARX Archivo, 0 notas.
+
+## 2026-05-09T17:24Z — Codex — [PTN] Inventariar Notion para reset
+Estado: PROGRESS
+Chat: chats/chat_2026-05-09.md
+Resumen: Inventario PTN antes de archivar y recomenzar: Proyectos total=7/vivos=3/archivados=4; Tareas total=3/vivas=2/archivadas=1; Notas total=9/vivas=3/archivadas=6. Dry-run reset-ptn-all --snapshot indica que se archivarian 8 paginas vivas: JA-Linea-1-2026, Domi-Football-Burn-Out, JA-Linea-2-2026, Convocatoria, Kick-off y 3 notas sin titulo. INX propagadas=0, inx sin fila=8.
+
+## 2026-05-09T17:29Z — Codex — [PTN] Archivar PTN para recomenzar
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Ejecutado reset Notion real con tools/reset_notion.py reset-ptn-all --snapshot. Archivadas 8 paginas vivas: 3 proyectos, 2 tareas y 3 notas. Snapshots creados en artifacts/resets/2026-05-09/. Verificacion posterior: Proyectos total=7/vivas=0/archivadas=7; Tareas total=3/vivas=0/archivadas=3; Notas total=9/vivas=0/archivadas=9. INX propagadas=0 porque las 8 paginas no tenian fila ptn:*; errores=0.
+
+## 2026-05-09T18:02Z — Codex — [MAR] Resetear MAR Todoist
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Ejecutado reset MAR real con tools/reset_mar.py reset-all. Se creo proyecto backup Z-BACK-260509 (id 6gc99pfjX2hHCpmx) y se archivaron 31 acciones activas con marker reversible y proyecto de origen; errores=0. Verificacion posterior agents/todoist_agent.py estado: Evento=0, Meta=0, Tarea=0, Habito=0, Idea=0, total=0.
+
+## 2026-05-09T18:11Z — Codex — [MAR] Sincronizar reset MAR
+Estado: DONE
+Chat: chats/chat_2026-05-09.md
+Resumen: Tras resetear Todoist, ejecutado sync_todoist_to_notion.py --limit 200: Tareas sincronizadas=0, coherente con MAR activo vacio. Primer sync INX Todoist fallo por 502 Bad Gateway de Notion durante update; reintento de sync_inx_links.py --source todoist --limit 200 finalizo OK con todoist=200.

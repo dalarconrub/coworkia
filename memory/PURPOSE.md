@@ -71,7 +71,8 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
 - Citekey canónica: `paperpile:<citekey>`.
 
 ### 6. Almacén de notas (ABGD)
-- Vault Obsidian local con jerarquía ABPC.
+- Vault Obsidian local con jerarquía ABPC. Desde 2026-05-09, el vault primario debe vivir en almacenamiento local del PC; Google Drive/nube y discos externos son réplicas o backups, no la ubicación operativa principal.
+- Carpetas internas del vault: `1.ALPHA` = conocimiento vivo indexable por Coworkia; `2.BETA` = staging/inbox de procesamiento; `3.GAMMA` = productos generados; `4.DELTA` = archivos/media/documentos pesados; `5.EPSILON` = histórico frío/legacy.
 - Creación, navegación y promoción a PTN cuando procede.
 
 ### 7. INX — integración y trazabilidad

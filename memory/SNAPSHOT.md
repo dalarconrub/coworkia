@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-04-26T07:04:26Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-05-09T16:14:29Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).
@@ -83,6 +83,10 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-04-25.md` (msg #39)
 - **[2026-04-26]** `Codex` — En MAR/Todoist, excluir siempre proyectos/carpetas `Z*` del flujo operativo normal salvo peticion explicita de David para consultarlos. Implementado filtro dinamico por nombre de proyecto `Z*`; estado operativo actual sin `Z*`: 26 acciones activas.
   - origen: `chats/chat_2026-04-26.md` (msg #3)
+- **[2026-04-27]** `Codex` — En PowerShell 5.1, `&&` no encadena comandos (usar dos comandos o `;`) y para ejecutar `.bat` en cwd conviene `.\archivo.bat`.
+  - origen: `chats/chat_2026-04-27.md` (msg #5)
+- **[2026-04-27]** `Cursor` — Firma por defecto en `chats/` = `Cursor` (salvo petición explícita de otra identidad).
+  - origen: `chats/chat_2026-04-27.md` (msg #6)
 - **[archive_2026-04-17]** `Codex` — los marcadores canónicos del hilo son `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)
 - **[archive_2026-04-17]** `Codex` — la causa de los acentos rotos en chat.md es el uso de Windows PowerShell 5.1 sobre un archivo UTF-8 sin indicar codificación explícita. Regla fija del sistema: cualquier lectura/escritura manual de chat.md en PowerShell debe usar -Encoding utf8.
@@ -92,6 +96,8 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
 
 - **[2026-04-19]** `Claude` — ensure_archivo_field.py necesita autorizacion explicita para modificar schemas en Notion. Hasta que lo ejecutes en real, reset_notion.py aborta con mensaje claro pidiendo bootstrap.
   - origen: `chats/chat_2026-04-19.md` (msg #8)
+- **[2026-04-27]** `Codex` — no puedo listar las tareas de hoy en Todoist porque `TODOIST_API_KEY` esta presente en `.env` pero vacia; `todoist_agent.py hoy` y `estado` devuelven `403 Forbidden` contra la API.
+  - origen: `chats/chat_2026-04-27.md` (msg #4)
 
 ## SIGUIENTE (handoffs pendientes)
 
@@ -163,5 +169,7 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-04-19.md` (msg #14)
 - **[2026-04-19]** `Claude` — @David sistema de reseteo completo, documentado y validado. ¿commit y cerramos sesion, o siguiente objetivo?
   - origen: `chats/chat_2026-04-19.md` (msg #16)
+- **[2026-04-27]** `Codex` — decidir si se hace commit/push de estos cambios o se mantienen locales por ahora.
+  - origen: `chats/chat_2026-04-27.md` (msg #5)
 - **[archive_2026-04-17]** `Codex` — @Copilot puede usar este protocolo como base de coordinación por defecto en futuras sesiones multiagente.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)

@@ -136,7 +136,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar a mano dentro de este bloque._
 
 ```
 - .ai/
@@ -170,6 +170,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar 
     - 00-priority.mdc
     - 10-ai-commands-skills.mdc
     - 20-docs-memory-devlog.mdc
+    - 30-strict-quality-gates.mdc
 - .github/
   - copilot-instructions.md
 - agents/
@@ -228,6 +229,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar 
     - 2026-04-17.md
     - 2026-04-18.md
     - 2026-04-19.md
+    - 2026-05-09.md
   - imports/
     - google_keep/
     - README.md
@@ -242,6 +244,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar 
     - memory_records.json
   - resets/
     - 2026-04-19/
+    - 2026-05-09/
   - sprints/
     - sprint-multiagent-1.md
     - sprint-multiagent-2.json
@@ -287,6 +290,9 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar 
   - chat_2026-04-26.md
   - chat_2026-04-27.md
   - chat_2026-04-29.md
+  - chat_2026-05-05.md
+  - chat_2026-05-06.md
+  - chat_2026-05-09.md
   - chat_archive_2026-04-17.md
 - config/
   - env.1password.example
@@ -342,6 +348,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-04-29T05:50Z. No editar 
   - registry.py
 - playbooks/
   - bookdown-exhaustive-project-playbook.md
+  - cursor-global-rules-portable-playbook.md
   - extract-portable-toolkit.md
   - iterative-multi-agent-review-playbook.md
   - meta-methodology-extracting-playbooks-from-projects.md
