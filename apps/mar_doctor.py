@@ -43,9 +43,9 @@ def _has_date(iso: str) -> bool:
 def _expected_tipo(due: str, deadline: str, recurrencia: str) -> str:
     """
     Reglas MAR (David) inferidas desde el espejo en Notion:
-    - Evento: due con hora
-    - Hábito: recurrencia true
-    - Meta: sin hora, no recurrente, con deadline (due opcional)
+    - Hábito: recurrencia true, tenga o no hora
+    - Evento: due con hora, no recurrente
+    - Logro: sin hora, no recurrente, con deadline (due opcional)
     - Tarea: sin hora, no recurrente, sin deadline, con due (fecha)
     - Idea: sin due, sin deadline, (y no recurrente)
     """
@@ -54,12 +54,12 @@ def _expected_tipo(due: str, deadline: str, recurrencia: str) -> str:
     has_deadline = _has_date(deadline)
     due_has_time = _has_time(due)
 
-    if due_has_time:
-        return "evento"
     if is_recurring:
         return "habito"
+    if due_has_time:
+        return "evento"
     if has_deadline:
-        return "meta"
+        return "logro"
     if has_due:
         return "tarea"
     return "idea"
@@ -78,7 +78,7 @@ def main() -> int:
     parser.add_argument("--check-missing-tipo", action="store_true", help="Detectar filas sin Tipo MAR")
     parser.add_argument("--check-evento-hora", action="store_true", help="Evento debe tener Due con hora")
     parser.add_argument("--check-habito-recurrencia", action="store_true", help="Hábito debe tener Recurrencia=✓")
-    parser.add_argument("--check-meta-deadline", action="store_true", help="Meta debe tener Deadline (no requiere Due)")
+    parser.add_argument("--check-meta-deadline", action="store_true", help="Legacy: Logro debe tener Deadline (no requiere Due)")
     parser.add_argument("--check-tarea-fecha", action="store_true", help="Tarea debe tener Due (fecha) y no tener Deadline")
     parser.add_argument("--check-idea-sin-fechas", action="store_true", help="Idea no debe tener Due/Deadline/Recurrencia")
     parser.add_argument("--check-tipo-consistency", action="store_true", help="Comparar Tipo MAR (Notion) vs tipo esperado por reglas MAR")
@@ -141,12 +141,12 @@ def main() -> int:
             if not is_recurring:
                 issues["Hábito sin recurrencia"].append(f"- {title} | tid={tid} | recurrencia={recurrencia or '-'}")
 
-        if args.check_meta_deadline and tipo == "meta":
-            # Regla David: Meta requiere Deadline; Due es opcional (pero si existe, no debe tener hora)
+        if args.check_meta_deadline and tipo in {"logro", "meta"}:
+            # Regla David: Logro requiere Deadline; Due es opcional (pero si existe, no debe tener hora)
             if not has_deadline:
-                issues["Meta sin deadline"].append(f"- {title} | tid={tid}")
+                issues["Logro sin deadline"].append(f"- {title} | tid={tid}")
             if has_due and due_has_time:
-                issues["Meta con hora (debería ser sin hora)"].append(f"- {title} | tid={tid} | due={due}")
+                issues["Logro con hora (debería ser sin hora)"].append(f"- {title} | tid={tid} | due={due}")
 
         if args.check_tarea_fecha and tipo == "tarea":
             # Regla David: Tarea requiere Due (sin hora) y NO debe tener Deadline
@@ -155,7 +155,7 @@ def main() -> int:
             if due_has_time:
                 issues["Tarea con hora (debería ser Evento)"].append(f"- {title} | tid={tid} | due={due}")
             if has_deadline:
-                issues["Tarea con deadline (debería ser Meta)"].append(f"- {title} | tid={tid} | deadline={deadline}")
+                issues["Tarea con deadline (debería ser Logro)"].append(f"- {title} | tid={tid} | deadline={deadline}")
 
         if args.check_idea_sin_fechas and tipo == "idea":
             if has_due:
@@ -190,7 +190,7 @@ def main() -> int:
     if args.check_habito_recurrencia:
         enabled.append("habito-recurrencia")
     if args.check_meta_deadline:
-        enabled.append("meta-deadline")
+        enabled.append("logro-deadline")
     if args.check_tarea_fecha:
         enabled.append("tarea-fecha")
     if args.check_idea_sin_fechas:

@@ -15,7 +15,7 @@ Cada sistema tiene un rol funcional fijo y un código de entidad que lo identifi
 
 | Código  | Sistema externo  | Rol operativo                                            | Agente             |
 | ------- | ---------------- | -------------------------------------------------------- | ------------------ |
-| `MAR`   | Todoist          | **Ejecuta** — tareas, eventos, hábitos, metas, ideas    | `todoist_agent.py` |
+| `MAR`   | Todoist          | **Ejecuta** — tareas, eventos, hábitos, logros, ideas   | `todoist_agent.py` |
 | `PTN`   | Notion           | **Dirige** — proyectos, tareas formales, notas         | `notion_agent.py`  |
 | `KIT`   | Notion           | Catálogo único de conocimiento (Knowledge / Information / Tool) | `kit_agent.py`     |
 | `GIT`   | GitHub           | Catálogo de repositorios propios y de referencia        | `github_agent.py`  |
@@ -44,7 +44,7 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
 ## Funcionalidades principales
 
 ### 1. Captura y ejecución diaria (MAR)
-- Clasificación automática en Idea / Meta / Hábito / Tarea / Evento.
+- Clasificación automática en Idea / Logro / Hábito / Tarea / Evento.
 - Dashboard del día con prioridad y contexto.
 - Sincronización opcional hacia Notion (`TODOIST-TAREAS`).
 

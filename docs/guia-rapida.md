@@ -19,7 +19,7 @@ Configura `.env` con tus tokens y IDs (ver sección de cada sistema).
 
 ### MAR — Tareas (Todoist)
 
-Clasifica acciones por cómo existen en el tiempo: Idea, Meta, Hábito, Tarea, Evento.
+Clasifica acciones por cómo existen en el tiempo: Idea, Logro, Hábito, Tarea, Evento.
 
 ```bash
 # Dashboard diario: pendientes + hoy + inbox
@@ -32,7 +32,7 @@ python agents/todoist_agent.py resumen
 python agents/todoist_agent.py estado
 
 # Listar por tipo
-python agents/todoist_agent.py listar --tipo meta
+python agents/todoist_agent.py listar logro
 python agents/todoist_agent.py listar --tipo evento
 ```
 

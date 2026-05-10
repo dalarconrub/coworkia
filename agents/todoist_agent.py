@@ -1,8 +1,8 @@
 """
 Agente MAR para Todoist.
 
-Entiende el sistema MAR (Meta-Accion-Resultado) y opera sobre Todoist
-respetando la clasificacion temporal: Idea, Meta, Habito, Tarea, Evento.
+Entiende el sistema MAR y opera sobre Todoist
+respetando la clasificacion temporal: Idea, Logro, Habito, Tarea, Evento.
 """
 
 import os
@@ -26,13 +26,14 @@ from tools.todoist_tools import (
     get_z_tasks,
     is_excluded_project_id,
     move_task,
+    normalize_mar_type,
     update_task,
 )
 
 
 ICONOS = {
     "idea": "💡",
-    "meta": "🎯",
+    "logro": "🎯",
     "habito": "🔁",
     "tarea": "📋",
     "evento": "🗓️",
@@ -91,14 +92,15 @@ def _build_update_payload(args) -> dict:
 
 
 def _reclassify_payload(tipo: str, valor: str | None) -> dict:
+    tipo = normalize_mar_type(tipo)
     base = {"due_string": "no date", "due_date": None, "due_datetime": None, "deadline_date": None}
 
     if tipo == "idea":
         return base
-    if tipo == "meta":
+    if tipo == "logro":
         if not valor:
-            raise ValueError("Meta requiere una fecha YYYY-MM-DD")
-        return {**base, "due_date": valor}
+            raise ValueError("Logro requiere una fecha de deadline YYYY-MM-DD")
+        return {**base, "deadline_date": valor}
     if tipo == "habito":
         if not valor:
             raise ValueError('Habito requiere una recurrencia, por ejemplo "every day"')
@@ -106,7 +108,7 @@ def _reclassify_payload(tipo: str, valor: str | None) -> dict:
     if tipo == "tarea":
         if not valor:
             raise ValueError("Tarea requiere una fecha YYYY-MM-DD")
-        return {**base, "due_date": valor, "deadline_date": valor}
+        return {**base, "due_date": valor}
     if tipo == "evento":
         if not valor:
             raise ValueError("Evento requiere una fecha-hora ISO 8601")
@@ -123,7 +125,7 @@ def resumen_hoy() -> str:
 
     por_tipo: dict[str, list] = {
         "evento": [],
-        "meta": [],
+        "logro": [],
         "tarea": [],
         "habito": [],
         "idea": [],
@@ -135,7 +137,7 @@ def resumen_hoy() -> str:
     lineas = [f"=== RESUMEN HOY ({len(tareas_hoy)} acciones) ===\n"]
     titulos = {
         "evento": "🗓️  EVENTOS",
-        "meta": "🎯 METAS",
+        "logro": "🎯 LOGROS",
         "tarea": "📋 TAREAS",
         "habito": "🔁 HÁBITOS",
         "idea": "💡 IDEAS",
@@ -154,6 +156,7 @@ def resumen_hoy() -> str:
 
 def listar_por_tipo(tipo: str) -> str:
     """Lista tareas de un tipo MAR especifico."""
+    tipo = normalize_mar_type(tipo)
     tareas = get_tasks_by_mar_type(tipo)
     if not tareas:
         return f"No hay {tipo}s activos."
@@ -236,7 +239,7 @@ def estado_sistema() -> str:
     """Muestra el estado completo del sistema MAR por tipos."""
     lineas = ["=== ESTADO SISTEMA MAR ===\n"]
     total = 0
-    for tipo in ["evento", "meta", "tarea", "habito", "idea"]:
+    for tipo in ["evento", "logro", "tarea", "habito", "idea"]:
         tareas = get_tasks_by_mar_type(tipo)
         n = len(tareas)
         total += n
@@ -250,8 +253,13 @@ def nueva_idea(content: str, description: str = None, project_id: str = None) ->
     return create_task(content=content, description=description, project_id=project_id)
 
 
+def nuevo_logro(content: str, deadline: str, description: str = None, project_id: str = None) -> dict:
+    return create_task(content=content, description=description, project_id=project_id, deadline_date=deadline)
+
+
 def nueva_meta(content: str, fecha: str, description: str = None, project_id: str = None) -> dict:
-    return create_task(content=content, description=description, project_id=project_id, due_date=fecha)
+    """Alias legacy: Meta queda normalizada como Logro."""
+    return nuevo_logro(content=content, deadline=fecha, description=description, project_id=project_id)
 
 
 def nuevo_habito(content: str, recurrencia: str, description: str = None, project_id: str = None) -> dict:
@@ -369,7 +377,11 @@ if __name__ == "__main__":
     p_capturar.add_argument("--description")
     p_capturar.add_argument("--project-id", default="6Mv5F76GQq3p699F")
 
-    p_meta = subparsers.add_parser("meta", help="Crear meta")
+    p_logro = subparsers.add_parser("logro", help="Crear logro")
+    p_logro.add_argument("content")
+    p_logro.add_argument("deadline", help="YYYY-MM-DD")
+
+    p_meta = subparsers.add_parser("meta", help="Crear logro (alias legacy de meta)")
     p_meta.add_argument("content")
     p_meta.add_argument("fecha", help="YYYY-MM-DD")
 
@@ -443,9 +455,12 @@ if __name__ == "__main__":
         print(f"Idea creada: {task['id']} | {task['content']}")
     elif args.comando == "capturar":
         print(capturar_inbox(args.content, description=args.description, project_id=args.project_id))
+    elif args.comando == "logro":
+        task = nuevo_logro(args.content, args.deadline)
+        print(f"Logro creado: {task['id']} | {task['content']} -> {args.deadline}")
     elif args.comando == "meta":
         task = nueva_meta(args.content, args.fecha)
-        print(f"Meta creada: {task['id']} | {task['content']} -> {args.fecha}")
+        print(f"Logro creado: {task['id']} | {task['content']} -> {args.fecha}")
     elif args.comando == "habito":
         task = nuevo_habito(args.content, args.recurrencia)
         print(f"Habito creado: {task['id']} | {task['content']}")

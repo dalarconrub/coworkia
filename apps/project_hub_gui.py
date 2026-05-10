@@ -42,7 +42,7 @@ from agents.notion_agent import crear_nota, crear_proyecto, crear_tarea, estado_
 from agents.obsidian_agent import buscar as abgd_buscar
 from agents.obsidian_agent import estado_vault, mapa as abgd_mapa, nueva_nota as abgd_nueva_nota, ultimas_notas, ver_nota
 from agents.orchestrator_agent import generar_sprint, listar_agentes, listar_roles
-from agents.todoist_agent import estado_sistema, listar_por_tipo, nueva_idea, nueva_meta, nueva_tarea, nuevo_evento, nuevo_habito, resumen_hoy
+from agents.todoist_agent import estado_sistema, listar_por_tipo, nueva_idea, nueva_meta, nueva_tarea, nuevo_evento, nuevo_habito, nuevo_logro, resumen_hoy
 
 BG = "#0b1020"
 BG_PANEL = "#111827"
@@ -223,14 +223,14 @@ class ProjectHubGUI:
         ttk.Label(p, text="MAR / Todoist", style="Section.TLabel").pack(anchor="w", pady=(0, 10))
         self._btn(p, "Resumen de hoy", lambda: self._run_async("todoist", resumen_hoy), "Accent.TButton")
         self._btn(p, "Estado del sistema", lambda: self._run_async("todoist", estado_sistema))
-        self.todoist_type = tk.StringVar(value="meta")
-        ttk.Combobox(p, textvariable=self.todoist_type, values=["idea", "meta", "habito", "tarea", "evento"], state="readonly").pack(fill="x", pady=8)
+        self.todoist_type = tk.StringVar(value="logro")
+        ttk.Combobox(p, textvariable=self.todoist_type, values=["idea", "logro", "habito", "tarea", "evento"], state="readonly").pack(fill="x", pady=8)
         self._btn(p, "Listar por tipo", lambda: self._run_async("todoist", lambda: listar_por_tipo(self.todoist_type.get())))
         ttk.Separator(p).pack(fill="x", pady=12)
         self.todoist_create_type = tk.StringVar(value="idea")
         self.todoist_content = tk.StringVar()
         self.todoist_param = tk.StringVar()
-        ttk.Combobox(p, textvariable=self.todoist_create_type, values=["idea", "meta", "habito", "tarea", "evento"], state="readonly").pack(fill="x", pady=2)
+        ttk.Combobox(p, textvariable=self.todoist_create_type, values=["idea", "logro", "habito", "tarea", "evento"], state="readonly").pack(fill="x", pady=2)
         ttk.Entry(p, textvariable=self.todoist_content).pack(fill="x", pady=2)
         ttk.Entry(p, textvariable=self.todoist_param).pack(fill="x", pady=2)
         self._btn(p, "Crear acción", self._create_todoist_item, "Accent.TButton")
@@ -466,7 +466,7 @@ class ProjectHubGUI:
         if not content:
             messagebox.showwarning("Todoist", "El contenido es obligatorio.")
             return
-        mapping = {"idea": lambda: nueva_idea(content), "meta": lambda: nueva_meta(content, param), "habito": lambda: nuevo_habito(content, param), "tarea": lambda: nueva_tarea(content, param), "evento": lambda: nuevo_evento(content, param)}
+        mapping = {"idea": lambda: nueva_idea(content), "logro": lambda: nuevo_logro(content, param), "meta": lambda: nueva_meta(content, param), "habito": lambda: nuevo_habito(content, param), "tarea": lambda: nueva_tarea(content, param), "evento": lambda: nuevo_evento(content, param)}
         self._run_async("todoist", mapping[kind], "Acción creada en Todoist")
 
     def _create_ptn_item(self):

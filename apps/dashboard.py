@@ -21,7 +21,7 @@ LIMITE_BLOQUE = 30
 
 ICONO_TIPO = {
     "evento": "🗓️",
-    "meta":   "🎯",
+    "logro":  "🎯",
     "tarea":  "📋",
     "habito": "🔁",
     "idea":   "💡",

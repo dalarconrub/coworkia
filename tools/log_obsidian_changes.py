@@ -14,9 +14,15 @@ from tools.env_utils import load_project_env
 
 load_project_env(Path(__file__).resolve().parent.parent / ".env")
 
-from tools.obsidian_tools import get_todas_notas, read_nota
+from tools.obsidian_tools import get_todas_notas, read_nota, get_frontmatter
 from tools.notion_tools import create_page, query_data_source, extract_property_value, get_data_source_schema, normalize_notion_id
 from tools.obsidian_wikilinks import extract_kit_ids
+from tools.obsidian_note_metadata import (
+    note_metadata_from_frontmatter,
+    obsidian_db_metadata_props,
+    obsidian_db_route_props,
+    route_metadata_from_relative_path,
+)
 
 
 ABC_AREAS = "340622cf-315b-8116-a1bd-f21b04bc0ac1"
@@ -86,6 +92,7 @@ def main() -> int:
 
         fecha = datetime.fromtimestamp(mtime).date().isoformat()
         kit_ids = extract_kit_ids(read_nota(path))
+        metadata = note_metadata_from_frontmatter(get_frontmatter(path))
         props = {
             "Evento": {"title": [{"text": {"content": nota.get("nombre", "Nota")}}]},
             "Fecha": {"date": {"start": fecha}},
@@ -98,6 +105,8 @@ def main() -> int:
             props["KIT IDs"] = _rich_text(", ".join(kit_ids))
             if "KIT" in obs_props:
                 props["KIT"] = {"relation": [{"id": normalize_notion_id(kit_id)} for kit_id in kit_ids]}
+        props.update(obsidian_db_metadata_props(metadata, obs_props))
+        props.update(obsidian_db_route_props(route_metadata_from_relative_path(rel), obs_props))
 
         # Relaciones ABC si existen
         if area in area_map:

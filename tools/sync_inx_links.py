@@ -22,6 +22,11 @@ from tools.notion_tools import (
     normalize_notion_id,
 )
 from tools.obsidian_tools import get_frontmatter_by_relative_path
+from tools.obsidian_note_metadata import (
+    inx_note_metadata_props,
+    inx_note_route_props,
+    route_metadata_from_relative_path,
+)
 
 
 def _rich_text(value: str) -> dict:
@@ -64,10 +69,13 @@ def _upsert(db_id: str, key: str, title: str, props: dict, existing: dict) -> No
         existing[key] = page["id"]
 
 
-def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | None) -> int:
+def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | None, offset: int = 0) -> int:
     rows = query_data_source(db_todoist)
+    if offset:
+        rows = rows[offset:]
     if limit:
         rows = rows[:limit]
+    inx_props = set(get_data_source_schema(db_links).get("properties", []))
     n = 0
     for r in rows:
         props = r.get("properties", {})
@@ -82,6 +90,9 @@ def _sync_todoist(db_links: str, db_todoist: str, existing: dict, limit: int | N
             "Estado": {"select": {"name": inx_estado}},
             "Todoist ID": _rich_text(tid),
         }
+        tipo_mar = extract_property_value(props.get("Tipo MAR", {}))
+        if tipo_mar and "Tipo MAR" in inx_props:
+            data["Tipo MAR"] = {"select": {"name": tipo_mar}}
         # Relaciones PTN si existen en TODOIST-TAREAS
         for rel, name in [("PTN Proyecto", "PTN Proyecto"), ("PTN Tarea", "PTN Tarea"), ("PTN Nota", "PTN Nota")]:
             rel_val = props.get(rel, {}).get("relation", [])
@@ -164,6 +175,21 @@ def _sync_obsidian(db_links: str, db_obsidian: str, existing: dict, limit: int |
                 data["KIT"] = {
                     "relation": [{"id": normalize_notion_id(kit_id.strip())} for kit_id in kit_ids.split(",") if kit_id.strip()]
                 }
+        data.update(inx_note_metadata_props(props, extract_property_value, inx_props))
+        route_props = inx_note_route_props(props, extract_property_value, inx_props)
+        if not route_props:
+            route_meta = route_metadata_from_relative_path(path)
+            synthetic_route_props = {
+                "Ruta Area": _rich_text(route_meta.get("area", "")),
+                "Ruta Bloque": _rich_text(route_meta.get("bloque", "")),
+                "Ruta Contexto": _rich_text(route_meta.get("contexto", "")),
+                "Ruta Proyecto": _rich_text(route_meta.get("proyecto", "")),
+                "Ruta Tarea": _rich_text(route_meta.get("tarea", "")),
+                "Ruta Nota": _rich_text(route_meta.get("nota", "")),
+                "Ruta Nivel": _rich_text(route_meta.get("nivel", "")),
+            }
+            route_props = inx_note_route_props(synthetic_route_props, extract_property_value, inx_props)
+        data.update(route_props)
         for rel, name in [("Area", "Area"), ("Bloque", "Bloque"), ("Contexto", "Contexto")]:
             rel_val = props.get(rel, {}).get("relation", [])
             if rel_val:
@@ -455,6 +481,7 @@ def main() -> int:
         default="all",
     )
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--offset", type=int, default=0, help="Desplazamiento para fuente Todoist")
     args = parser.parse_args()
     db_links = os.getenv("NOTION_DB_INX")
     db_todoist = os.getenv("TODOIST_DB_TAREAS")
@@ -483,7 +510,7 @@ def main() -> int:
 
     counts = {s: 0 for s in required}
     if "todoist" in sources:
-        counts["todoist"] = _sync_todoist(db_links, db_todoist, _existing_map(db_links), args.limit)
+        counts["todoist"] = _sync_todoist(db_links, db_todoist, _existing_map(db_links), args.limit, args.offset)
     if "notion" in sources:
         counts["notion"] = _sync_ptn_log(db_links, db_notion, _existing_map(db_links), args.limit)
     if "obsidian" in sources:

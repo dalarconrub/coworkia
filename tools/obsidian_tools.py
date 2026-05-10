@@ -158,17 +158,45 @@ def read_nota_by_name(nombre: str, area_code: str = None) -> str:
 
 
 def get_frontmatter(path: str) -> dict:
-    """Extrae el frontmatter YAML de una nota."""
+    """Extrae frontmatter YAML simple de una nota.
+
+    Soporta escalares, listas inline (`[a, b]`) y listas de bloque:
+
+    tags:
+      - uno
+      - dos
+    """
     content = read_nota(path)
     fm = {}
     if content.startswith("---"):
-        end = content.find("---", 3)
+        end = content.find("\n---", 3)
         if end > 0:
             yaml_block = content[3:end].strip()
-            for line in yaml_block.splitlines():
+            current_key = None
+            for raw in yaml_block.splitlines():
+                line = raw.rstrip()
+                stripped = line.strip()
+                if not stripped or stripped.startswith("#"):
+                    continue
+                if stripped.startswith("- ") and current_key:
+                    fm.setdefault(current_key, [])
+                    if isinstance(fm[current_key], list):
+                        fm[current_key].append(_clean_frontmatter_value(stripped[2:]))
+                    continue
                 if ":" in line:
                     key, _, val = line.partition(":")
-                    fm[key.strip()] = val.strip()
+                    current_key = key.strip()
+                    val = val.strip()
+                    if not val:
+                        fm[current_key] = []
+                    elif val.startswith("[") and val.endswith("]"):
+                        fm[current_key] = [
+                            _clean_frontmatter_value(item)
+                            for item in val[1:-1].split(",")
+                            if item.strip()
+                        ]
+                    else:
+                        fm[current_key] = _clean_frontmatter_value(val)
     return fm
 
 
@@ -288,6 +316,10 @@ def _parse_fecha_nota(stem: str) -> str:
         d = m.group(1)
         return f"20{d[:2]}-{d[2:4]}-{d[4:6]}"
     return ""
+
+
+def _clean_frontmatter_value(value: str) -> str:
+    return value.strip().strip("\"'")
 
 
 def resolver_path(codigo: str) -> str | None:

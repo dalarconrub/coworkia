@@ -132,6 +132,68 @@ python agents/obsidian_agent.py nueva-nota A1-INV B12-LAB C126-DIR "Análisis da
 
 ---
 
+## Properties sincronizadas
+
+Las notas pueden declarar metadata en frontmatter YAML. Coworkia sincroniza estas
+properties hacia `OBSIDIAN_DB` y, con nombres prefijados, hacia `INX-ENLACES`:
+
+```yaml
+---
+tipo: nota
+estado: activa
+proyecto: JA-Linea-1-2026
+tarea: revisar-literatura
+tags:
+  - lectura
+  - paper
+personas:
+  - David
+fuente: Paperpile
+aliases:
+  - Nombre alternativo
+---
+```
+
+Mapeo:
+
+| Frontmatter | `OBSIDIAN_DB` | `INX-ENLACES` |
+| --- | --- | --- |
+| `tipo` / `type` | `Tipo` | `Nota Tipo` |
+| `estado` / `status` | `Estado` | `Nota Estado` |
+| `tags` | `Tags` | `Nota Tags` |
+| `personas` / `people` | `Personas` | `Nota Personas` |
+| `fuente` / `source` | `Fuente` | `Nota Fuente` |
+| `proyecto` / `project` | `Proyecto` | `Nota Proyecto` |
+| `tarea` / `task` | `Tarea` | `Nota Tarea` |
+| `aliases` / `alias` | `Alias` | `Nota Alias` |
+
+Además, Coworkia deriva estructura ABPC desde la ruta relativa de la nota:
+
+```text
+A1-INV/B13-PUB/C137-ART/P137.01-LMS/T13701.03-Revision/N260510-nota.md
+```
+
+| Ruta | `OBSIDIAN_DB` | `INX-ENLACES` |
+| --- | --- | --- |
+| `A...` | `Ruta Area` | `Obsidian Area` |
+| `B...` | `Ruta Bloque` | `Obsidian Bloque` |
+| `C...` | `Ruta Contexto` | `Obsidian Contexto` |
+| `P...` | `Ruta Proyecto` | `Obsidian Proyecto` |
+| `T...` | `Ruta Tarea` | `Obsidian Tarea` |
+| `N...md` | `Ruta Nota` | `Obsidian Nota` |
+| nivel inferido | `Ruta Nivel` | `Obsidian Nivel` |
+
+Bootstrap de schema:
+
+```bash
+python tools/ensure_obsidian_note_metadata_fields.py
+```
+
+Después, el pipeline normal `log_obsidian_changes.py` +
+`sync_inx_links.py --source obsidian` propaga esas properties.
+
+---
+
 ## Estructura real del vault
 
 ```

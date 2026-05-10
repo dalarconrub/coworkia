@@ -43,6 +43,13 @@ def _schema() -> dict:
             {"name": "Roto", "color": "red"},
             {"name": "Archivado", "color": "gray"},
         ]}},
+        "Tipo MAR": {"select": {"options": [
+            {"name": "idea", "color": "gray"},
+            {"name": "logro", "color": "yellow"},
+            {"name": "habito", "color": "green"},
+            {"name": "tarea", "color": "blue"},
+            {"name": "evento", "color": "red"},
+        ]}},
         "Todoist ID": {"rich_text": {}},
         "PTN Proyecto": {"relation": {"database_id": PTN_PROY, "type": "single_property", "single_property": {}}},
         "PTN Tarea": {"relation": {"database_id": PTN_TAR, "type": "single_property", "single_property": {}}},

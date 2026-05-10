@@ -6,7 +6,7 @@ La idea central del proyecto es simple: no improvisar, sino clasificar. El repos
 
 ## Qué Hace
 
-- `MAR`: gestiona tareas en Todoist según su existencia temporal: idea, meta, hábito, tarea y evento.
+- `MAR`: gestiona tareas en Todoist según su existencia temporal: idea, logro, hábito, tarea y evento.
 - `PTN`: gestiona proyectos, tareas y notas en Notion.
 - `KIT`: gestiona conocimiento, información y herramientas en Notion.
 - `GIT`: importa y cataloga repositorios de GitHub en Notion.
@@ -195,13 +195,13 @@ CLI:
 ```bash
 python agents/todoist_agent.py hoy
 python agents/todoist_agent.py estado
-python agents/todoist_agent.py listar meta
+python agents/todoist_agent.py listar logro
 python agents/todoist_agent.py proyectos
 python agents/todoist_agent.py buscar "tesis"
 python agents/todoist_agent.py ver <TASK_ID>
 python agents/todoist_agent.py idea "Idea sin fecha"
 python agents/todoist_agent.py capturar "Nueva entrada"
-python agents/todoist_agent.py meta "Entregar memoria" 2026-04-15
+python agents/todoist_agent.py logro "Entregar memoria" 2026-04-15
 python agents/todoist_agent.py habito "Leer 20 minutos" "every day"
 python agents/todoist_agent.py tarea "Preparar informe" 2026-04-20
 python agents/todoist_agent.py evento "Reunión" 2026-04-15T10:00:00
@@ -209,7 +209,7 @@ python agents/todoist_agent.py completar <TASK_ID>
 python agents/todoist_agent.py mover <TASK_ID> <PROJECT_ID>
 python agents/todoist_agent.py editar <TASK_ID> --due-date 2026-04-15
 python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T10:00:00
-python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
+python agents/todoist_agent.py procesar <TASK_ID> logro <PROJECT_ID> --valor 2026-04-15
 ```
 
 Arranque diario MAR: revisar el proyecto normal `Inbox` de Todoist
@@ -341,10 +341,15 @@ python tools/sync_inx_links.py --source notion --limit 200
 python tools/sync_inx_links.py --source obsidian --limit 200
 ```
 
+El sync de Obsidian propaga tanto properties/frontmatter (`tipo`, `estado`,
+`tags`, `personas`, `fuente`, `proyecto`, `tarea`, `aliases`) como estructura
+derivada de ruta (`A/B/C/P/T/N`) hacia `OBSIDIAN_DB` e `INX-ENLACES`.
+
 Para propagar cambios MAR recientes:
 
 ```bash
 python tools/sync_todoist_to_notion.py --limit 200
+python tools/ensure_inx_tipo_mar_field.py
 python tools/sync_inx_links.py --source todoist --limit 200
 ```
 
@@ -445,7 +450,7 @@ El repositorio ya es útil como conjunto de CLIs y utilidades de integración, p
 - La documentación antigua en `docs/guia-rapida.md` no refleja todos los comandos reales.
 - No hay tests automatizados en la raíz del proyecto.
 - Parte de Notion usa `data_sources` y parte sigue usando `databases`.
-- La separación conceptual entre `Meta` y `Tarea` en Todoist no está resuelta completamente a nivel de datos.
+- La separación conceptual MAR entre `Logro` y `Tarea` queda resuelta por `deadline` frente a `due date`: deadline implica logro; due date sin deadline implica tarea.
 - La dependencia de `.env` es alta: sin configuración válida, la mayoría de agentes no funcionarán.
 - La GUI `project_hub_gui.py` ahora distingue entre error real y configuración incompleta, pero no puede suplir credenciales o IDs ausentes.
 - Algunas páginas y bases heredadas de Notion no son accesibles por API aunque existan en la UI. En esos casos hay que crear o compartir las páginas con la integración para que los agentes puedan operar.

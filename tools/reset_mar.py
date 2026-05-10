@@ -18,7 +18,7 @@ Reglas de seguridad:
 
 Subcomandos:
   reset-all                   Archiva todas las pendientes / programadas.
-  reset-by-type TIPO          idea | meta | habito | tarea | evento
+  reset-by-type TIPO          idea | logro | habito | tarea | evento
   reset-by-project NOMBRE     Por nombre de proyecto Todoist (case-insensitive).
   reset-by-label LABEL        Por label (sin @).
   reset-overdue [--days N]    Tareas con due.date anterior a hoy - N dias (N>=0).
@@ -71,6 +71,7 @@ from tools.todoist_tools import (  # noqa: E402
     get_projects,
     get_tasks,
     move_task,
+    normalize_mar_type,
     update_task,
 )
 
@@ -187,7 +188,7 @@ def _task_candidates_from_all() -> list[dict]:
 
 
 def _task_candidates_by_type(mar_type: str) -> list[dict]:
-    mar_type = mar_type.lower()
+    mar_type = normalize_mar_type(mar_type)
     base = _task_candidates_from_all()
     return [t for t in base if classify_mar_type(t) == mar_type]
 
@@ -511,7 +512,7 @@ def main() -> int:
     p_all.set_defaults(func=cmd_reset_all)
 
     p_type = sub.add_parser("reset-by-type", help="Archivar por tipo MAR")
-    p_type.add_argument("tipo", choices=["idea", "meta", "habito", "tarea", "evento"])
+    p_type.add_argument("tipo", choices=["idea", "logro", "meta", "habito", "tarea", "evento"])
     _add_common(p_type)
     p_type.set_defaults(func=cmd_reset_by_type)
 

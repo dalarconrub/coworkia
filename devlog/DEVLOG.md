@@ -822,3 +822,28 @@ Resumen: Ejecutado reset MAR real con tools/reset_mar.py reset-all. Se creo proy
 Estado: DONE
 Chat: chats/chat_2026-05-09.md
 Resumen: Tras resetear Todoist, ejecutado sync_todoist_to_notion.py --limit 200: Tareas sincronizadas=0, coherente con MAR activo vacio. Primer sync INX Todoist fallo por 502 Bad Gateway de Notion durante update; reintento de sync_inx_links.py --source todoist --limit 200 finalizo OK con todoist=200.
+
+## 2026-05-10T07:10Z — Codex — [MAR] Actualizar regla MAR Todoist
+Estado: DONE
+Chat: chats/chat_2026-05-10.md
+Resumen: Alineada la clasificacion Todoist/MAR con la regla canonica fijada por David: recurrente=habito; no recurrente con hora=evento; no recurrente sin hora con deadline=logro; no recurrente sin deadline con due date=tarea; sin fechas=idea. meta queda como alias legacy de logro. Actualizados clasificador, CLI, dashboard, doctor MAR, Project Hub, reset MAR, docs y tests.
+
+## 2026-05-10T07:17Z — Codex — [INX] Propagar Tipo MAR a INX
+Estado: DONE
+Chat: chats/chat_2026-05-10.md
+Resumen: Añadida propiedad Tipo MAR al schema de INX-ENLACES y helper tools/ensure_inx_tipo_mar_field.py. sync_inx_links.py --source todoist copia ahora Tipo MAR desde TODOIST-TAREAS cuando la propiedad existe. Aplicado en Notion real: propiedad creada; smoke sync --limit 20 OK. El sync --limit 200 agotó timeout local y queda recomendable relanzarlo si se quiere backfill completo inmediato.
+
+## 2026-05-10T07:28Z — Codex — [INX] Validar Tipo MAR en INX con tareas reales
+Estado: DONE
+Chat: chats/chat_2026-05-10.md
+Resumen: Creadas cinco tareas Todoist de prueba para idea/logro/tarea/evento/habito. sync_todoist_to_notion.py sincronizo 5 filas con Tipo MAR correcto en TODOIST-TAREAS. sync_inx_links.py ahora admite --offset para fuente Todoist; ejecutado --offset 500 --limit 20 y verificado que INX-ENLACES contiene las cinco filas todoist:* con Tipo MAR correcto.
+
+## 2026-05-10T07:55Z — Codex — [ABGD] Sincronizar frontmatter Obsidian
+Estado: DONE
+Chat: chats/chat_2026-05-10.md
+Resumen: Añadido parser de frontmatter Obsidian con soporte de escalares, listas inline y listas en bloque. log_obsidian_changes.py y backfill_obsidian_to_inx.py guardan metadata en OBSIDIAN_DB; sync_inx_links.py propaga los campos a INX-ENLACES con prefijo Nota. Creado helper ensure_obsidian_note_metadata_fields.py y aplicado en Notion real. Tests: python -m py_compile scripts tocados y python -m pytest -q => 18 passed.
+
+## 2026-05-10T08:01Z — Codex — [ABGD] Derivar estructura ABPC desde ruta Obsidian
+Estado: DONE
+Chat: chats/chat_2026-05-10.md
+Resumen: Añadida extraccion de Area/Bloque/Contexto/Proyecto/Tarea/Nota/Nivel desde rutas relativas Obsidian. Nuevas propiedades en OBSIDIAN_DB: Ruta Area, Ruta Bloque, Ruta Contexto, Ruta Proyecto, Ruta Tarea, Ruta Nota, Ruta Nivel; en INX-ENLACES: Obsidian Area, Obsidian Bloque, Obsidian Contexto, Obsidian Proyecto, Obsidian Tarea, Obsidian Nota, Obsidian Nivel. sync_inx_links.py deriva estos campos directamente desde Ruta para filas antiguas. Schema aplicado en Notion real y smoke sync --source obsidian --limit 5 OK. Tests: python -m pytest -q => 21 passed.

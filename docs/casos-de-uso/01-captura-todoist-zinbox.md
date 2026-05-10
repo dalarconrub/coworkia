@@ -43,9 +43,9 @@ El clasificador en código (`tools/todoist_tools.py`, `classify_mar_type`) y el 
 
 | Tipo | Regla |
 | --- | --- |
-| **Evento** | Cualquier cosa con **hora** en `Due` (da igual lo demás). |
-| **Hábito** | Cualquier cosa **recurrente** (da igual lo demás, salvo que si hay hora primero cuenta como Evento). |
-| **Meta** | Sin hora, no recurrente, **con `Deadline`**. `Due` (fecha) opcional. |
+| **Hábito** | Cualquier cosa **recurrente**, tenga o no hora. |
+| **Evento** | No recurrente con **hora** en `Due`. |
+| **Logro** | Sin hora, no recurrente, **con `Deadline`**. `Due` (fecha) opcional. |
 | **Tarea** | Sin hora, no recurrente, **sin `Deadline`**, **con `Due`** solo como fecha (día). |
 | **Idea** | Sin `Due` y sin `Deadline`. |
 
@@ -70,9 +70,9 @@ apps\ensure_todoist_tasks_schema.bat
 - [x] Ajustar campos nativos según la tabla de reglas (arriba). Referencia rápida:
   - [x] **Idea**: sin `Due` y sin `Deadline`.
   - [ ] **Tarea**: `Due` (solo día, sin hora), sin `Deadline`, no recurrente.
-  - [ ] **Meta**: `Deadline` presente; sin hora en `Due`; no recurrente (`Due` opcional).
-  - [ ] **Evento**: `Due` con hora.
-  - [ ] **Hábito**: recurrente.
+  - [ ] **Logro**: `Deadline` presente; sin hora en `Due`; no recurrente (`Due` opcional).
+  - [ ] **Hábito**: recurrente, tenga o no hora.
+  - [ ] **Evento**: no recurrente con `Due` con hora.
 - [ ] Ajustar prioridad si importa (si no, dejar por defecto).
 - [ ] (Opcional) Añadir labels de contexto (mínimo, sin sobre-etiquetar).
 
@@ -102,7 +102,7 @@ apps\sync_todoist_to_notion.bat 200 --no-pause
 apps\mar_check.bat 200 --no-pause
 ```
 
-- [x] (Opcional) Doctor MAR regla a regla: `apps\mar_doctor.bat --check-duplicates`, `--check-evento-hora`, `--check-meta-deadline`, `--check-tarea-fecha`, etc. Ver `apps\mar_doctor.py --help`.
+- [x] (Opcional) Doctor MAR regla a regla: `apps\mar_doctor.bat --check-duplicates`, `--check-evento-hora`, `--check-meta-deadline`, `--check-tarea-fecha`, etc. Ver `apps\mar_doctor.py --help`. El flag `--check-meta-deadline` se conserva como alias legacy y valida Logros.
 
 Verificación técnica realizada el `2026-04-17`:
 
@@ -161,7 +161,7 @@ Nota de implementación:
 
 ## Observabilidad
 
-- **Notion**: `TODOIST-TAREAS` (propiedades `Todoist ID`, `Estado`, `Tipo MAR`, `Fecha`, `Due`, `Deadline`, `Recurrencia`, `Descripcion`, `URL`, `Labels`)
+- **Notion**: `TODOIST-TAREAS` (propiedades `Todoist ID`, `Estado`, `Tipo MAR`, `Fecha`, `Due`, `Deadline`, `Recurrencia`, `Descripcion`, `URL`, `Labels`); `INX-ENLACES` replica `Tipo MAR` para filas `todoist:*` si el campo existe.
 - **Métrica**: una captura debería tardar < 30s; el sync debería tardar < 2–3 min para 200 tareas.
 
 ## Gaps (pendientes opcionales)
@@ -172,6 +172,7 @@ Nota de implementación:
 ## Estado del caso (v2)
 
 - **Clasificador MAR** alineado con la tabla de reglas: `classify_mar_type` en `tools/todoist_tools.py`.
+- **INX**: `tools/ensure_inx_tipo_mar_field.py` garantiza la propiedad `Tipo MAR` en `INX-ENLACES`; `tools/sync_inx_links.py --source todoist` la rellena desde `TODOIST-TAREAS`.
 - **Doctor MAR**: `apps/mar_doctor.py` (checks activables con flags; incluye `--check-tipo-consistency`).
 - **Check en un paso**: `apps\mar_check.bat` (sync + todos los checks; usar `--no-pause` en terminal).
 

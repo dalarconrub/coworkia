@@ -102,6 +102,7 @@ def create_task(
     due_string: str = None,
     due_date: str = None,       # formato YYYY-MM-DD
     due_datetime: str = None,   # formato ISO8601 (para Eventos con hora)
+    deadline_date: str = None,  # formato YYYY-MM-DD (para Logros)
     priority: int = 1,          # 1=normal, 2=medium, 3=high, 4=urgent
     labels: list[str] = None,
     is_recurring: bool = False,
@@ -112,10 +113,10 @@ def create_task(
 
     Para crear correctamente según sistema MAR:
     - Idea:   sin due_date, sin due_datetime
-    - Meta:   due_date (sin hora), no recurring
-    - Hábito: recurring_string (ej: "every day"), sin due_datetime
-    - Tarea:  due_date (sin hora, con deadline)
-    - Evento: due_datetime (con hora exacta)
+    - Hábito: recurring_string (ej: "every day"), aunque tenga hora
+    - Evento: due_datetime (con hora exacta), no recurring
+    - Logro:  deadline_date (sin hora), no recurring
+    - Tarea:  due_date (sin hora), no recurring, sin deadline
     """
     data = {"content": content, "priority": priority}
 
@@ -130,12 +131,14 @@ def create_task(
     if due_datetime:
         data["due_datetime"] = due_datetime  # Evento
     elif due_date:
-        data["due_date"] = due_date          # Meta o Tarea
+        data["due_date"] = due_date          # Tarea, salvo que tambien haya deadline
     elif due_string:
         data["due_string"] = due_string
 
     if is_recurring and recurring_string:
         data["due_string"] = recurring_string  # Hábito
+    if deadline_date:
+        data["deadline_date"] = deadline_date
 
     resp = requests.post(f"{BASE_URL}/tasks", headers=_headers(), json=data)
     resp.raise_for_status()
@@ -250,10 +253,11 @@ def create_project(name: str, parent_id: str = None) -> dict:
 
 MAR_FILTERS = {
     "idea":   "no date & no deadline",
-    "meta":   "!recurring & !!no time & !no deadline",
-    "habito": "recurring & no time & no deadline",
-    "tarea":  "no time & !no deadline",
-    "evento": "!no time",
+    "logro":  "!recurring & no time & !no deadline",
+    "meta":   "!recurring & no time & !no deadline",  # alias legacy de logro
+    "habito": "recurring",
+    "tarea":  "!recurring & no time & no deadline",
+    "evento": "!recurring & !no time",
 }
 
 HORIZON_FILTERS = {
@@ -268,12 +272,12 @@ HORIZON_FILTERS = {
 def get_tasks_by_mar_type(mar_type: str) -> list[dict]:
     """
     Obtiene tareas filtradas por tipo MAR.
-    mar_type: 'idea' | 'meta' | 'habito' | 'tarea' | 'evento'
+    mar_type: 'idea' | 'logro' | 'habito' | 'tarea' | 'evento'
 
     La clasificación MAR final se hace localmente porque Todoist no distingue
-    el modelo conceptual Meta/Tarea de forma nativa en todos los casos.
+    el modelo conceptual Logro/Tarea de forma nativa en todos los casos.
     """
-    mar_type = mar_type.lower()
+    mar_type = normalize_mar_type(mar_type)
     if mar_type not in MAR_FILTERS:
         raise ValueError(f"Tipo MAR desconocido: {mar_type}. Use: {list(MAR_FILTERS.keys())}")
     return [task for task in get_tasks() if classify_mar_type(task) == mar_type]
@@ -292,6 +296,14 @@ def get_tasks_by_horizon(horizon: str) -> list[dict]:
 
 # ─── CLASIFICADOR MAR ─────────────────────────────────────────────────────────
 
+def normalize_mar_type(mar_type: str) -> str:
+    """Normaliza aliases historicos de tipos MAR."""
+    value = (mar_type or "").strip().lower()
+    if value == "meta":
+        return "logro"
+    return value
+
+
 def classify_mar_type(task: dict) -> str:
     """
     Determina el tipo MAR de una tarea existente en Todoist
@@ -305,18 +317,18 @@ def classify_mar_type(task: dict) -> str:
     has_time = "T" in due_date
     has_deadline = bool(deadline and deadline.get("date"))
 
-    # Reglas MAR (David):
-    # - Evento: cualquier cosa con hora (due con hora), da igual el resto
-    # - Hábito: cualquier cosa recurrente, da igual el resto
-    # - Meta: sin hora, no recurrente, con deadline (da igual si hay due o no)
-    # - Tarea: sin hora, no recurrente, sin deadline, con due (fecha)
-    # - Idea: sin due, sin deadline, sin hora (implícito)
-    if has_time:
-        return "evento"
+    # Reglas MAR (David, 2026-05-10):
+    # - Hábito: recurrente, tenga o no hora.
+    # - Evento: no recurrente con hora.
+    # - Logro: no recurrente, sin hora, con deadline.
+    # - Tarea: no recurrente, sin hora, sin deadline, con due date.
+    # - Idea: nada de lo anterior.
     if is_recurring:
         return "habito"
+    if has_time:
+        return "evento"
     if has_deadline:
-        return "meta"
+        return "logro"
     if due and not has_time:
         return "tarea"
     return "idea"

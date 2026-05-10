@@ -73,7 +73,7 @@ flowchart LR
 
 ### MAR — Todoist
 
-Sistema de ejecución diaria. Clasifica acciones por cómo existen en el tiempo: **Idea / Meta / Hábito / Tarea / Evento**.
+Sistema de ejecución diaria. Clasifica acciones por cómo existen en el tiempo: **Idea / Logro / Hábito / Tarea / Evento**.
 
 ```mermaid
 flowchart TD
@@ -81,7 +81,7 @@ flowchart TD
     INBOX --> TRIAGE[Revision diaria<br/>mover a proyecto A/B]
     TRIAGE --> CLF{Clasificación MAR}
     CLF -->|Idea| MAR_I[Idea]
-    CLF -->|Meta| MAR_M[Meta]
+    CLF -->|Logro| MAR_M[Logro]
     CLF -->|Hábito| MAR_H[Hábito]
     CLF -->|Tarea| MAR_T[Tarea]
     CLF -->|Evento| MAR_E[Evento]
@@ -94,7 +94,7 @@ flowchart TD
 
 - **Inbox operativo:** `Inbox` normal de Todoist (`project_id=6Crfvj4MWg6GfVq6`). Los proyectos `Z-*` son backs/staging y no se consultan en el arranque diario salvo petición explícita.
 - **Triage diario:** `estado` → listar `Inbox` → `ver <TASK_ID>` → `mover <TASK_ID> <PROJECT_ID>` a bloque A/B liviano.
-- **CLI:** [agents/todoist_agent.py](../agents/todoist_agent.py) — `estado`, `listar`, `buscar`, `ver`, `mover`, `editar`, `reclasificar`, `idea/meta/habito/tarea/evento`.
+- **CLI:** [agents/todoist_agent.py](../agents/todoist_agent.py) — `estado`, `listar`, `buscar`, `ver`, `mover`, `editar`, `reclasificar`, `idea/logro/habito/tarea/evento`.
 - **Apps:** [apps/dashboard.py](../apps/dashboard.py), [apps/backs_todoist.py](../apps/backs_todoist.py), [apps/mar_doctor.py](../apps/mar_doctor.py).
 - **Sync:** [tools/sync_todoist_to_notion.py](../tools/sync_todoist_to_notion.py) → espejo `TODOIST-TAREAS` en Notion; después [tools/sync_inx_links.py](../tools/sync_inx_links.py) `--source todoist` propaga a `INX-ENLACES`.
 - **Escalación inversa:** [tools/promote_notas_checkboxes_to_todoist.py](../tools/promote_notas_checkboxes_to_todoist.py) (desde Obsidian, caso 10).

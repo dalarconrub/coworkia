@@ -94,12 +94,12 @@ def _build_atlas() -> list[AtlasNode]:
             key="mar",
             title="MAR — Todoist",
             category="datos",
-            summary="Ejecucion diaria. Clasifica acciones por Idea/Meta/Habito/Tarea/Evento. "
+            summary="Ejecucion diaria. Clasifica acciones por Idea/Logro/Habito/Tarea/Evento. "
                     "Dashboard, captura rapida, sync opcional a Notion.",
             flow_text=(
                 "Captura (cualquier cliente Todoist)\n"
                 "    v\n"
-                "Clasificacion MAR (Idea/Meta/Habito/Tarea/Evento)\n"
+                "Clasificacion MAR (Idea/Logro/Habito/Tarea/Evento)\n"
                 "    v\n"
                 "Dashboard diario  →  sync_todoist_to_notion.py\n"
                 "                         v\n"

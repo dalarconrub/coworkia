@@ -1,6 +1,6 @@
 # Todoist Agent - Guia de uso
 
-Agente para gestion de tareas en Todoist siguiendo el sistema **MAR (Meta-Accion-Resultado)**.
+Agente para gestion de tareas en Todoist siguiendo el sistema **MAR**.
 
 ---
 
@@ -9,10 +9,11 @@ Agente para gestion de tareas en Todoist siguiendo el sistema **MAR (Meta-Accion
 | Tipo | Regla temporal | Ejemplo |
 |------|----------------|---------|
 | **Idea** | Sin fecha ni deadline | Captura de pensamiento |
-| **Meta** | Fecha sin hora, no recurrente | Compromiso puntual de un dia |
-| **Habito** | Recurrente, sin deadline | Rutina diaria |
-| **Tarea** | Deadline o compromiso flexible con fecha | Trabajo con vencimiento |
-| **Evento** | Hora fija | Reunion, cita |
+| **Habito** | Recurrente, tenga o no hora | Rutina repetida |
+| **Evento** | No recurrente con hora | Reunion, cita |
+| **Logro** | No recurrente, sin hora, con deadline | Resultado que debe alcanzarse antes de una fecha |
+| **Tarea** | No recurrente, sin hora, sin deadline, con due date | Trabajo con fecha de inicio/ejecucion |
+| **Idea** | Sin due date, sin deadline, sin hora, no recurrente | Captura de pensamiento |
 
 ---
 
@@ -29,7 +30,7 @@ python agents/todoist_agent.py estado
 
 ```bash
 python agents/todoist_agent.py listar idea
-python agents/todoist_agent.py listar meta
+python agents/todoist_agent.py listar logro
 python agents/todoist_agent.py listar habito
 python agents/todoist_agent.py listar tarea
 python agents/todoist_agent.py listar evento
@@ -46,7 +47,7 @@ diario normal.
 
 ```bash
 python agents/todoist_agent.py idea "Explorar integracion con Zotero"
-python agents/todoist_agent.py meta "Entregar informe borrador" 2026-03-20
+python agents/todoist_agent.py logro "Entregar informe borrador" 2026-03-20
 python agents/todoist_agent.py habito "Revisar bandeja de entrada" "every day"
 python agents/todoist_agent.py tarea "Corregir examenes" 2026-03-25
 python agents/todoist_agent.py evento "Reunion con Christian" 2026-03-18T10:00:00
@@ -67,12 +68,12 @@ python agents/todoist_agent.py editar <TASK_ID> --deadline-date 2026-04-20
 python agents/todoist_agent.py editar <TASK_ID> --clear-due --clear-deadline
 
 python agents/todoist_agent.py reclasificar <TASK_ID> idea
-python agents/todoist_agent.py reclasificar <TASK_ID> meta --valor 2026-04-15
+python agents/todoist_agent.py reclasificar <TASK_ID> logro --valor 2026-04-15
 python agents/todoist_agent.py reclasificar <TASK_ID> habito --valor "every day"
 python agents/todoist_agent.py reclasificar <TASK_ID> tarea --valor 2026-04-20
 python agents/todoist_agent.py reclasificar <TASK_ID> evento --valor 2026-04-15T10:00:00
 
-python agents/todoist_agent.py procesar <TASK_ID> meta <PROJECT_ID> --valor 2026-04-15
+python agents/todoist_agent.py procesar <TASK_ID> logro <PROJECT_ID> --valor 2026-04-15
 ```
 
 ### Flujo operativo diario recomendado
@@ -155,8 +156,16 @@ disponibles en el schema y excluye `Z-*`.
 Propagación a INX:
 
 ```bash
+python tools/ensure_inx_tipo_mar_field.py
 python tools/sync_inx_links.py --source todoist --limit 200
 ```
+
+Si `INX-ENLACES` tiene la propiedad `Tipo MAR`, el sync copia ahí la
+identificacion `idea` / `logro` / `habito` / `tarea` / `evento` desde
+`TODOIST-TAREAS`.
+
+Para backfills por ventanas del espejo Todoist, `sync_inx_links.py` admite
+`--offset N --limit M` en la fuente Todoist.
 
 Para marcar completadas por diferencia contra un snapshot de activos se usa el
 modo batch avanzado `--save-active` / `--finalize-completed`; no forma parte del
