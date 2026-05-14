@@ -60,6 +60,7 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
 - **Fuentes externas que alimentan KIT** (no son catálogos separados, viven dentro de KIT con propiedades dedicadas):
   - **Google Keep** (notas exportadas vía Takeout) → `Subtipo=Nota`, clave `Google Keep ID`.
   - **Inoreader** (artículos tageados con `kit-import` — `starred` NO entra porque es "Read later") → `Tipo=Information`, `Subtipo` ∈ {`Artículo`, `Newsletter`, `Blog`, `Vídeo`, `Podcast`}, claves `Inoreader ID` + `Inoreader Tags`. Ver [docs/inoreader-agent.md](../docs/inoreader-agent.md) y caso 15.
+  - **Raindrop.io** (bookmarks tageados con `kit-import` o búsqueda `RAINDROP_SEARCH_KIT`) → `Tipo=Information`, `Subtipo` ∈ {`Artículo`, `Newsletter`, `Blog`, `Vídeo`, `Podcast`, `Paper`}, claves `Raindrop ID` + `Raindrop Tags`. Ver [docs/raindrop-agent.md](../docs/raindrop-agent.md) y caso 16.
 
 ### 4. Catálogo de repositorios (GIT)
 - Importación desde GitHub a Notion.

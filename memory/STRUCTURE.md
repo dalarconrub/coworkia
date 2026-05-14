@@ -29,6 +29,7 @@ Un módulo Python por sistema (`MAR`/`PTN`/`KIT`/`GIT`/`BIB`/`ABGD`) más el orq
 - `bib_agent.py` — BIB (catalogar bibliografía).
 - `obsidian_agent.py` — ABGD (almacenar notas).
 - `inoreader_agent.py` — fuente externa que alimenta KIT (no catálogo separado): articulos con tag `kit-import` → `NOTION_DB_KIT`. Ver `docs/inoreader-agent.md`.
+- `raindrop_agent.py` — fuente externa que alimenta KIT (no catálogo separado): bookmarks con tag `kit-import` o `RAINDROP_SEARCH_KIT` → `NOTION_DB_KIT`. Ver `docs/raindrop-agent.md`.
 - `orchestrator_agent.py` — multiagente, sprints, INX sync, memoria.
 
 ### `tools/` — wrappers de APIs y utilidades
@@ -136,7 +137,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-05-14T20:50Z. No editar a mano dentro de este bloque._
 
 ```
 - .ai/
@@ -181,6 +182,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
   - notion_agent.py
   - obsidian_agent.py
   - orchestrator_agent.py
+  - raindrop_agent.py
   - todoist_agent.py
 - apps/
   - abrir_sesion.bat
@@ -293,6 +295,8 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
   - chat_2026-05-05.md
   - chat_2026-05-06.md
   - chat_2026-05-09.md
+  - chat_2026-05-10.md
+  - chat_2026-05-14.md
   - chat_archive_2026-04-17.md
 - config/
   - env.1password.example
@@ -318,6 +322,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
     - 13-wikilinks-cross-system.md
     - 14-reset-sistema.md
     - 15-inoreader-a-kit.md
+    - 16-raindrop-a-kit.md
     - index.md
   - abc-taxonomy.md
   - bib-agent.md
@@ -330,6 +335,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
   - notion-ptn-agent.md
   - obsidian-agent.md
   - pipeline-atlas.md
+  - raindrop-agent.md
   - todoist-agent.md
 - memory/
   - INDEX.md
@@ -407,8 +413,11 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
     - vercel.json
 - tests/
   - test_bookdown_static_html.py
+  - test_obsidian_note_metadata.py
+  - test_raindrop_tools.py
   - test_session_protocol.py
   - test_todoist_tools.py
+  - test_url_normalization.py
 - toolkits/
   - ai_commands_starter_kit.zip
   - consensus-mcp-kit.zip
@@ -433,8 +442,10 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
   - ensure_archivo_field.py
   - ensure_inx_completed_status.py
   - ensure_inx_paperpile_citekey_field.py
+  - ensure_inx_tipo_mar_field.py
   - ensure_kit_cross_fields.py
   - ensure_kit_external_fields.py
+  - ensure_obsidian_note_metadata_fields.py
   - ensure_todoist_tasks_schema.py
   - env_utils.py
   - find_notion_page.py
@@ -457,11 +468,9 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-09T16:33Z. No editar 
   - migrate_notas_ruta_obsidian.py
   - migrate_ptn.py
   - notion_tools.py
+  - obsidian_note_metadata.py
   - obsidian_tools.py
-  - obsidian_wikilinks.py
-  - paperpile_tools.py
-  - promote_bib_to_obsidian.py
-  - ... (30 mas)
+  - ... (37 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

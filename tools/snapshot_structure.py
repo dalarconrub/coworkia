@@ -43,6 +43,8 @@ EXCLUDE_FILE_SUFFIXES = {".pyc", ".pyo", ".log"}
 EXCLUDE_RELATIVE_FILES = {
     Path("artifacts") / "inoreader_state.json",
     Path("artifacts") / "inoreader_sync_state.json",
+    Path("artifacts") / "raindrop_state.json",
+    Path("artifacts") / "raindrop_sync_state.json",
     Path(".claude") / "settings.json",
 }
 

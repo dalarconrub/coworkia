@@ -72,7 +72,7 @@ Reglas:
 
 ## Propiedades
 
-`Titulo` · `Tipo` · `Subtipo` · `Estado` · `Resumen` · `Etiquetas` · `Fuente / Autor` · `Enlace` · `Nivel de confianza` · `Fecha de publicacion` · `Fecha de actualizacion` · `Extractos` · `Area` · `Usada en` · `Usada en notas` · `Google Keep ID` · `Archivos`
+`Titulo` · `Tipo` · `Subtipo` · `Estado` · `Resumen` · `Etiquetas` · `Fuente / Autor` · `Enlace` · `Nivel de confianza` · `Fecha de publicacion` · `Fecha de actualizacion` · `Extractos` · `Area` · `Usada en` · `Usada en notas` · `Google Keep ID` · `Inoreader ID` · `Inoreader Tags` · `Raindrop ID` · `Raindrop Tags` · `Raindrop Collection` · `Raindrop Type` · `Archivos`
 
 Notas:
 

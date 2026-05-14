@@ -27,3 +27,4 @@ Este directorio define **casos de uso canónicos** para guiar mejoras de integra
 - `13-wikilinks-cross-system.md` — sintaxis `[[<prefix>:<id>]]` en notas para referenciar entidades de PTN/KIT/Paperpile/Todoist/GitHub, auditadas contra INX por `tools/obsidian_wikilinks.py audit`
 - `14-reset-sistema.md` — validación del sistema de reseteo (Fases 1-4: MAR, Notion, Obsidian, orquestador general), con batería auto-ejecutable `tools/validate_case_14.py` que comprueba happy path, edge cases, idempotencia y propagación INX sin mutar datos
 - `15-inoreader-a-kit.md` — captura artículos Inoreader con tag `kit-import` → KIT vía API OAuth2 incremental o JSON feed público, materialización en INX como `kit:*` con `Fuente=KIT`, vínculo opcional a PTN con `link_article_to_ptn`
+- `16-raindrop-a-kit.md` — captura bookmarks Raindrop.io con tag `kit-import` → KIT vía REST API, materialización en INX como `kit:*` con `Fuente=KIT`

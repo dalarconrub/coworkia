@@ -62,6 +62,7 @@ from tools.notion_tools import (
     query_data_source,
     update_page_properties,
 )
+from tools.url_normalization import canonical_url
 
 
 # ─── HELPERS DE UPSERT (compartidos con import_inoreader_articles.py) ────────
@@ -80,7 +81,7 @@ def existing_articles(db_kit: str) -> dict[str, dict[str, str]]:
     for row in rows:
         props = row.get("properties", {})
         page_id = row["id"]
-        url = extract_property_value(props.get("Enlace", {}))
+        url = canonical_url(extract_property_value(props.get("Enlace", {})))
         iid = extract_property_value(props.get("Inoreader ID", {})) if "Inoreader ID" in props else ""
         if url:
             by_url[url] = page_id
@@ -103,7 +104,7 @@ def article_to_props(article: dict) -> dict:
         "Fuente / Autor": {"rich_text": [{"text": {"content": fuente}}]},
     }
     if article.get("url"):
-        props["Enlace"] = {"url": article["url"]}
+        props["Enlace"] = {"url": canonical_url(article["url"])}
     if article.get("summary_text"):
         props["Resumen"] = {"rich_text": [{"text": {"content": article["summary_text"][:2000]}}]}
     if article.get("published_date"):
@@ -123,7 +124,7 @@ def upsert_article_to_kit(db_kit: str, article: dict,
     comparten el mismo articulo.
     """
     props = article_to_props(article)
-    url = (article.get("url") or "").strip()
+    url = canonical_url(article.get("url"))
     iid = article.get("inoreader_id", "")
 
     page_id: str | None = None

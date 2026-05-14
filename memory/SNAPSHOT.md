@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-05-09T16:14:29Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-05-14T20:54:07Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).
@@ -87,6 +87,22 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-04-27.md` (msg #5)
 - **[2026-04-27]** `Cursor` — Firma por defecto en `chats/` = `Cursor` (salvo petición explícita de otra identidad).
   - origen: `chats/chat_2026-04-27.md` (msg #6)
+- **[2026-05-09]** `Codex` — nueva politica ABGD/Obsidian: el vault primario deja de alojarse directamente en Google Drive; desde ahora debe vivir localmente en la computadora, y la nube/discos externos quedan como replicas o backups sincronizados. SIGUIENTE: definir ruta local destino y ejecutar rotacion Obsidian con dry-run antes de aplicar.
+  - origen: `chats/chat_2026-05-09.md` (msg #8)
+- **[2026-05-09]** `Codex` — rectificacion ABGD/Obsidian. Para simplificar, el vault real debe ser `ABGD-<fecha>/` (ej. `C:/Users/David/Documents/ABGD/ABGD-260509`). `1.ALPHA` queda como carpeta interna de conocimiento vivo usada por Coworkia, no como vault independiente abierto por Obsidian.
+  - origen: `chats/chat_2026-05-09.md` (msg #11)
+- **[2026-05-09]** `Codex` — semantica de capas ABGD aprobada. `1.ALPHA` trabajo vivo indexable; `2.BETA` staging/inbox; `3.GAMMA` productos generados; `4.DELTA` archivos/media; `5.EPSILON` historico frio. Coworkia opera por defecto sobre `1.ALPHA`.
+  - origen: `chats/chat_2026-05-09.md` (msg #13)
+- **[2026-05-10]** `Codex` — en Todoist/MAR, la precedencia canónica es `habito` si es recurrente; si no es recurrente y tiene hora, `evento`; si no es recurrente ni tiene hora y tiene `deadline`, `logro`; si no tiene deadline pero tiene `due date`, `tarea`; si no tiene nada de lo anterior, `idea`. `meta` queda como alias legacy de `logro`.
+  - origen: `chats/chat_2026-05-10.md` (msg #3)
+- **[2026-05-10]** `Codex` — las notas Obsidian pueden etiquetarse con properties frontmatter 	ipo, estado, 	ags, personas, uente, proyecto, 	area y liases; el sync las persiste en Notion/INX si existen las propiedades.
+  - origen: `chats/chat_2026-05-10.md` (msg #9)
+- **[2026-05-10]** `Codex` — INX puede resolver estructura ABPC de notas Obsidian desde la ruta obsidian:<ruta> incluso si la nota no declara frontmatter.
+  - origen: `chats/chat_2026-05-10.md` (msg #10)
+- **[2026-05-14]** `Codex` — Raindrop.io alimenta KIT con bookmarks tageados `kit-import` o filtrados por `RAINDROP_SEARCH_KIT`; no crea filas `raindrop:*` propias en INX, se materializa como `kit:<page_id>` via `sync_inx_links --source kit`.
+  - origen: `chats/chat_2026-05-14.md` (msg #4)
+- **[2026-05-14]** `Codex` — Los upserts Inoreader/Raindrop deduplican KIT por `Enlace` normalizado antes que por ID de fuente; la normalizacion elimina tracking (`utm_*`, `fbclid`, etc.), fragmentos y variantes triviales. Para historico usar `python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url`.
+  - origen: `chats/chat_2026-05-14.md` (msg #5)
 - **[archive_2026-04-17]** `Codex` — los marcadores canónicos del hilo son `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)
 - **[archive_2026-04-17]** `Codex` — la causa de los acentos rotos en chat.md es el uso de Windows PowerShell 5.1 sobre un archivo UTF-8 sin indicar codificación explícita. Regla fija del sistema: cualquier lectura/escritura manual de chat.md en PowerShell debe usar -Encoding utf8.

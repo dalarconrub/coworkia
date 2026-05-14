@@ -6,8 +6,8 @@ Reversible desde Notion: 'Show archived' -> Restore.
 
 Casos tipicos:
   KIT articulos Inoreader (mismo articulo via 2 rutas o 2 feeds):
-    python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace
-    python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --apply
+    python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url
+    python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url --apply
 
   BIB papers (mismo citekey re-importado):
     python tools/dedupe_notion_db.py --db-env NOTION_DB_BIB --key Citekey
@@ -55,6 +55,7 @@ from tools.notion_tools import (
     get_data_source_schema,
     query_data_source,
 )
+from tools.url_normalization import canonical_url
 
 
 def _find_title_field(db_id: str) -> str | None:
@@ -71,12 +72,14 @@ def _find_title_field(db_id: str) -> str | None:
 
 
 def _row_key(row: dict, key_field: str | None,
-             by_title: bool, title_field: str | None) -> str:
+             by_title: bool, title_field: str | None,
+             normalize_url: bool = False) -> str:
     props = row.get("properties", {})
     if by_title and title_field:
         return (extract_property_value(props.get(title_field, {})) or "").strip().lower()
     if key_field:
-        return (extract_property_value(props.get(key_field, {})) or "").strip()
+        value = (extract_property_value(props.get(key_field, {})) or "").strip()
+        return canonical_url(value) if normalize_url else value
     return ""
 
 
@@ -106,6 +109,8 @@ def main() -> int:
                         help="Politica de conservacion: cual fila se queda (default oldest)")
     parser.add_argument("--apply", action="store_true",
                         help="Archiva las copias. Sin esta flag solo lista (dry-run)")
+    parser.add_argument("--normalize-url", action="store_true",
+                        help="Normaliza URLs antes de agrupar (quita utm_*, fragmentos, tracking)")
     parser.add_argument("--limit-groups", type=int, default=None,
                         help="Procesa solo los N primeros grupos (pruebas)")
     args = parser.parse_args()
@@ -128,7 +133,7 @@ def main() -> int:
 
     groups: dict[str, list] = defaultdict(list)
     for row in rows:
-        key = _row_key(row, args.key, args.by_title, title_field)
+        key = _row_key(row, args.key, args.by_title, title_field, args.normalize_url)
         if not key:
             continue
         groups[key].append(row)

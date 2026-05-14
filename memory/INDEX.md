@@ -81,6 +81,7 @@ Obligatorio: entrada tras `✅ CERRADO`, `MEMORIA:` operativa, feature completad
 | [docs/notion-ptn-agent.md](../docs/notion-ptn-agent.md)           | PTN — guía del agente Notion proyectos      |
 | [docs/notion-kit-agent.md](../docs/notion-kit-agent.md)           | KIT — guía del catálogo de conocimiento     |
 | [docs/inoreader-agent.md](../docs/inoreader-agent.md)             | Inoreader → KIT — fuente externa de Information (API + JSON feed) |
+| [docs/raindrop-agent.md](../docs/raindrop-agent.md)               | Raindrop.io → KIT — fuente externa de bookmarks (REST API + MCP documentado) |
 | [docs/git-agent.md](../docs/git-agent.md)                         | GIT — guía del agente GitHub                |
 | [docs/bib-agent.md](../docs/bib-agent.md)                         | BIB — guía del agente bibliográfico         |
 | [docs/obsidian-agent.md](../docs/obsidian-agent.md)               | ABGD — guía del agente Obsidian             |

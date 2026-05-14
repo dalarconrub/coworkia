@@ -568,6 +568,7 @@ Los 15 casos en [docs/casos-de-uso/](casos-de-uso/) son los **flujos reales** qu
 | 13 | Wikilinks cross-system con auditoría INX | ABGD + INX + KIT + BIB + PTN |
 | 14 | Reset seguro del sistema | MAR + PTN + ABGD + INX |
 | 15 | Inoreader → KIT | Inoreader + KIT + PTN + INX |
+| 16 | Raindrop.io → KIT | Raindrop.io + KIT + INX |
 
 Cada caso tiene su propio doc con DoD, gaps y mejoras. La mayoría tiene validador en [tools/validate_case_<N>.py](../tools/) más wrapper Windows en [apps/validate_case_<N>.bat](../apps/); cuando no lo tiene, el documento indica el doctor o comando operativo equivalente.
 

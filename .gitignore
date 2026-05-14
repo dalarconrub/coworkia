@@ -37,6 +37,10 @@ bookdown/_book/
 artifacts/inoreader_state.json
 # Cursor de sync incremental Inoreader (regenerable, no critico)
 artifacts/inoreader_sync_state.json
+# Cursor de sync incremental Raindrop (regenerable, no critico)
+artifacts/raindrop_sync_state.json
+# Tokens OAuth de Raindrop (access + refresh): NUNCA versionar
+artifacts/raindrop_state.json
 # Exports JSON descargados manualmente desde Inoreader (staging local)
 artifacts/imports/inoreader/
 # Takeout Google Keep (notas personales, staging local para importar a KIT)

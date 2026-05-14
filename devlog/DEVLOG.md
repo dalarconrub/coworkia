@@ -847,3 +847,28 @@ Resumen: Añadido parser de frontmatter Obsidian con soporte de escalares, lista
 Estado: DONE
 Chat: chats/chat_2026-05-10.md
 Resumen: Añadida extraccion de Area/Bloque/Contexto/Proyecto/Tarea/Nota/Nivel desde rutas relativas Obsidian. Nuevas propiedades en OBSIDIAN_DB: Ruta Area, Ruta Bloque, Ruta Contexto, Ruta Proyecto, Ruta Tarea, Ruta Nota, Ruta Nivel; en INX-ENLACES: Obsidian Area, Obsidian Bloque, Obsidian Contexto, Obsidian Proyecto, Obsidian Tarea, Obsidian Nota, Obsidian Nivel. sync_inx_links.py deriva estos campos directamente desde Ruta para filas antiguas. Schema aplicado en Notion real y smoke sync --source obsidian --limit 5 OK. Tests: python -m pytest -q => 21 passed.
+
+## 2026-05-14T20:23Z — Codex — [KIT] Integrar Raindrop.io como fuente KIT
+Estado: DONE
+Chat: chats/chat_2026-05-14.md
+Resumen: Añadidos wrapper REST, sync Raindrop->KIT, agente CLI, schema externo, docs/caso 16, .env.example, gitignore de cursor y tests. Raindrop se trata como fuente externa de KIT sin filas raindrop:* propias en INX; la materializacion sigue por sync_inx_links --source kit.
+
+## 2026-05-14T20:24Z — Codex — [DOCS] Documentar Raindrop.io en memoria KIT
+Estado: DONE
+Chat: chats/chat_2026-05-14.md
+Resumen: Actualizados memory/INDEX.md, memory/PURPOSE.md, memory/STRUCTURE.md, docs/raindrop-agent.md, caso 16, pipeline-atlas y guia KIT para reflejar Raindrop.io como fuente externa de KIT.
+
+## 2026-05-14T20:31Z — Codex — [KIT] Añadir OAuth Raindrop.io
+Estado: PROGRESS
+Chat: chats/chat_2026-05-14.md
+Resumen: Extendida la integracion Raindrop.io para aceptar client id/client secret mediante tools/raindrop_oauth.py, persistir tokens en artifacts/raindrop_state.json y refrescar access_token automaticamente desde raindrop_tools.py. Pendiente: David pega credenciales en .env y ejecuta OAuth interactivo.
+
+## 2026-05-14T20:50Z — Codex — [KIT] Normalizar URLs para dedupe KIT
+Estado: DONE
+Chat: chats/chat_2026-05-14.md
+Resumen: Añadido tools/url_normalization.py y aplicado a upserts Inoreader/Raindrop para dedupe por Enlace canonico; dedupe_notion_db.py acepta --normalize-url para limpiar duplicados historicos. Tests completos: 27 passed.
+
+## 2026-05-14T20:53Z — Codex — [KIT] Configurar OAuth Raindrop.io
+Estado: DONE
+Chat: chats/chat_2026-05-14.md
+Resumen: OAuth interactivo de Raindrop.io ejecutado correctamente; tokens persistidos en artifacts/raindrop_state.json (gitignored). auth-check OK para David Alarcon Rubio; list-tags detecta kit-import y dry-run sync encuentra 1 bookmark importable.

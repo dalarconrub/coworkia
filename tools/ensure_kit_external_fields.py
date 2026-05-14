@@ -1,6 +1,6 @@
 """
 Garantiza las propiedades de KIT necesarias para integrar fuentes externas
-(Inoreader, Google Keep y futuras).
+(Inoreader, Raindrop.io, Google Keep y futuras).
 
 Anade en NOTION_DB_KIT (sin destruir lo existente):
   - Google Keep ID     (rich_text)  unique key de notas Google Keep
@@ -8,12 +8,15 @@ Anade en NOTION_DB_KIT (sin destruir lo existente):
                                     notas en cada run (incidente 2026-04-21)
   - Inoreader ID       (rich_text)  unique key del articulo en Inoreader
   - Inoreader Tags     (multi_select: 'starred', 'kit-import')
+  - Raindrop ID        (rich_text)  unique key del bookmark en Raindrop.io
+  - Raindrop Tags      (multi_select: 'kit-import')
+  - Raindrop Collection / Type (rich_text)
   - Subtipo            (select)     anade Articulo / Newsletter / Blog / Vídeo / Podcast
                                     si faltan (preserva opciones existentes)
   - Fuente / Autor     (rich_text)  ya creado por el flujo Google Keep, idempotente
 
 Anade en NOTION_DB_INX:
-  - opcion 'Inoreader' al select 'Fuente' (preserva opciones existentes)
+  - opciones 'Inoreader' y 'Raindrop' al select 'Fuente' (preserva opciones existentes)
 
 Uso:
     python tools/ensure_kit_external_fields.py
@@ -44,10 +47,15 @@ NEW_SUBTIPO_OPTIONS = [
     {"name": "Blog", "color": "green"},
     {"name": "Vídeo", "color": "red"},
     {"name": "Podcast", "color": "purple"},
+    {"name": "Paper", "color": "gray"},
 ]
 
 INOREADER_TAG_OPTIONS = [
     {"name": "starred", "color": "yellow"},
+    {"name": "kit-import", "color": "blue"},
+]
+
+RAINDROP_TAG_OPTIONS = [
     {"name": "kit-import", "color": "blue"},
 ]
 
@@ -108,15 +116,25 @@ def main() -> int:
         db_kit, "NOTION_DB_KIT", "Inoreader Tags",
         {"multi_select": {"options": INOREADER_TAG_OPTIONS}},
     ))
+    changed += int(_ensure_property(db_kit, "NOTION_DB_KIT", "Raindrop ID", {"rich_text": {}}))
+    changed += int(_ensure_property(
+        db_kit, "NOTION_DB_KIT", "Raindrop Tags",
+        {"multi_select": {"options": RAINDROP_TAG_OPTIONS}},
+    ))
+    changed += int(_ensure_property(db_kit, "NOTION_DB_KIT", "Raindrop Collection", {"rich_text": {}}))
+    changed += int(_ensure_property(db_kit, "NOTION_DB_KIT", "Raindrop Type", {"rich_text": {}}))
     changed += int(_ensure_property(db_kit, "NOTION_DB_KIT", "Fuente / Autor", {"rich_text": {}}))
 
     # KIT: opciones nuevas en Subtipo (si la propiedad existe)
     changed += int(_ensure_select_options(db_kit, "NOTION_DB_KIT", "Subtipo", NEW_SUBTIPO_OPTIONS))
 
-    # INX: nueva opcion Fuente=Inoreader
+    # INX: nuevas opciones de fuentes externas
     changed += int(_ensure_select_options(
         db_inx, "NOTION_DB_INX", "Fuente",
-        [{"name": "Inoreader", "color": "orange"}],
+        [
+            {"name": "Inoreader", "color": "orange"},
+            {"name": "Raindrop", "color": "blue"},
+        ],
     ))
 
     print(f"\nPropiedades aseguradas. Cambios aplicados: {changed}")

@@ -215,10 +215,19 @@ para la misma entidad.
 
 ## Convención de duplicados
 
-Si el mismo artículo (mismo título) llega dos veces con `Inoreader ID` distinto
-(p. ej. publicado en 2 feeds distintos que sigues), se crean **dos filas KIT
-distintas**. El sistema respeta `Inoreader ID` como única clave de dedupe.
-Limpieza: manual desde Notion si procede.
+El upsert usa primero `Enlace` normalizado y despues `Inoreader ID`. La
+normalizacion elimina parametros de tracking (`utm_*`, `fbclid`, etc.),
+fragmentos `#...`, ordena la query restante y normaliza host/scheme. Esto evita
+duplicar entradas si el mismo recurso llega por Inoreader y Raindrop con
+variantes triviales de URL. Si dos entradas tienen URL realmente distintas y
+`Inoreader ID` distinto, quedan como filas separadas.
+
+Limpieza historica:
+
+```bat
+python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url
+python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url --apply
+```
 
 ## Heurística de Subtipo
 

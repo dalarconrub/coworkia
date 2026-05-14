@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 4,
+    "value": "Raindrop.io alimenta KIT con bookmarks tageados `kit-import` o filtrados por `RAINDROP_SEARCH_KIT`; no crea filas `raindrop:*` propias en INX, se materializa como `kit:<page_id>` via `sync_inx_links --source kit`."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 5,
+    "value": "Los upserts Inoreader/Raindrop deduplican KIT por `Enlace` normalizado antes que por ID de fuente; la normalizacion elimina tracking (`utm_*`, `fbclid`, etc.), fragmentos y variantes triviales. Para historico usar `python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url`."
+  }
+]

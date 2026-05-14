@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-05-09T16:14:28Z",
-  "source_path": "C:\\Users\\David\\Desktop\\AI-Generators\\coworkia\\chats\\chat_2026-05-09.md",
-  "message_count": 4,
+  "generated_at": "2026-05-14T20:54:07Z",
+  "source_path": "C:\\Users\\David\\Desktop\\REPO\\AI-Generators\\coworkia\\chats\\chat_2026-05-14.md",
+  "message_count": 6,
   "last_actor": "Codex",
   "decisions_open": [],
   "decisions_all": [],
@@ -15,7 +15,7 @@
     },
     {
       "name": "Codex",
-      "last_message_index": 4,
+      "last_message_index": 6,
       "last_direct_mention_index": null,
       "pending_mentions": [],
       "pending_decisions": []
@@ -28,7 +28,20 @@
       "pending_decisions": []
     }
   ],
-  "memory_records": [],
+  "memory_records": [
+    {
+      "kind": "MEMORIA",
+      "actor": "Codex",
+      "message_index": 4,
+      "value": "Raindrop.io alimenta KIT con bookmarks tageados `kit-import` o filtrados por `RAINDROP_SEARCH_KIT`; no crea filas `raindrop:*` propias en INX, se materializa como `kit:<page_id>` via `sync_inx_links --source kit`."
+    },
+    {
+      "kind": "MEMORIA",
+      "actor": "Codex",
+      "message_index": 5,
+      "value": "Los upserts Inoreader/Raindrop deduplican KIT por `Enlace` normalizado antes que por ID de fuente; la normalizacion elimina tracking (`utm_*`, `fbclid`, etc.), fragmentos y variantes triviales. Para historico usar `python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url`."
+    }
+  ],
   "messages": [
     {
       "index": 1,
@@ -45,7 +58,7 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Detectada y corregida desalineacion menor en `memory/STRUCTURE.md`: TREE regenerado con estado real del repo. Devlog `[DOCS]` añadido. SIGUIENTE: listo para continuar; no hay decisiones abiertas.",
+      "body": "Sesion iniciada. Rama `main`, ultimo commit `50fbc79 Close session 2026-05-10`, sin cambios de codigo pendientes; solo esta creado el chat de hoy. No hay decisiones abiertas en `chats/chat_2026-05-14.md`. SIGUIENTE: @David indica el frente a activar; candidatos naturales por devlog reciente: backfill completo de `Tipo MAR` en INX o continuar validacion ABGD/Obsidian tras la rotacion local.",
       "mentions": [],
       "mode": null,
       "mode_number": null
@@ -55,7 +68,7 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Inicio revision integral del sistema Coworkia: memoria/protocolo, estado Git, estructura, validaciones locales, documentacion y posibles diagnosticos por dominio. Primero pasada local no invasiva.",
+      "body": "Implementada integracion Raindrop.io -> KIT como fuente externa: `agents/raindrop_agent.py`, `tools/raindrop_tools.py`, `tools/sync_raindrop_to_kit.py`, schema en `ensure_kit_external_fields.py`, docs y caso 16. MEMORIA: Raindrop.io alimenta KIT con bookmarks tageados `kit-import`/`RAINDROP_SEARCH_KIT`; no crea filas `raindrop:*` propias en INX, se materializa como `kit:<page_id>` via `sync_inx_links --source kit`.",
       "mentions": [],
       "mode": null,
       "mode_number": null
@@ -65,7 +78,27 @@
       "actor": "Codex",
       "actor_type": "agent",
       "target": null,
-      "body": "Inicio de sesion ejecutado con `python tools/session_protocol.py inicia`; contexto Git, memoria, chat y devlog revisados.",
+      "body": "MEMORIA: Raindrop.io alimenta KIT con bookmarks tageados `kit-import` o filtrados por `RAINDROP_SEARCH_KIT`; no crea filas `raindrop:*` propias en INX, se materializa como `kit:<page_id>` via `sync_inx_links --source kit`.",
+      "mentions": [],
+      "mode": null,
+      "mode_number": null
+    },
+    {
+      "index": 5,
+      "actor": "Codex",
+      "actor_type": "agent",
+      "target": null,
+      "body": "MEMORIA: Los upserts Inoreader/Raindrop deduplican KIT por `Enlace` normalizado antes que por ID de fuente; la normalizacion elimina tracking (`utm_*`, `fbclid`, etc.), fragmentos y variantes triviales. Para historico usar `python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url`.",
+      "mentions": [],
+      "mode": null,
+      "mode_number": null
+    },
+    {
+      "index": 6,
+      "actor": "Codex",
+      "actor_type": "agent",
+      "target": null,
+      "body": "Cierre de sesion: integracion Raindrop.io -> KIT implementada, OAuth validado, `kit-import` detectado con 1 bookmark importable en dry-run, dedupe por URL normalizada aplicado a Inoreader/Raindrop. Validaciones: `python -m pytest -q` = 27 passed; `python tools/memory_check.py` = OK. SIGUIENTE: @David cuando quieras importar el bookmark real, ejecutar `python tools/ensure_kit_external_fields.py`, `python agents/raindrop_agent.py sync` y `python tools/sync_inx_links.py --source kit --limit 200`.",
       "mentions": [],
       "mode": null,
       "mode_number": null
