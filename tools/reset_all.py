@@ -15,9 +15,9 @@ Politica:
     marker reversible en description como su mecanismo equivalente.
   - `--dry-run` se propaga a las tres fases (nada se escribe).
   - Sin `--yes`, pregunta confirmacion interactiva antes de ejecutar en real.
-  - Obsidian deriva por defecto la ruta destino bajo la misma raiz del vault
-    actual con la convención `ABGD-yymmdd`. `--obsidian-new-vault-path` queda
-    como override explicito.
+  - Obsidian deriva por defecto la ruta destino con la convención
+    `ABGDE/ABGDE-YYYY-MM-DD`. `--obsidian-new-vault-path` queda como override
+    explicito.
 
 Uso:
     python tools/reset_all.py --dry-run                             # plan completo con ruta Obsidian derivada
@@ -134,7 +134,7 @@ def _print_plan(args) -> None:
         if args.obsidian_new_vault_path:
             obs_plan += f" --new-vault-path {args.obsidian_new_vault_path}"
         else:
-            obs_plan += " [ruta derivada ABGD-yymmdd]"
+            obs_plan += " [ruta derivada ABGDE/ABGDE-YYYY-MM-DD]"
         if args.obsidian_depth is not None:
             obs_plan += f" --depth {args.obsidian_depth}"
         if args.obsidian_force:
@@ -200,7 +200,7 @@ def main() -> int:
     # Obsidian
     parser.add_argument("--skip-obsidian", action="store_true")
     parser.add_argument("--obsidian-new-vault-path",
-                        help="Ruta destino para rotate (opcional; default = sibling ABGD-yymmdd)")
+                        help="Ruta destino para rotate (opcional; default = ABGDE/ABGDE-YYYY-MM-DD)")
     parser.add_argument("--obsidian-depth", type=int, default=None,
                         help="Override --depth de reset_obsidian (default 3 en el CLI)")
     parser.add_argument("--obsidian-force", action="store_true")

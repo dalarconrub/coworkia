@@ -6,21 +6,30 @@ Agente para el vault **ABGD** en Obsidian.
 
 Política vigente desde 2026-05-09: el vault primario debe estar en disco local del PC. Google Drive, otros servicios de nube y discos externos se usan como réplicas/backups sincronizados, no como ruta operativa principal.
 
-Referencia actual validada en la sesión 2026-05-09:
+Ruta operativa actual en `.env`:
 
 ```text
-OBSIDIAN_ABGD_ROOT=C:/Users/David/Documents/ABGD/ABGD-260509
-OBSIDIAN_ALPHA_PATH=C:/Users/David/Documents/ABGD/ABGD-260509/1.ALPHA
+OBSIDIAN_ABGD_ROOT=C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15
+OBSIDIAN_ALPHA_PATH=C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15/1.ALPHA
+```
+
+Convención canónica vigente desde 2026-05-15:
+
+```text
+OBSIDIAN_ABGD_ROOT=C:/Users/David/Documents/ABGDE/ABGDE-YYYY-MM-DD
+OBSIDIAN_ALPHA_PATH=C:/Users/David/Documents/ABGDE/ABGDE-YYYY-MM-DD/1.ALPHA
 ```
 
 Convención vigente: Obsidian Desktop abre `OBSIDIAN_ABGD_ROOT` (el vault real). Las herramientas de Coworkia que operan sobre conocimiento vivo usan `OBSIDIAN_ALPHA_PATH`, que apunta a la subcarpeta `1.ALPHA`.
 
 Si se rota el vault con `tools/reset_obsidian.py rotate`, estas rutas deben actualizarse en `.env`; la guía no debe apuntar a rutas históricas como fuente de verdad.
+La rotación crea automáticamente la estructura mínima de `2.BETA`, `3.GAMMA`,
+`4.DELTA` y `5.EPSILON`, además de las notas índice de carpetas.
 
-Ruta local propuesta para la siguiente rotación:
+Ruta local propuesta para la siguiente rotación/migración:
 
 ```text
-C:/Users/David/Documents/ABGD/ABGD-260509
+C:/Users/David/Documents/ABGDE/ABGDE-YYYY-MM-DD
 ```
 
 ---
@@ -28,7 +37,7 @@ C:/Users/David/Documents/ABGD/ABGD-260509
 ## Capas internas del vault
 
 ```text
-ABGD-260509/
+ABGDE-YYYY-MM-DD/
 ├── .obsidian/
 ├── 1.ALPHA/
 ├── 2.BETA/
@@ -37,21 +46,35 @@ ABGD-260509/
 └── 5.EPSILON/
 ```
 
-| Carpeta | Rol | Regla operativa |
-| --- | --- | --- |
-| `1.ALPHA` | Trabajo vivo | Notas, proyectos, tareas intelectuales, journals, fichas trabajadas, MOCs y material enlazable/promovible. Coworkia la indexa por defecto. |
-| `2.BETA` | Staging / inbox | Importaciones, capturas brutas, notas sueltas y material pendiente de clasificar. No debe ser almacenamiento permanente. |
-| `3.GAMMA` | Productos generados | Informes, HTML, PDF, presentaciones, exports limpios y artefactos para entregar. |
-| `4.DELTA` | Archivos y media | PDFs, datasets, imágenes, audios, vídeos, adjuntos y documentos externos pesados. |
-| `5.EPSILON` | Histórico frío | Legacy, snapshots, material cerrado o congelado que se conserva pero no se opera. |
+| Carpeta | Rol | Jerarquía | Regla operativa |
+| --- | --- | --- | --- |
+| `1.ALPHA` | Notas Obsidian vivas | ABC canónica (`A/B/C/...`) | Solo Markdown y adjuntos ligeros imprescindibles: notas, MOCs, decisiones, journals, fichas, notas puente y enlaces. Coworkia la indexa por defecto. |
+| `2.BETA` | Histórico de proyectos | AB (`A/B/Proyecto`) | Proyectos finalizados o en hibernación. Conserva material operativo recuperable sin exigir el nivel C. |
+| `3.GAMMA` | Proyectos activos | A (`A/Proyecto`) | Carpetas materiales de proyectos vivos: código, datos, escritura, outputs y documentación de trabajo. |
+| `4.DELTA` | Referencias no-proyecto por fecha | Temporal (`AÑO/YYYY-MM-DD/`) | Documentos, capturas, datasets o carpetas de referencia incorporadas al sistema por fecha, antes o al margen de un proyecto. |
+| `5.EPSILON` | Biblioteca por tipo de fichero | Tipo de archivo | Biblioteca estable con raíz por formato (`PDF`, `EPUB`, `VIDEO`, `AUDIO`, `MUSICA`, etc.) y subcolecciones progresivas. |
 
-Regla: las integraciones automáticas de Coworkia deben operar sobre `1.ALPHA` salvo que un flujo especifique explícitamente otra capa.
+Regla: las integraciones automáticas de Coworkia operan sobre `1.ALPHA` salvo que un flujo especifique explícitamente otra capa. `ALPHA` no es "todo lo importante": es solo la capa cognitiva en Markdown; los archivos pesados, datasets, repos, backups y productos materiales no deben vivir ahí.
+
+### Reglas de clasificación por capa
+
+| Si es... | Va a... |
+| --- | --- |
+| Nota, mapa, decisión, diario, ficha de lectura o nota puente | `1.ALPHA` |
+| Proyecto cerrado, finalizado o hibernado con posible reactivación | `2.BETA` |
+| Proyecto activo con código, datos, escritura, outputs o documentación operativa | `3.GAMMA` |
+| Documento/carpeta de referencia no asignada como proyecto, conservada por fecha de entrada | `4.DELTA/AÑO/YYYY-MM-DD/` |
+| PDF, EPUB, vídeo, audio, música u otro archivo estable organizado por formato | `5.EPSILON/<TIPO>/` |
+
+`DELTA` conserva cuándo entró una referencia; `EPSILON` conserva qué tipo de objeto es. La interpretación de ambos vive en notas de `ALPHA`.
 
 ## Jerarquía ABGD
 
 ```
 Área (A) → Bloque (B) → Contexto (C) → Proyecto (P) → Tarea (T) → Nota (N)
 ```
+
+Esta jerarquía completa se exige solo en `1.ALPHA`. Las demás capas reducen la profundidad según su función: `BETA` usa AB, `GAMMA` usa A, `DELTA` usa tiempo y `EPSILON` usa tipo de fichero.
 
 ### Áreas
 
@@ -101,7 +124,7 @@ python agents/obsidian_agent.py ultimas --n 5 --area A1-INV
 
 # Ver contenido de una nota (por nombre o path)
 python agents/obsidian_agent.py ver "N260316-Reunión con Enrique"
-python agents/obsidian_agent.py ver "C:/Users/David/Documents/ABGD/ABGD-260509/1.ALPHA/.../nota.md"
+python agents/obsidian_agent.py ver "C:/Users/David/Documents/ABGDE/ABGDE-YYYY-MM-DD/1.ALPHA/.../nota.md"
 
 # Buscar texto en las notas
 python agents/obsidian_agent.py buscar "análisis GLM"
@@ -129,6 +152,44 @@ python agents/obsidian_agent.py nueva-nota A1-INV B12-LAB C126-DIR "Análisis da
   --proyecto "P126.01-Tesis Fran" \
   --tarea "T12601.03-Datos Estudio 3"
 ```
+
+### Crear estructura mínima y notas índice de carpetas
+
+Cada carpeta estructural ABGD-E puede tener una nota con su mismo nombre. Estas
+notas explican qué es la carpeta, cómo se organiza y qué regla de uso aplica.
+
+```bash
+# Crea estructura mínima de BETA/GAMMA/DELTA/EPSILON y notas faltantes
+python tools/create_alpha_index_notes.py
+
+# Regenera las notas índice con la plantilla vigente
+python tools/create_alpha_index_notes.py --refresh-existing
+
+# Solo refresca notas, sin tocar subcarpetas
+python tools/create_alpha_index_notes.py --refresh-existing --skip-structure
+```
+
+Este comando también se ejecuta automáticamente dentro de:
+
+```bash
+python tools/reset_obsidian.py rotate
+```
+
+Solo se omite si se pasa explícitamente `--no-abgde-index`.
+
+Alcance actual del comando:
+
+- raíz del vault (`ABGDE-YYYY-MM-DD.md`);
+- capas `1.ALPHA` a `5.EPSILON`;
+- áreas, bloques y contextos de `1.ALPHA`.
+- áreas y bloques de `2.BETA`;
+- áreas de `3.GAMMA`;
+- año y fecha actual de `4.DELTA`;
+- tipos de fichero y bandejas `SIN-CLASIFICAR` de `5.EPSILON`.
+
+Nota: `obsidian_agent.py estado` cuenta solo notas operativas con prefijo
+`NYYMMDD-*`; las notas índice de carpeta se crean con el mismo nombre de la
+carpeta y por eso no incrementan ese contador.
 
 ---
 
@@ -200,9 +261,15 @@ Después, el pipeline normal `log_obsidian_changes.py` +
 1.ALPHA/
 ├── A0-GTD/
 │   ├── B0A-INX/
+│   │   ├── C0A1-TODOIST/
+│   │   ├── C0A2-NOTION/
+│   │   └── C0A3-OBSIDIAN/
 │   ├── B0B-ABC/
+│   │   └── C0B0-ABC/
 │   └── B0C-PLA/
-│       └── C0C9-Notas/
+│       ├── C0C7-PROYECTOS/
+│       ├── C0C8-TAREAS/
+│       └── C0C9-NOTAS/
 ├── A1-INV/
 │   ├── B11-CVT/  (C111-REP, C112-SOL, C113-CAT)
 │   ├── B12-LAB/  (C124-PRO, C125-DAT, C126-DIR)
@@ -216,9 +283,76 @@ Después, el pipeline normal `log_obsidian_changes.py` +
 │   ├── B38-TEC/  (C384-INF, C385-STA, C386-IAA)
 │   └── B39-DES/  (C397-FIS, C398-MEN, C399-MUS)
 └── A4-ARX/
-    ├── B4X-BIB/
-    ├── B4Y-KIT/
-    └── B4Z-GIT/
+    ├── B4X-LIB/  (C4X0-LIB, C4X1-FIC, C4X2-SCI, C4X3-ENS)
+    ├── B4Y-MED/  (C4Y0-MED, C4Y4-VID, C4Y5-AUD, C4Y6-WEB)
+    └── B4Z-APP/  (C4Z0-APP, C4Z7-COD, C4Z8-AGI, C4Z9-SOF)
+```
+
+---
+
+## Estructura operativa esperada de las capas no-ALPHA
+
+```text
+2.BETA/
+├── A0-GTD/  (B0A-INX, B0B-ABC, B0C-PLA)
+├── A1-INV/  (B11-CVT, B12-LAB, B13-PUB)
+├── A2-UNI/  (B24-DOC, B25-FOR, B26-GES)
+├── A3-VIT/  (B37-ORG, B38-TEC, B39-DES)
+└── A4-ARX/  (B4X-LIB, B4Y-MED, B4Z-APP)
+
+3.GAMMA/
+├── A0-GTD/
+├── A1-INV/
+├── A2-UNI/
+├── A3-VIT/
+└── A4-ARX/
+
+4.DELTA/
+└── 2026/
+    └── 2026-05-15/
+        ├── papers-lms/
+        └── docs-openai-api/
+
+5.EPSILON/
+├── PDF/
+├── EPUB/
+├── VIDEO/
+├── AUDIO/
+├── MUSICA/
+├── IMAGENES/
+├── PRESENTACIONES/
+├── DOCS/
+├── HOJAS-CALCULO/
+├── ZIP/
+└── OTROS/
+```
+
+En EPSILON cada tipo incluye una bandeja `SIN-CLASIFICAR/` para incorporar
+material sin diseñar todavía una colección estable. En BETA y GAMMA no se crean
+proyectos vacíos: se crean solo los contenedores necesarios para evitar ruido.
+
+Las notas de `ALPHA` pueden referenciar cualquier carpeta material con rutas relativas al vault:
+
+```yaml
+---
+tipo: mapa-proyecto
+estado: activo
+gamma_path: 3.GAMMA/A1-INV/P260515-LMS
+delta_path: 4.DELTA/2026/2026-05-15/papers-lms
+epsilon_path: 5.EPSILON/PDF/papers/lms
+---
+```
+
+Y en el cuerpo:
+
+```md
+- Carpeta activa: `3.GAMMA/A1-INV/P260515-LMS/`
+- Referencias incorporadas: `4.DELTA/2026/2026-05-15/papers-lms/`
+- Biblioteca estable: `5.EPSILON/PDF/papers/lms/`
+- PTN: [[ptn:...]]
+- BIB: [[paperpile:...]]
+- KIT: [[kit:...]]
+- Repo: [[github:...]]
 ```
 
 ---
@@ -226,5 +360,5 @@ Después, el pipeline normal `log_obsidian_changes.py` +
 ## Configuración
 
 - Vault Obsidian real en `.env` → `OBSIDIAN_ABGD_ROOT`
-- Carpeta viva de notas ABPC en `.env` → `OBSIDIAN_ALPHA_PATH`
+- Carpeta viva de notas ABPC en `.env` → `OBSIDIAN_ALPHA_PATH` (`1.ALPHA`, solo notas Markdown)
 - Ruta primaria recomendada: local (`C:/Users/David/Documents/ABGD/...` o equivalente).

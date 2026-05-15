@@ -21,7 +21,7 @@ load_dotenv()
 
 from tools.notion_tools import create_database, add_page_to_database
 
-ALPHA_PATH = os.getenv("OBSIDIAN_ALPHA_PATH", "G:/Mi unidad/ABGD/ABGD-25.09.05/1.ALPHA")
+ALPHA_PATH = os.getenv("OBSIDIAN_ALPHA_PATH", "C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15/1.ALPHA")
 
 # Niveles ABGD por prefijo de nombre de archivo/carpeta
 NIVEL_PREFIJOS = {

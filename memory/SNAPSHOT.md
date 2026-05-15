@@ -1,6 +1,6 @@
 # Project Memory Snapshot
 
-_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-05-14T20:54:07Z. No editar a mano._
+_Auto-generado por `python agents/orchestrator_agent.py sync-chat-memory` @ 2026-05-15T20:12:45Z. No editar a mano._
 
 Agregado de marcadores `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:` de todos los chats en `chats/`.
 Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido normalizado).
@@ -103,6 +103,22 @@ Cada entrada enlaza al chat donde aparecio por ultima vez (dedup por contenido n
   - origen: `chats/chat_2026-05-14.md` (msg #4)
 - **[2026-05-14]** `Codex` — Los upserts Inoreader/Raindrop deduplican KIT por `Enlace` normalizado antes que por ID de fuente; la normalizacion elimina tracking (`utm_*`, `fbclid`, etc.), fragmentos y variantes triviales. Para historico usar `python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url`.
   - origen: `chats/chat_2026-05-14.md` (msg #5)
+- **[2026-05-15]** `Codex` — ABGD queda definido con ALPHA como única capa indexada por Coworkia/Obsidian para notas Markdown; BETA, GAMMA, DELTA y EPSILON son capas materiales con jerarquías propias.
+  - origen: `chats/chat_2026-05-15.md` (msg #3)
+- **[2026-05-15]** `Codex` — la semántica ABGD del 2026-05-15 reemplaza la definición anterior del 2026-05-09 donde BETA era staging, GAMMA productos generados, DELTA archivos/media y EPSILON histórico frío. La regla vigente es: ALPHA notas ABC; BETA proyectos hibernados/finalizados AB; GAMMA proyectos activos A; DELTA temporal AÑO/YYYY-MM-DD; EPSILON biblioteca por tipo de fichero.
+  - origen: `chats/chat_2026-05-15.md` (msg #4)
+- **[2026-05-15]** `Codex` — la ruta canónica nueva para vault/carpeta ABGD-E es `ABGDE/ABGDE-YYYY-MM-DD`; `reset_obsidian.py` deriva futuras rotaciones a esa forma y debe imprimir tanto `OBSIDIAN_ABGD_ROOT` como `OBSIDIAN_ALPHA_PATH`.
+  - origen: `chats/chat_2026-05-15.md` (msg #5)
+- **[2026-05-15]** `Codex` — el vault operativo actual es C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15 y la capa indexada es C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15/1.ALPHA.
+  - origen: `chats/chat_2026-05-15.md` (msg #6)
+- **[2026-05-15]** `Codex` — 1.ALPHA del vault operativo ABGDE-2026-05-15 ya contiene subcarpetas ABC completas; .obsidian debe existir solo en la raíz del vault, no dentro de 1.ALPHA.
+  - origen: `chats/chat_2026-05-15.md` (msg #7)
+- **[2026-05-15]** `Codex` — las carpetas estructurales de ABGD-E tienen nota índice homónima; estas notas no usan prefijo NYYMMDD-*, por lo que obsidian_agent.py estado no las cuenta como notas operativas.
+  - origen: `chats/chat_2026-05-15.md` (msg #8)
+- **[2026-05-15]** `Codex` — BETA/GAMMA/DELTA/EPSILON ya tienen contenedores mínimos reales e índices Markdown; no se crean proyectos vacíos, solo los niveles necesarios para clasificar material.
+  - origen: `chats/chat_2026-05-15.md` (msg #9)
+- **[2026-05-15]** `Codex` — toda rotación futura de vault ABGDE debe ejecutar automáticamente la creación de estructura mínima e índices de carpeta, integrada en `tools/reset_obsidian.py rotate`.
+  - origen: `chats/chat_2026-05-15.md` (msg #10)
 - **[archive_2026-04-17]** `Codex` — los marcadores canónicos del hilo son `MEMORIA:`, `BLOQUEO:` y `SIGUIENTE:`.
   - origen: `chats/chat_archive_2026-04-17.md` (msg #28)
 - **[archive_2026-04-17]** `Codex` — la causa de los acentos rotos en chat.md es el uso de Windows PowerShell 5.1 sobre un archivo UTF-8 sin indicar codificación explícita. Regla fija del sistema: cualquier lectura/escritura manual de chat.md en PowerShell debe usar -Encoding utf8.

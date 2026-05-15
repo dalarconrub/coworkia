@@ -201,26 +201,30 @@ flowchart LR
 - **Casos de uso:** [06 catálogo Paperpile](casos-de-uso/06-paperpile-bib-enlazado.md), [09 ficha lectura Obsidian](casos-de-uso/09-bib-a-obsidian.md).
 - **Env:** `PAPERPILE_BIBTEX_URL` (raw URL del repo), `GITHUB_TOKEN`, `NOTION_DB_BIB`, `NOTION_BIB_PARENT_PAGE`, `OBSIDIAN_ALPHA_PATH`.
 
-### ABGD — Obsidian vault
+### ABGD — Obsidian vault + capas materiales
 
-Almacén de pensamiento vivo. Jerarquía **A→B→C→P→T→N** (Área → Bloque → Contexto → Proyecto → Tarea → Nota).
+Almacén de pensamiento vivo y archivos asociados. `1.ALPHA` es la única capa Obsidian indexada por defecto: notas Markdown con jerarquía **A→B→C→P→T→N** (Área → Bloque → Contexto → Proyecto → Tarea → Nota). Las capas `2.BETA`, `3.GAMMA`, `4.DELTA` y `5.EPSILON` organizan material de proyectos, referencias y biblioteca sin sustituir a las notas.
 
 ```mermaid
 flowchart LR
-    VAULT[Obsidian vault<br/>OBSIDIAN_ABGD_ROOT]
-    AGENT[obsidian_agent.py] <--> VAULT
-    CREATE[nueva-nota] --> VAULT
-    SEARCH[buscar] --> VAULT
-    MAPA[mapa] --> VAULT
+    VAULT[ABGD vault<br/>OBSIDIAN_ABGD_ROOT]
+    ALPHA[1.ALPHA<br/>notas ABC<br/>OBSIDIAN_ALPHA_PATH]
+    MATERIAL[2.BETA/3.GAMMA/4.DELTA/5.EPSILON<br/>carpetas materiales]
+    VAULT --> ALPHA
+    VAULT --> MATERIAL
+    AGENT[obsidian_agent.py] <--> ALPHA
+    CREATE[nueva-nota] --> ALPHA
+    SEARCH[buscar] --> ALPHA
+    MAPA[mapa] --> ALPHA
 
-    VAULT --> LOG[log_obsidian_changes.py]
+    ALPHA --> LOG[log_obsidian_changes.py]
     LOG --> OBS_DB[(OBSIDIAN_DB)]
     OBS_DB --> SYNC_OBS[sync_inx_links.py --source obsidian]
     SYNC_OBS --> INX[(INX)]
 
     BACKFILL[backfill_obsidian_to_inx.py] -->|full-scan historico| OBS_DB
 
-    VAULT --> WIKI[obsidian_wikilinks.py audit/find]
+    ALPHA --> WIKI[obsidian_wikilinks.py audit/find]
     WIKI -.[[prefix:id]] roto/valido.-> INX
 ```
 
@@ -229,6 +233,7 @@ flowchart LR
 - **Tools:** [tools/obsidian_tools.py](../tools/obsidian_tools.py), [tools/log_obsidian_changes.py](../tools/log_obsidian_changes.py), [tools/backfill_obsidian_to_inx.py](../tools/backfill_obsidian_to_inx.py), [tools/obsidian_wikilinks.py](../tools/obsidian_wikilinks.py), [tools/migrate_notas_*.py](../tools/).
 - **Casos de uso:** [03](casos-de-uso/03-nota-obsidian-desde-ptn.md), [07](casos-de-uso/07-promocion-obsidian-a-ptn.md), [09](casos-de-uso/09-bib-a-obsidian.md), [10](casos-de-uso/10-checkboxes-obsidian-a-todoist.md), [11](casos-de-uso/11-journal-diario-en-timeline.md), [12](casos-de-uso/12-backfill-inx-historico.md), [13](casos-de-uso/13-wikilinks-cross-system.md).
 - **Env:** `OBSIDIAN_ABGD_ROOT`, `OBSIDIAN_ALPHA_PATH`.
+- **Capas:** `1.ALPHA` notas ABC; `2.BETA` proyectos hibernados/finalizados AB; `3.GAMMA` proyectos activos A; `4.DELTA` referencias temporales `AÑO/YYYY-MM-DD`; `5.EPSILON` biblioteca por tipo de fichero.
 
 ### INX — Trazabilidad cross-system
 
@@ -399,7 +404,7 @@ python tools/reset_all.py --dry-run --mar-limit 10 --notion-limit 5
 - **2. Notion** → `reset_notion.py reset-ptn-all --snapshot` (snapshot forzado siempre).
 - **3. Obsidian** → `reset_obsidian.py rotate --snapshot` (ruta derivada por defecto) o `--new-vault-path <path>` como override.
 - **Abort en cadena**: si la fase N falla, no se ejecuta N+1. Summary final lista lo que sí se hizo y los comandos de restore.
-- **Obsidian ya no se skipea por falta de path**: deriva por defecto la ruta destino como sibling del vault actual con formato `ABGD-yymmdd`. Usa `--obsidian-new-vault-path` solo si quieres override.
+- **Obsidian ya no se skipea por falta de path**: deriva por defecto la ruta destino con formato `ABGDE/ABGDE-YYYY-MM-DD`. Si el vault actual sigue en un contenedor legacy `ABGD`, crea `ABGDE` como sibling. Usa `--obsidian-new-vault-path` solo si quieres override.
 - **Snapshot obligatorio** en Notion y Obsidian (no hay forma de deshabilitar desde el orquestador): auditoría completa por defecto.
 - `--dry-run` se propaga a las tres fases.
 - Sin `--yes`, pide confirmación `y/N` tras mostrar el plan. Con `--yes`, ejecuta inmediatamente tras imprimirlo.
@@ -427,7 +432,7 @@ Cirugía mayor: construir un vault completamente nuevo como sibling, dejar el vi
 
 **Estrategia implementada: C (vault nuevo sibling, viejo intacto).**
 - El vault viejo **no se mueve, no se renombra, no se toca**. Sus paths físicos y los `obsidian:<path>` del INX siguen siendo válidos en disco.
-- El vault nuevo nace por defecto como sibling del vault actual con la regla `ABGD-yymmdd` bajo la misma raíz. Ejemplo: si el actual está en `.../ABGD`, el nuevo será `.../ABGD-260419`. `--new-vault-path` queda como override explícito. Contiene la estructura canónica replicada hasta `--depth N` (default 3 = Area → Bloque → Contexto) y una copia íntegra de `.obsidian/` para preservar plugins, hotkeys, temas y snippets.
+- El vault nuevo nace por defecto con la regla `ABGDE/ABGDE-YYYY-MM-DD`. Si el actual ya está bajo `.../ABGDE/`, reutiliza ese contenedor; si está bajo una ruta legacy `.../ABGD/`, crea `.../ABGDE/` como sibling. `--new-vault-path` queda como override explícito. Contiene la estructura canónica replicada hasta `--depth N`, la estructura mínima ABGD-E y una copia íntegra de `.obsidian/` para preservar plugins, hotkeys, temas y snippets.
 - **El CLI NO edita `.env`**. Al terminar imprime la línea `OBSIDIAN_ABGD_ROOT=<nueva ruta>` que debes pegar manualmente.
 
 ```bash
@@ -452,16 +457,18 @@ python tools/reset_obsidian.py restore --from /ruta/al/vault/viejo
 **Mecánica `rotate`:**
 1. Replica sólo la estructura de carpetas del viejo al nuevo hasta `--depth N` (excluye `.obsidian` porque se copia aparte). Sin `.md`.
 2. Copia `.obsidian/` completa vía `shutil.copytree` (sobrescribe si existía en el nuevo).
-3. Propagación INX: itera todas las filas de `NOTION_DB_INX`, filtra las que empiecen por `obsidian:` y hace `update_page_properties(row_id, {"Archivo": {"checkbox": True}})`. Idempotente.
-4. Opcional `--snapshot`: `artifacts/resets/YYYY-MM-DD/obsidian-rotate-<ts>.json` con metadata completa (rutas, dirs creadas, tamaño `.obsidian`, flip counts).
-5. Imprime el cambio a aplicar en `.env`.
+3. Asegura estructura mínima ABGD-E e índices homónimos: BETA con AB, GAMMA con A, DELTA con `AÑO/YYYY-MM-DD` y EPSILON por tipo de fichero.
+4. Propagación INX: itera todas las filas de `NOTION_DB_INX`, filtra las que empiecen por `obsidian:` y hace `update_page_properties(row_id, {"Archivo": {"checkbox": True}})`. Idempotente.
+5. Opcional `--snapshot`: `artifacts/resets/YYYY-MM-DD/obsidian-rotate-<ts>.json` con metadata completa (rutas, dirs creadas, tamaño `.obsidian`, estructura mínima, índices, flip counts).
+6. Imprime el cambio a aplicar en `.env`.
 
 **Protección:**
 - Si la ruta derivada o la pasada por `--new-vault-path` ya existe y no está vacía, aborta (pasa `--force` para sobrescribir conscientemente).
 - `--dry-run` no crea directorios ni modifica Notion.
 - `--no-inx` omite la propagación INX (solo toca filesystem).
+- `--no-abgde-index` omite la estructura mínima ABGD-E y las notas índice, solo para diagnósticos excepcionales.
 
-**Flags:** `--new-vault-path` (override opcional), `--depth N` (default 3, `-1` = todo el árbol), `--dry-run`, `--snapshot`, `--no-inx`, `--force`.
+**Flags:** `--new-vault-path` (override opcional), `--depth N` (default 3, `-1` = todo el árbol), `--dry-run`, `--snapshot`, `--no-inx`, `--no-abgde-index`, `--force`.
 
 **Restauración (`restore --from <old-vault-path>`):**
 - Flip `Archivo=false` en filas INX `obsidian:*` (una llamada API por fila).

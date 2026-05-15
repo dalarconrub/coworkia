@@ -299,7 +299,7 @@ Genera `conversation_records.jsonl`, `decision_log.json`, `agent_state.json`, `m
 
 ### Obsidian
 1. Apuntar a la raíz de tu vault ABGD
-2. `.env`: `OBSIDIAN_ABGD_ROOT=G:/Mi unidad/ABGD/ABGD-25.09.05`
+2. `.env`: `OBSIDIAN_ABGD_ROOT=C:/Users/David/Documents/ABGDE/ABGDE-YYYY-MM-DD`
 
 ---
 

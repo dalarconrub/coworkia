@@ -13,7 +13,7 @@ Este capitulo convierte la division conceptual de Coworkia en un mapa operativo.
 | `KIT` | Notion `KIT` | `agents/kit_agent.py` | `docs/notion-kit-agent.md` | `kit:*` |
 | `GIT` | GitHub + Notion `GIT` | `agents/github_agent.py` | `docs/git-agent.md` | `github:*` |
 | `BIB` | Paperpile + Notion `BIB` | `agents/bib_agent.py` | `docs/bib-agent.md` | `paperpile:*` |
-| `ABGD` | Vault Obsidian | `agents/obsidian_agent.py` | `docs/obsidian-agent.md` | `obsidian:*` |
+| `ABGD` | Vault Obsidian + capas internas | `agents/obsidian_agent.py` | `docs/obsidian-agent.md` | `obsidian:*` |
 | `INX` | Notion `INX-ENLACES` | `agents/orchestrator_agent.py` + `tools/sync_inx_links.py` | `docs/pipeline-atlas.md` | Capa de enlace |
 | Inoreader | Inoreader API/feed + KIT | `agents/inoreader_agent.py` | `docs/inoreader-agent.md` | `kit:*` y relaciones PTN |
 
@@ -183,7 +183,17 @@ python tools/obsidian_wikilinks.py audit
 
 ### Responsabilidad
 
-ABGD almacena pensamiento vivo, escritura larga y archivo estable. No reemplaza a PTN; cuando una nota se vuelve accionable o formal, se promueve.
+ABGD almacena pensamiento vivo en `1.ALPHA` y organiza material asociado en capas separadas:
+
+| Capa | Uso |
+| --- | --- |
+| `1.ALPHA` | Notas Markdown vivas, mapas, decisiones, diarios, fichas y notas puente con jerarquia ABC/ABPC. Es la unica capa indexada por defecto. |
+| `2.BETA` | Historico operativo de proyectos finalizados o hibernados, con jerarquia AB. |
+| `3.GAMMA` | Proyectos activos y sus carpetas materiales, con jerarquia A. |
+| `4.DELTA` | Referencias no-proyecto por fecha de incorporacion (`AÑO/YYYY-MM-DD`). |
+| `5.EPSILON` | Biblioteca estable por tipo de fichero (`PDF`, `EPUB`, `VIDEO`, `AUDIO`, `MUSICA`, etc.). |
+
+No reemplaza a PTN; cuando una nota se vuelve accionable o formal, se promueve. Los archivos pesados, datasets, repos y productos materiales no deben vivir en `ALPHA`; se enlazan desde notas.
 
 ## INX - Trazabilidad Cross-System
 

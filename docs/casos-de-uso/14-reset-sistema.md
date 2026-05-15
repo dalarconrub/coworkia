@@ -67,7 +67,7 @@ Marcas: **A**uto = cubierto por `validate_case_14.py`; **M**anual = requiere int
 | # | Test | Tipo | Expectativa |
 | --- | --- | --- | --- |
 | 3.1 | `reset_obsidian.py status` | A | muestra path + top-level + `Archivo` presente en INX |
-| 3.2 | `rotate --dry-run --snapshot` | A | plan sin escrituras; usa ruta derivada `ABGD-yymmdd`; snapshot JSON escrito |
+| 3.2 | `rotate --dry-run --snapshot` | A | plan sin escrituras; usa ruta derivada `ABGDE/ABGDE-YYYY-MM-DD`; snapshot JSON escrito |
 | 3.3 | `rotate --dry-run --new-vault-path <tmp>` | A | override explícito aceptado |
 | 3.4 | `rotate --new-vault-path <misma ruta que OBSIDIAN_ABGD_ROOT>` | A | exit !=0, mensaje "no puede coincidir" |
 | 3.5 | `rotate --new-vault-path <existente no vacía>` sin `--force` | A | exit !=0, mensaje "ya existe y no esta vacia" |

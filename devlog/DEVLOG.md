@@ -872,3 +872,43 @@ Resumen: Añadido tools/url_normalization.py y aplicado a upserts Inoreader/Rain
 Estado: DONE
 Chat: chats/chat_2026-05-14.md
 Resumen: OAuth interactivo de Raindrop.io ejecutado correctamente; tokens persistidos en artifacts/raindrop_state.json (gitignored). auth-check OK para David Alarcon Rubio; list-tags detecta kit-import y dry-run sync encuentra 1 bookmark importable.
+
+## 2026-05-15T18:40Z — Codex — [KIT] Sincronizar Raindrop con KIT e INX
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Ejecutado sync real Raindrop -> KIT: 1 bookmark kit-import creado en NOTION_DB_KIT (mksglu - Overview). Se aseguro schema externo faltante en KIT/INX para Raindrop y se materializo la fila en INX como kit:361622cf-315b-8172-b004-f3dfd8030d15. Verificacion: agents/raindrop_agent.py estado = 1 bookmark; INX FOUND para la clave kit.
+
+## 2026-05-15T19:10Z — Codex — [DOCS] Actualizar semantica de capas ABGD
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Documentada la nueva arquitectura ABGD: ALPHA queda como unica capa de notas Obsidian indexada por Coworkia con jerarquia ABC/ABPC; BETA pasa a historico/hibernacion de proyectos AB; GAMMA a proyectos activos A; DELTA a referencias temporales AÑO/YYYY-MM-DD; EPSILON a biblioteca por tipo de fichero. Actualizados memory/PURPOSE.md, docs/obsidian-agent.md, docs/pipeline-atlas.md, README.md, apps/pipeline_gui.py y bookdown.
+
+## 2026-05-15T19:28Z — Codex — [ABGD] Normalizar ruta canonica ABGD-E
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Corregida la convencion de ruta del vault/carpeta ABGD-E a ABGDE/ABGDE-YYYY-MM-DD. reset_obsidian.py deriva ahora futuras rotaciones desde rutas legacy ABGD/ABGD-yymmdd hacia C:/Users/David/Documents/ABGDE/ABGDE-YYYY-MM-DD e imprime OBSIDIAN_ABGD_ROOT y OBSIDIAN_ALPHA_PATH. Actualizados docs, GUI y caso 14. No se ha movido el vault fisico ni modificado .env.
+
+## 2026-05-15T19:34Z — Codex — [ABGD] Migrar vault a ruta ABGDE
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Creada ruta canonica C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15 copiando el vault legacy C:/Users/David/Documents/ABGD/ABGD-260509 sin borrar el origen. Actualizado .env a OBSIDIAN_ABGD_ROOT y OBSIDIAN_ALPHA_PATH bajo ABGDE. Verificado agents/obsidian_agent.py estado: 5 areas, 15 bloques, 0 notas; reset_obsidian.py status detecta .obsidian y capas 1.ALPHA-5.EPSILON.
+
+## 2026-05-15T19:37Z — Codex — [ABGD] Completar jerarquia ABC en ALPHA
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Creada la capa de contextos C bajo 1.ALPHA en el vault operativo ABGDE-2026-05-15: 5 areas, 15 bloques y 46 contextos. Eliminada la carpeta .obsidian duplicada dentro de 1.ALPHA, conservando la .obsidian valida en la raiz del vault. Actualizada docs/obsidian-agent.md para reflejar el arbol real.
+
+## 2026-05-15T19:44Z — Codex — [ABGD] Crear notas indice de carpetas ABGD-E
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Creadas 72 notas indice Markdown en el vault operativo ABGDE-2026-05-15: raiz del vault, capas 1.ALPHA-5.EPSILON y todas las carpetas A/B/C de ALPHA. Cada nota usa el mismo nombre de su carpeta e incluye frontmatter, descripcion, organizacion, subcarpetas y regla de uso. Añadida herramienta reproducible tools/create_alpha_index_notes.py.
+
+## 2026-05-15T19:57Z — Codex — [ABGD] Montar estructura minima BETA GAMMA DELTA EPSILON
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: Creada estructura minima operativa en el vault ABGDE-2026-05-15: BETA con Areas/Bloques, GAMMA con Areas, DELTA con 2026/2026-05-15 y EPSILON con tipos de fichero mas SIN-CLASIFICAR. Refrescadas 121 notas indice de carpeta y actualizada tools/create_alpha_index_notes.py para reproducir la estructura.
+
+## 2026-05-15T20:12Z — Codex — [ABGD] Automatizar estructura minima en rotacion ABGDE
+Estado: DONE
+Chat: chats/chat_2026-05-15.md
+Resumen: reset_obsidian.py rotate invoca ahora ensure_abgde_structure tras replicar el arbol y copiar .obsidian, creando por defecto BETA AB, GAMMA A, DELTA fecha actual, EPSILON por tipo y notas indice homonimas en cada nuevo vault ABGDE-YYYY-MM-DD. Añadido flag --no-abgde-index para diagnosticos excepcionales y documentado el flujo.

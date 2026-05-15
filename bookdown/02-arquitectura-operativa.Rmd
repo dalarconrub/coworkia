@@ -9,7 +9,7 @@
 | `KIT` | Notion | Cataloga conocimiento, informacion y herramientas | `agents/kit_agent.py` |
 | `GIT` | GitHub -> Notion | Cataloga repositorios | `agents/github_agent.py` |
 | `BIB` | Paperpile -> Notion | Cataloga bibliografia | `agents/bib_agent.py` |
-| `ABGD` | Obsidian | Almacena notas y jerarquia documental | `agents/obsidian_agent.py` |
+| `ABGD` | Obsidian + carpetas internas | Almacena notas vivas en `1.ALPHA` y material asociado en capas BETA/GAMMA/DELTA/EPSILON | `agents/obsidian_agent.py` |
 | `INX` | Cross-system | Enlaza entidades entre sistemas | `agents/orchestrator_agent.py` |
 
 ## Carpetas Top-Level
@@ -42,6 +42,20 @@ flowchart TD
     AGENTS --> DEVLOG[devlog/]
     MEM[memory/] --> AGENTS
 ```
+
+## Capas ABGD Vigentes
+
+ABGD separa la capa cognitiva de la capa material:
+
+| Capa | Rol | Jerarquia |
+| --- | --- | --- |
+| `1.ALPHA` | Notas Markdown vivas de Obsidian | ABC/ABPC canonica |
+| `2.BETA` | Proyectos finalizados o en hibernacion | AB |
+| `3.GAMMA` | Proyectos activos con material operativo | A |
+| `4.DELTA` | Referencias no-proyecto por fecha de incorporacion | `AÑO/YYYY-MM-DD` |
+| `5.EPSILON` | Biblioteca estable por tipo de fichero | Tipo (`PDF`, `EPUB`, `VIDEO`, etc.) |
+
+Coworkia indexa por defecto solo `1.ALPHA` mediante `OBSIDIAN_ALPHA_PATH`; las otras capas pueden ser enlazadas desde notas, pero no sustituyen a las notas.
 
 ## Reglas De Crecimiento
 

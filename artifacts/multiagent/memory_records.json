@@ -2,13 +2,49 @@
   {
     "kind": "MEMORIA",
     "actor": "Codex",
+    "message_index": 3,
+    "value": "ABGD queda definido con ALPHA como única capa indexada por Coworkia/Obsidian para notas Markdown; BETA, GAMMA, DELTA y EPSILON son capas materiales con jerarquías propias."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
     "message_index": 4,
-    "value": "Raindrop.io alimenta KIT con bookmarks tageados `kit-import` o filtrados por `RAINDROP_SEARCH_KIT`; no crea filas `raindrop:*` propias en INX, se materializa como `kit:<page_id>` via `sync_inx_links --source kit`."
+    "value": "la semántica ABGD del 2026-05-15 reemplaza la definición anterior del 2026-05-09 donde BETA era staging, GAMMA productos generados, DELTA archivos/media y EPSILON histórico frío. La regla vigente es: ALPHA notas ABC; BETA proyectos hibernados/finalizados AB; GAMMA proyectos activos A; DELTA temporal AÑO/YYYY-MM-DD; EPSILON biblioteca por tipo de fichero."
   },
   {
     "kind": "MEMORIA",
     "actor": "Codex",
     "message_index": 5,
-    "value": "Los upserts Inoreader/Raindrop deduplican KIT por `Enlace` normalizado antes que por ID de fuente; la normalizacion elimina tracking (`utm_*`, `fbclid`, etc.), fragmentos y variantes triviales. Para historico usar `python tools/dedupe_notion_db.py --db-env NOTION_DB_KIT --key Enlace --normalize-url`."
+    "value": "la ruta canónica nueva para vault/carpeta ABGD-E es `ABGDE/ABGDE-YYYY-MM-DD`; `reset_obsidian.py` deriva futuras rotaciones a esa forma y debe imprimir tanto `OBSIDIAN_ABGD_ROOT` como `OBSIDIAN_ALPHA_PATH`."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 6,
+    "value": "el vault operativo actual es C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15 y la capa indexada es C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15/1.ALPHA."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 7,
+    "value": "1.ALPHA del vault operativo ABGDE-2026-05-15 ya contiene subcarpetas ABC completas; .obsidian debe existir solo en la raíz del vault, no dentro de 1.ALPHA."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 8,
+    "value": "las carpetas estructurales de ABGD-E tienen nota índice homónima; estas notas no usan prefijo NYYMMDD-*, por lo que obsidian_agent.py estado no las cuenta como notas operativas."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 9,
+    "value": "BETA/GAMMA/DELTA/EPSILON ya tienen contenedores mínimos reales e índices Markdown; no se crean proyectos vacíos, solo los niveles necesarios para clasificar material."
+  },
+  {
+    "kind": "MEMORIA",
+    "actor": "Codex",
+    "message_index": 10,
+    "value": "toda rotación futura de vault ABGDE debe ejecutar automáticamente la creación de estructura mínima e índices de carpeta, integrada en `tools/reset_obsidian.py rotate`."
   }
 ]

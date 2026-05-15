@@ -4,12 +4,16 @@ Reset Obsidian (Fase 3) — rotar vault construyendo uno nuevo como sibling.
 Estrategia C del diseño:
   - El vault viejo queda INTACTO en su path actual (OBSIDIAN_ABGD_ROOT). Sus notas
     siguen siendo leibles; los `obsidian:<path>` del INX mantienen validez fisica.
-  - El vault nuevo nace en `--new-vault-path` o, si no se pasa, en el sibling
-    derivado automaticamente con la regla `ABGD-yymmdd` bajo la misma raiz del
-    vault actual. Ejemplo: `C:/GDrive/.../ABGD/ABGD-260419`.
+  - El vault nuevo nace en `--new-vault-path` o, si no se pasa, en la raiz
+    canonica `ABGDE/ABGDE-YYYY-MM-DD`. Si el vault actual ya vive dentro de
+    una carpeta `ABGDE`, reutiliza esa carpeta; si todavia vive bajo una
+    carpeta legacy `ABGD`, crea `ABGDE` como sibling. Ejemplo:
+    `C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15`.
     Con:
       * Estructura de carpetas canonica replicada desde el viejo hasta `--depth N`
         (default 3: Area -> Bloque -> Contexto). Sin ficheros .md.
+      * Estructura minima ABGD-E asegurada: BETA AB, GAMMA A, DELTA fecha
+        actual y EPSILON por tipo de fichero, con notas indice homonimas.
       * Carpeta `.obsidian/` completa (plugins, hotkeys, themes, snippets).
   - INX propaga el archivado marcando `Archivo=true` en toda fila cuya `Clave`
     empiece por `obsidian:`. Las vistas con filtro `Archivo != true` las ocultan.
@@ -28,15 +32,17 @@ Flags:
   --no-inx       Omite el flip INX (solo toca filesystem).
   --force        Permite escribir en la ruta destino aunque ya exista no-vacio.
   --depth N      Profundidad de replica estructural (default 3; -1 = todo).
+  --no-abgde-index
+                 Omite estructura minima e indices ABGD-E tras crear el vault.
 
 Ejemplos:
   python tools/reset_obsidian.py status
   python tools/reset_obsidian.py rotate --dry-run --snapshot
   python tools/reset_obsidian.py rotate
   python tools/reset_obsidian.py rotate \
-      --new-vault-path C:/GDrive/dalarconrub/ABGD/ABGD-260419
+      --new-vault-path C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15
   python tools/reset_obsidian.py list-archived
-  python tools/reset_obsidian.py restore --from C:/GDrive/dalarconrub/ABGD/ABGD-25.09.05
+  python tools/reset_obsidian.py restore --from C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15
 """
 
 from __future__ import annotations
@@ -60,6 +66,7 @@ _ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(_ROOT))
 
 from tools.env_utils import load_project_env
+from tools.create_alpha_index_notes import ensure_abgde_structure
 
 load_project_env(_ROOT / ".env")
 
@@ -71,6 +78,7 @@ from tools.notion_tools import (  # noqa: E402
 )
 
 ENV_VAULT = "OBSIDIAN_ABGD_ROOT"
+ENV_ALPHA = "OBSIDIAN_ALPHA_PATH"
 ENV_INX = "NOTION_DB_INX"
 ARCHIVE_DIR = _ROOT / "artifacts" / "resets"
 
@@ -86,8 +94,14 @@ def _current_vault() -> Path | None:
 
 
 def _derived_new_vault_path(old: Path) -> Path:
-    stamp = Date.today().strftime("%y%m%d")
-    return (old.resolve().parent / f"ABGD-{stamp}").resolve()
+    stamp = Date.today().isoformat()
+    resolved = old.resolve()
+    container = resolved.parent
+    if container.name.upper() != "ABGDE":
+        # Legacy layouts used .../ABGD/ABGD-yymmdd. The new convention keeps
+        # the date-stamped vault under a sibling ABGDE directory.
+        container = container.parent / "ABGDE"
+    return (container / f"ABGDE-{stamp}").resolve()
 
 
 def _inx_id() -> str:
@@ -294,6 +308,26 @@ def cmd_rotate(args) -> int:
     mstats.obsidian_size_bytes = obsidian_size
     print(f".obsidian copiada: {obsidian_copied} ({obsidian_size / 1024:.1f} KB)")
 
+    index_stats = None
+    if not args.no_abgde_index:
+        index_stats = ensure_abgde_structure(
+            new,
+            refresh_existing=True,
+            dry_run=args.dry_run,
+        )
+        if args.dry_run:
+            print(
+                "ABGD-E minimo  : "
+                f"{len(index_stats.dirs_created)} dirs planificados; "
+                "notas indice al ejecutar en real"
+            )
+        else:
+            print(
+                "ABGD-E minimo  : "
+                f"{len(index_stats.dirs_created)} dirs, "
+                f"{len(index_stats.notes_written)} notas indice"
+            )
+
     istats: InxFlipStats | None = None
     if not args.no_inx:
         print()
@@ -313,6 +347,11 @@ def cmd_rotate(args) -> int:
             "dirs_skipped_by_depth": mstats.dirs_skipped,
             "obsidian_copied": obsidian_copied,
             "obsidian_size_bytes": obsidian_size,
+            "abgde_minimal_structure": None if index_stats is None else {
+                "dirs_created": [str(p.relative_to(new)).replace("\\", "/") for p in index_stats.dirs_created],
+                "notes_written": [str(p.relative_to(new)).replace("\\", "/") for p in index_stats.notes_written],
+                "notes_skipped": [str(p.relative_to(new)).replace("\\", "/") for p in index_stats.notes_skipped],
+            },
             "inx_flip": None if istats is None else {
                 "target_value": istats.target_value,
                 "checked": istats.checked,
@@ -326,6 +365,7 @@ def cmd_rotate(args) -> int:
     print()
     print("SIGUIENTE PASO (manual):")
     print(f"  Edita .env y deja:  {ENV_VAULT}={new}")
+    print(f"  Edita .env y deja:  {ENV_ALPHA}={new / '1.ALPHA'}")
     print(f"  Abre el vault nuevo en Obsidian desktop (File -> Open Vault).")
     if args.dry_run:
         print()
@@ -390,6 +430,7 @@ def cmd_restore(args) -> int:
     print()
     print("SIGUIENTE PASO (manual):")
     print(f"  Edita .env y deja:  {ENV_VAULT}={old}")
+    print(f"  Edita .env y deja:  {ENV_ALPHA}={old / '1.ALPHA'}")
     print(f"  Abre el vault restaurado en Obsidian desktop.")
     if args.dry_run:
         print()
@@ -409,7 +450,7 @@ def main() -> int:
 
     p_ro = sub.add_parser("rotate", help="Crear vault nuevo + marcar INX obsidian:* como Archivado")
     p_ro.add_argument("--new-vault-path",
-                      help="Ruta donde nace el nuevo vault (opcional; default = sibling ABGD-yymmdd)")
+                      help="Ruta donde nace el nuevo vault (opcional; default = ABGDE/ABGDE-YYYY-MM-DD)")
     p_ro.add_argument("--depth", type=int, default=DEFAULT_DEPTH,
                       help=f"Profundidad de replica (default {DEFAULT_DEPTH}; -1 = todo el arbol)")
     p_ro.add_argument("--dry-run", action="store_true")
@@ -417,6 +458,8 @@ def main() -> int:
     p_ro.add_argument("--no-inx", action="store_true")
     p_ro.add_argument("--force", action="store_true",
                       help="Permite escribir en --new-vault-path aunque ya exista no-vacia")
+    p_ro.add_argument("--no-abgde-index", action="store_true",
+                      help="Omite estructura minima ABGD-E e indices de carpeta tras crear el vault")
     p_ro.set_defaults(func=cmd_rotate)
 
     p_la = sub.add_parser("list-archived", help="Listar filas INX obsidian:* marcadas Archivo=true")

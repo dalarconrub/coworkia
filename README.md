@@ -162,7 +162,7 @@ Notas:
 - `GIT` y `BIB` además necesitan `NOTION_DB_GIT` y `NOTION_DB_BIB`.
 - `GITHUB_TOKEN` necesita alcance suficiente para leer repos privados si se van a importar.
 - `PAPERPILE_BIBTEX_URL` usa el export automático BibTeX de Paperpile.
-- `OBSIDIAN_ALPHA_PATH` debe apuntar al directorio `Alpha` del vault ABGD.
+- `OBSIDIAN_ALPHA_PATH` debe apuntar a `1.ALPHA`, la capa de notas Markdown del vault ABGD. Las capas `2.BETA`/`3.GAMMA`/`4.DELTA`/`5.EPSILON` pueden contener carpetas y archivos materiales, pero Coworkia indexa por defecto solo `ALPHA`.
 
 Diagnóstico rápido:
 

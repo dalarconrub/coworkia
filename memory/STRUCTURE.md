@@ -137,7 +137,7 @@ Documentación de referencia y repositorios externos no-ejecutables (material de
 
 <!-- TREE:START -->
 
-_Auto-generado por `tools/snapshot_structure.py` @ 2026-05-14T20:50Z. No editar a mano dentro de este bloque._
+_Auto-generado por `tools/snapshot_structure.py` @ 2026-05-15T19:43Z. No editar a mano dentro de este bloque._
 
 ```
 - .ai/
@@ -297,6 +297,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-14T20:50Z. No editar 
   - chat_2026-05-09.md
   - chat_2026-05-10.md
   - chat_2026-05-14.md
+  - chat_2026-05-15.md
   - chat_archive_2026-04-17.md
 - config/
   - env.1password.example
@@ -434,6 +435,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-14T20:50Z. No editar 
   - cleanup_notas_legacy_props.py
   - close_obsidian_checkboxes_to_todoist.py
   - create_abc_taxonomy_dbs.py
+  - create_alpha_index_notes.py
   - create_inx_links_db.py
   - dedupe_abc_taxonomy.py
   - dedupe_notion_db.py
@@ -469,8 +471,7 @@ _Auto-generado por `tools/snapshot_structure.py` @ 2026-05-14T20:50Z. No editar 
   - migrate_ptn.py
   - notion_tools.py
   - obsidian_note_metadata.py
-  - obsidian_tools.py
-  - ... (37 mas)
+  - ... (38 mas)
 - .env.example
 - AGENTS.md
 - CLAUDE.md

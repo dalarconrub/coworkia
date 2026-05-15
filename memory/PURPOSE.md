@@ -71,10 +71,16 @@ Obsidian extiende a **ABPC**: Área → Bloque → Contexto → Proyecto → Tar
 - Catalogación por estado, relevancia, tipo, proyecto.
 - Citekey canónica: `paperpile:<citekey>`.
 
-### 6. Almacén de notas (ABGD)
-- Vault Obsidian local con jerarquía ABPC. Desde 2026-05-09, el vault primario debe vivir en almacenamiento local del PC; Google Drive/nube y discos externos son réplicas o backups, no la ubicación operativa principal.
-- Carpetas internas del vault: `1.ALPHA` = conocimiento vivo indexable por Coworkia; `2.BETA` = staging/inbox de procesamiento; `3.GAMMA` = productos generados; `4.DELTA` = archivos/media/documentos pesados; `5.EPSILON` = histórico frío/legacy.
-- Creación, navegación y promoción a PTN cuando procede.
+### 6. Almacén de notas y archivos (ABGD)
+- Vault Obsidian local con jerarquía ABPC en `1.ALPHA`. Desde 2026-05-09, el vault primario debe vivir en almacenamiento local del PC; Google Drive/nube y discos externos son réplicas o backups, no la ubicación operativa principal.
+- Capas internas vigentes desde 2026-05-15:
+  - `1.ALPHA` = solo notas Obsidian en Markdown, memoria viva y jerarquía ABC canónica. Coworkia la indexa por defecto mediante `OBSIDIAN_ALPHA_PATH`.
+  - `2.BETA` = histórico operativo de proyectos finalizados o en hibernación, con jerarquía AB.
+  - `3.GAMMA` = carpetas materiales de proyectos activos, con jerarquía A.
+  - `4.DELTA` = referencias/documentos no-proyecto organizados temporalmente como `AÑO/YYYY-MM-DD/`.
+  - `5.EPSILON` = biblioteca estable por tipo de fichero (`PDF`, `EPUB`, `VIDEO`, `AUDIO`, `MUSICA`, etc.), refinable después por colecciones.
+- La ruta canónica del vault/carpeta ABGD-E es `ABGDE/ABGDE-YYYY-MM-DD` (ej. `C:/Users/David/Documents/ABGDE/ABGDE-2026-05-15`). Rutas legacy tipo `ABGD/ABGD-yymmdd` pueden existir durante la migración, pero no son la convención nueva.
+- Obsidian almacena la interpretación, mapas, decisiones, notas puente y enlaces; los archivos pesados, datasets, repos y productos materiales no deben vivir en `ALPHA`.
 
 ### 7. INX — integración y trazabilidad
 - Una entidad en un sistema puede estar enlazada a entidades de otros.
