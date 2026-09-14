@@ -1,6 +1,6 @@
 ---
 maquina: UPO
-actualizado: '2026-09-10'
+actualizado: '2026-09-14'
 ficheros: 0
 bytes: 0
 ---
