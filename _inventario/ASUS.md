@@ -1,6 +1,6 @@
 ---
 maquina: ASUS
-actualizado: '2026-09-15'
+actualizado: '2026-09-16'
 ficheros: 0
 bytes: 0
 ---
