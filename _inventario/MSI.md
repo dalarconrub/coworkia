@@ -1,6 +1,6 @@
 ---
 maquina: MSI
-actualizado: '2026-09-24'
+actualizado: '2026-09-25'
 ficheros: 1134
 bytes: 15602003
 ---
